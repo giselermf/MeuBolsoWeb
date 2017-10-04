@@ -16,73 +16,7 @@
     components: {
       MainLayout,CategoryEdit, CategoryTable
     },
-    data () {
-        return {
-            selected_id: '',
-            selected_category: '',
-            selected_description: '',
-            fields: [ 
-                    {
-                        name: 'id',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    },
-                    {
-                        name: 'Category',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    },
-                    {
-                        name: 'Description',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                        callback: 'formatDescription'
-                    },
-                    {
-                        name: '__slot:actions',
-                        title: 'Slot Actions',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    }
-                ],
-                sortOrder: [
-                    {
-                    field: 'Category',
-                    sortField: 'Category',
-                    direction: 'asc'
-                    }
-                ],
-                moreParams: {},
-	        }
-        },
-    methods: {
-            onDelete(data) {
-                var axios = require('axios');
-                axios.delete('http://127.0.0.1:5000/categories/'+data.id, {
-                    headers: {
-                        'id': this.category_id,
-                        'Content-Type': 'application/json'
-                    }
-                }).then((response) => {
-                    this.$events.fire('filter-reset')
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            }, 
-	        onEdit (data) {
-                this.selected_id = data.id
-                this.selected_category = data.Category
-                this.selected_description = data.Description
-            }
-    }
   }
 </script>
-
-<style>
-.ui.table td {
-    padding: 1px;
-}
-</syle>
 
 
