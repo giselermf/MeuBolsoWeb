@@ -1,4 +1,5 @@
 <template>
+<div id="app" class="ui vertical stripe segment">
     <div style="display: inline-grid;">
       <div>
         <p>Id : {{ category_id }}</p>
@@ -15,6 +16,7 @@
           <button type="button" @click="save()" >Save/Add</button>
       </div>
     </div> 
+</div>
 </template>
 
 <script>
@@ -25,7 +27,15 @@
         status: null,
       };
     },
+    mounted () {
+      this.$events.$on('edit-record', eventData => this.onEdit(eventData))
+    },
     methods: {
+        onEdit: function(data) {
+          this.category_id = data.id
+          this.category = data.Category
+          this.description = data.Description 
+        },
         save: function() {
           var axios = require('axios');
           var querystring = require('querystring');

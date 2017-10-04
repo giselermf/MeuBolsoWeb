@@ -1,20 +1,30 @@
 <template>
-  <main-layout>
-    <h1>Categories</h1>
-    <category-edit></category-edit>
-    <category-table></category-table>
-  </main-layout>
+    <div id="app" class="ui vertical stripe segment">
+        <div class="ui container">
+            <div id="content" class="ui basic segment">
+            <my-vuetable ref="vuetable"
+                  api-url="http://127.0.0.1:5000/categories/"
+                  :fields="fields"
+                  :sort-order="sortOrder"
+                  :append-params="moreParams"
+                >
+                    <template slot="actions" scope="props">
+                        <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
+                        <a style="cursor:pointer" @click="onDelete(props.rowData)"> &#10060;</a>
+                    </template>
+                </my-vuetable>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
   import axios from 'axios';
-  import MainLayout from '../layouts/Main'
-  import CategoryEdit from '../components/Category/CategoryEdit'
-  import CategoryTable from '../components/Category/CategoryTable'
+  import MyVuetable from '..//MyVuetable'
 
   export default {
     components: {
-      MainLayout,CategoryEdit, CategoryTable
+      MyVuetable
     },
     data () {
         return {
@@ -56,24 +66,12 @@
 	        }
         },
     methods: {
-            onDelete(data) {
-                var axios = require('axios');
-                axios.delete('http://127.0.0.1:5000/categories/'+data.id, {
-                    headers: {
-                        'id': this.category_id,
-                        'Content-Type': 'application/json'
-                    }
-                }).then((response) => {
-                    this.$events.fire('filter-reset')
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            }, 
 	        onEdit (data) {
-                this.selected_id = data.id
+                console.log('fire event', data.id)
+                this.$events.fire('edit-record', data)
+               this.selected_id = data.id
                 this.selected_category = data.Category
-                this.selected_description = data.Description
+                this.selected_description = data.Description 
             }
     }
   }
@@ -83,6 +81,6 @@
 .ui.table td {
     padding: 1px;
 }
-</syle>
+</style>
 
 
