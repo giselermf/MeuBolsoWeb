@@ -1,0 +1,31 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 15px 30px;
+}
+.active {
+  color: cornflowerblue;
+}
+
+.form-field {
+  padding: 0 1.25em 0 .75em;
+  height: 2.5em;
+  border: solid 2px #e0e0e0;
+  border-radius: 2em;
+  width: 30em;
+}
+.form-label {
+  display: inline-block;
+  width: 90px;
+  text-align: left;
+}
+
+button {
+  background-color: white;
+  border-radius: 2em;
+  color: black;
+  font-size: 16px;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
