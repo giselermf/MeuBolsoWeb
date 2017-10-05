@@ -12,7 +12,7 @@
 
 <script>
   import { Tabs, TabPane } from 'vue-bulma-tabs'
-  import Category from '../components/Category/Category.vue'
+  import Category from './components/Category/Category.vue'
 
   export default {
     components: {
