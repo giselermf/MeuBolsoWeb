@@ -1,26 +1,26 @@
 <template>
   <div class="container">
-    <ul>
-      <li>
-        <v-link href="/">Home</v-link>
-        <v-link href="/about">About</v-link>
-        <v-link href="/categories">Categories</v-link>
-      </li>
-    </ul>
-    <slot></slot>
+    <tabs animation="slide" :only-fade="false">
+      <tab-pane label="Home">Home</tab-pane>
+      <tab-pane label="Categories" selected>Categories
+            <category></category>
+      </tab-pane>
+      <tab-pane label="About">About</tab-pane>
+    </tabs>
   </div>
 </template>
 
 <script>
-  import VLink from '../components/VLink.vue'
+  import { Tabs, TabPane } from 'vue-bulma-tabs'
+  import Category from '../components/Category/Category.vue'
 
   export default {
     components: {
-      VLink
+      Tabs,TabPane, Category
     }
   }
 </script>
 
-<style 
-src="../../static/meuBolso.css">
+<style lang="sass">
+  @import '~bulma'
 </style>
