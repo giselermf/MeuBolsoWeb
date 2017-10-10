@@ -2,13 +2,13 @@
   <div class="container">
     <tabs animation="slide" :only-fade="false">
       <tab-pane label="Home" selected>Home
-         <my-chart></my-chart>
-
+        <dashboard></dashboard>
       </tab-pane>
       <tab-pane label="Categories">Categories
             <category></category>
       </tab-pane>
       <tab-pane label="Bank Records">Bank Records
+        <transaction></transaction>
       </tab-pane>
       <tab-pane label="About">About</tab-pane>
     </tabs>
@@ -17,12 +17,14 @@
 
 <script>
   import { Tabs, TabPane } from 'vue-bulma-tabs'
-  import Category from './components/Category/Category.vue'
+  import Category from './components/data_management/Category.vue'
+  import Transaction from './components/data_management/Transaction.vue'
   import MyChart from './components/MyChart.vue'
+  import Dashboard from './components/Dashboard.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, MyChart
+      Tabs,TabPane, Category, MyChart, Dashboard, Transaction
     }
   }
 </script>

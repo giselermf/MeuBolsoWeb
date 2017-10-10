@@ -6,6 +6,9 @@
 .active {
   color: cornflowerblue;
 }
+.read-only-form-field {
+  padding-bottom: 5px
+}
 
 .form-field {
   padding: 0 1.25em 0 .75em;

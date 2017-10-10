@@ -18,9 +18,10 @@
     </div>
 </template>
 
+
 <script>
   import axios from 'axios';
-  import MyVuetable from '..//MyVuetable'
+  import MyVuetable from './/MyVuetable'
 
   export default {
     components: {
@@ -38,12 +39,12 @@
                         dataClass: 'center aligned',
                     },
                     {
-                        name: 'Category',
+                        name: 'category',
                         titleClass: 'center aligned',
                         dataClass: 'center aligned',
                     },
                     {
-                        name: 'Description',
+                        name: 'description',
                         titleClass: 'center aligned',
                         dataClass: 'center aligned',
                         callback: 'formatDescription'
@@ -57,8 +58,8 @@
                 ],
                 sortOrder: [
                     {
-                    field: 'Category',
-                    sortField: 'Category',
+                    field: 'category',
+                    sortField: 'category',
                     direction: 'asc'
                     }
                 ],

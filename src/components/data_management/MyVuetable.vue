@@ -5,7 +5,8 @@ import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo'
 import FilterBar from './FilterBar'
-
+ 
+ 
 Vue.use(VueEvents)
 Vue.component('filter-bar', FilterBar)
 
@@ -77,6 +78,7 @@ export default {
             sortOrder: this.sortOrder,
             appendParams: this.appendParams,
             detailRowComponent: this.detailRowComponent,
+            
           },
           on: {
             'vuetable:pagination-data': this.onPaginationData,
@@ -102,7 +104,9 @@ export default {
     },
     // ------------------
     formatDescription (value) {
-      return value.substring(0,20)
+      if (value != null)
+        return value.substring(0,20)
+      return value
     },
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData)
@@ -124,3 +128,4 @@ export default {
   }
 }
 </script>
+
