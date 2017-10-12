@@ -33,8 +33,8 @@
     methods: {
         onEdit: function(data) {
           this.category_id = data.id
-          this.category = data.Category
-          this.description = data.Description 
+          this.category = data.category
+          this.description = data.description 
         },
         save: function() {
           var axios = require('axios');

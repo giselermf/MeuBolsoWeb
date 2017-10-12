@@ -1,5 +1,6 @@
 <template>
   <div>
+    <canvas ref="canvas" width="0" height="0"></canvas>
     <div class="tile is-ancestor">
       <div class="tile is-parent">
         <article class="tile is-child box">
@@ -34,23 +35,14 @@
           <p class="subtitle">Subcategory</p>
         </article>
       </div>
-      <div class="tile is-parent is-6">
-        <article class="tile is-child box">
-          <h4 class="title">Amount in Euro by Category</h4>
-          <div class="content">
-            <chart :type="'doughnut'" :data="chartData"></chart>
-          </div>
-        </article>
-      </div>
     </div>
-
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
           <div class="tile is-parent">
             <article class="tile is-child box">
-              <p class="title">Expense by Category/Month</p>
-              <div class="content">
-                <chart :type="'bar'" :data="chartData"></chart>
+              <div class="Chart">
+                <h2>Linechart</h2>
+                <line-example></line-example>
               </div>
             </article>
         </div>
@@ -60,9 +52,9 @@
       <div class="tile is-vertical is-12">
           <div class="tile is-parent">
             <article class="tile is-child box">
-              <p class="title">Data</p>
-              <div class="content">
-                <p> Transactioin list </p>
+              <div class="Chart">
+                <h2>Amount by Category</h2>
+                <category-doughnut></category-doughnut>
               </div>
             </article>
         </div>
@@ -72,44 +64,13 @@
 </template>
 
 <script>
-import Chart from 'vue-bulma-chartjs'
+import LineExample from './LineChart.js'
+import CategoryDoughnut from './charts/CategoryDoughnut.js'
+
 export default {
   components: {
-    Chart
+    LineExample, CategoryDoughnut
   },
-  data () {
-    return {
-      data: [300, 50, 100]
-    }
-  },
-  computed: {
-    chartData () {
-      return {
-        labels: [
-          'Red',
-          'Blue',
-          'Yellow'
-        ],
-        datasets: [{
-          data: this.data,
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56'
-          ]
-        }]
-      }
-    }
-  },
-  mounted () {
-    setInterval(() => {
-      // https://github.com/vuejs/vue/issues/2873
-      // Array.prototype.$set/$remove deprecated (use Vue.set or Array.prototype.splice instead)
-      this.data.forEach((item, i) => {
-        this.data.splice(i, 1, Math.ceil(Math.random() * 1000))
-      })
-    }, 1024)
-  }
 }
 </script>
 

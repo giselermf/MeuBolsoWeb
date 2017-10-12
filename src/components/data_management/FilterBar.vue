@@ -20,7 +20,6 @@ export default {
   },
   methods: {
     doFilter () {
-      console.log('here', this.filterText)
       this.$events.fire('filter-set', this.filterText)
     },
     resetFilter () {

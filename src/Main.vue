@@ -19,12 +19,11 @@
   import { Tabs, TabPane } from 'vue-bulma-tabs'
   import Category from './components/data_management/Category.vue'
   import Transaction from './components/data_management/Transaction.vue'
-  import MyChart from './components/MyChart.vue'
   import Dashboard from './components/Dashboard.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, MyChart, Dashboard, Transaction
+      Tabs,TabPane, Category, Dashboard, Transaction
     }
   }
 </script>

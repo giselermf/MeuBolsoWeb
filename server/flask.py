@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import get_categories, save_category, delete_category, get_transactions, save_transaction
+from server.dto.data_server import get_categories, save_category, delete_category, get_transactions, save_transaction, amount_by_category
 from flask import request
 
 app = Flask(__name__)
@@ -23,6 +23,10 @@ def post_transactions():
 def delete_category_id(id):
     return app.make_response(delete_category(id))
 
+
+@app.route('/getAmountByCategory/', methods=['GET'])
+def get_amount_by_category():
+    return app.make_response(amount_by_category())
 # query methods 
 
 def getParams(request):

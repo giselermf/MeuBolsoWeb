@@ -116,12 +116,10 @@ export default {
       this.$refs.vuetable.changePage(page)
     },
     onFilterSet (filterText) {
-      console.log('listening event', filterText)
       this.appendParams.filter = filterText
       Vue.nextTick( () => this.$refs.vuetable.refresh() )
     },
     onFilterReset () {
-      console.log('refreshing table')
       delete this.appendParams.filter
       Vue.nextTick( () => this.$refs.vuetable.refresh() )
     }

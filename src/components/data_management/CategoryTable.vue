@@ -68,7 +68,6 @@
         },
     methods: {
 	        onEdit (data) {
-                console.log('fire event', data.id)
                 this.$events.fire('edit-record', data)
                this.selected_id = data.id
                 this.selected_category = data.Category

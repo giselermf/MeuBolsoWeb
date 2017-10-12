@@ -127,3 +127,13 @@ def delete_category(id):
         conn.commit()
         return json.dumps({"data": 'sucess'})
 
+def amount_by_category():
+    conn = sqlite3.connect(database_name)
+    c = conn.cursor()
+    sql_comand = "SELECT  Category, sum(AmountEUR) as Total FROM Transactions group by Category"
+    conn = create_connection()
+    with conn:
+        c = conn.cursor()
+        c.execute(sql_comand)
+        all_entries = c.fetchall()
+        return json.dumps({"data": all_entries})
