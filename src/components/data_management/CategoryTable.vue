@@ -69,7 +69,13 @@
     methods: {
 	        onEdit (data) {
                 this.$events.fire('edit-record', data)
-               this.selected_id = data.id
+                this.selected_id = data.id
+                this.selected_category = data.Category
+                this.selected_description = data.Description 
+            },
+            onDelete (data) {
+                this.$events.fire('delete-record', data)
+                this.selected_id = data.id
                 this.selected_category = data.Category
                 this.selected_description = data.Description 
             }

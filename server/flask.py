@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import get_categories, save_category, delete_category, get_transactions, save_transaction, amount_by_category
+from server.dto.data_server import get_categories, save_category, delete_category, get_transactions, save_transaction, amount_by_category, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
 
 app = Flask(__name__)
@@ -8,16 +8,13 @@ CORS(app)
 
 @app.route('/categories/', methods=['POST'])
 def post_categories():
-    if request.method == 'POST':
-        return app.make_response(
-            save_category(request.form['id'], request.form['category'], request.form['description']))
+    return app.make_response(
+        save_category(request.form['id'], request.form['category'], request.form['description']))
 
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
-    if request.method == 'POST':
-        return app.make_response(
-            save_transaction(request.form['id'], request.form['category'], request.form['SubCategory']))
-
+    return app.make_response(
+        save_transaction(request.form['id'], request.form['category'], request.form['SubCategory']))
 
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
@@ -26,8 +23,24 @@ def delete_category_id(id):
 
 @app.route('/getAmountByCategory/', methods=['GET'])
 def get_amount_by_category():
-    return app.make_response(amount_by_category())
-# query methods 
+    yearFilter = request.args.get('year-filter')
+    return app.make_response(amount_by_category(yearFilter))
+
+@app.route('/getDistinctYears/', methods=['GET'])
+def get_distinct_years():
+    return app.make_response(distinct_years())
+
+@app.route('/getDistinctTypes/', methods=['GET'])
+def get_distinct_types():
+    return app.make_response(distinct_types())
+
+@app.route('/getDistinctCategories/', methods=['GET'])
+def get_distinct_categories():
+    return app.make_response(distinct_categories())
+
+@app.route('/getDistinctSubCategories/', methods=['GET'])
+def get_distinct_subCategories():
+    return app.make_response(distinct_subCategories())
 
 def getParams(request):
     sort_params = request.args.get('sort')

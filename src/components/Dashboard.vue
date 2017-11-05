@@ -2,40 +2,18 @@
   <div>
     <canvas ref="canvas" width="0" height="0"></canvas>
     <div class="tile is-ancestor">
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Filter</p>
-          <p class="subtitle">Bank</p>
+      <div class="tile is-vertical is-12">
+          <div class="tile is-parent">
+            <article class="tile is-child box">
+              <year-filter></year-filter>
+              <type-filter></type-filter>
+              <category-filter></category-filter>
+              <subcategory-filter></subcategory-filter>
         </article>
       </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Filter</p>
-          <p class="subtitle">Year</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Filter</p>
-          <p class="subtitle">Type</p>
-        </article>
-      </div>
+    </div>
     </div>
 
-    <div class="tile is-ancestor">
-        <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Filter</p>
-          <p class="subtitle">Category</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Filter</p>
-          <p class="subtitle">Subcategory</p>
-        </article>
-      </div>
-    </div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
           <div class="tile is-parent">
@@ -66,11 +44,16 @@
 <script>
 import LineExample from './LineChart.js'
 import CategoryDoughnut from './charts/CategoryDoughnut.js'
+import YearFilter from './filters/YearFilter.vue'
+import CategoryFilter from './filters/CategoryFilter.vue'
+import TypeFilter from './filters/TypeFilter.vue'
+import SubcategoryFilter from './filters/SubcategoryFilter.vue'
 
 export default {
   components: {
-    LineExample, CategoryDoughnut
+    LineExample, CategoryDoughnut, YearFilter, CategoryFilter, TypeFilter, SubcategoryFilter
   },
+
 }
 </script>
 

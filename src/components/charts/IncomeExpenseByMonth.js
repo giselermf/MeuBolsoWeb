@@ -25,7 +25,7 @@ export default Doughnut.extend({
     getData () {
       var axios = require('axios');
       var querystring = require('querystring');
-      axios.get('http://127.0.0.1:5000/getAmountByCategory')
+      axios.get('http://127.0.0.1:5000/getExpensesByMonth')
           .then((response) => {
               let results = response.data.data
               let labels = [];
