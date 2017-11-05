@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import get_categories, save_category, delete_category, get_transactions, save_transaction, amount_by_category, distinct_years, distinct_types, distinct_categories, distinct_subCategories
+from server.dto.data_server import amount_by_category, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
+from server.dto.transaction_management import get_transactions, save_transaction
+from server.dto.category_management import get_categories, save_category, delete_category
 
 app = Flask(__name__)
 CORS(app)
