@@ -1,20 +1,24 @@
 from server.dto.base import create_connection, getResponse
 import json
 
-#def dict_factory(cursor, row):
-#    d = {}
-#    for idx, col in enumerate(cursor.description):
-#        d[col[0]] = row[idx]
-#    return d
-
-
-def amount_by_category(yearFilter):
+def amount_by_category(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
     conn = create_connection()
     c = conn.cursor()
-    where_clause = ''
+    year_clause = type_clause = category_clause = subcategory_clause = '1=1'
+    
     if yearFilter is not None:
-        where_clause =  "where year in (%s) " % (yearFilter) 
-    sql_comand = "SELECT Category, sum(AmountEUR) as Total FROM Transactions %s group by Category" % (where_clause)
+        year_clause =  " year in (%s) " % (yearFilter) 
+    
+    if typeFilter is not None:
+        type_clause =  "type in (%s) " % (typeFilter) 
+
+    if categoryFilter is not None:
+        category_clause =  "Category in (%s) " % (categoryFilter) 
+
+    if subcategoryFilter is not None:
+        subcategory_clause =  "SubCategory in (%s) " % (subcategoryFilter) 
+
+    sql_comand = "SELECT Category, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s  group by Category" % (year_clause, type_clause, category_clause, subcategory_clause)
     print ('sql_comand', sql_comand)
     conn = create_connection()
     with conn:

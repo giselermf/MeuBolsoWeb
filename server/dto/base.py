@@ -19,7 +19,7 @@ def create_connection():
     except Error as e:
         print(e)
 
-def getFilterClause(filter_param):
+def getFilterByCategoryClause(filter_param):
     if filter_param is not None and filter_param != "":
         filter_param = '%' + filter_param + '%'
         return " where Category like '%s' or Description like '%s' " % (filter_param, filter_param)

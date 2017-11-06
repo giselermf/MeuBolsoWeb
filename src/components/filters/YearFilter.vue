@@ -46,8 +46,7 @@ export default {
       this.value.forEach(function(element) {
         filters += "," + element.year
       }, this);
-      console.log(filters);
-      this.$events.fire('year-filter', filters);
+      this.$events.fire('year-filter', filters.substring(1));
     }
   }
 }

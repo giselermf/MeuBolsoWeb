@@ -1,9 +1,9 @@
-from server.dto.base import create_connection, getResponse, getFilterClause, getLimitClause, getSortClause
+from server.dto.base import create_connection, getResponse, getFilterByCategoryClause, getLimitClause, getSortClause
 
 def get_categories(sort, sort_order, filter_param, page_number, per_page):
     conn = create_connection()
     sql_comand = "Select * from Category"
-    sql_comand += getFilterClause(filter_param)
+    sql_comand += getFilterByCategoryClause(filter_param)
     sql_comand += getSortClause(sort, sort_order)
     sql_comand += getLimitClause(page_number, per_page)
 

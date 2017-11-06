@@ -25,8 +25,11 @@ def delete_category_id(id):
 
 @app.route('/getAmountByCategory/', methods=['GET'])
 def get_amount_by_category():
-    yearFilter = request.args.get('year-filter')
-    return app.make_response(amount_by_category(yearFilter))
+    yearFilter = request.args.get('year_filter')
+    typeFilter = request.args.get('type_filter')
+    categoryFilter = request.args.get('category_filter')
+    subcategoryFilter = request.args.get('subcategory_filter')
+    return app.make_response(amount_by_category(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 @app.route('/getDistinctYears/', methods=['GET'])
 def get_distinct_years():

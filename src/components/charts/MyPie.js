@@ -3,6 +3,7 @@ import { Pie } from 'vue-chartjs'
 export default Pie.extend({
   data () {
     return {
+      url: null,
       chartData: null,
       year_filters: null,
       type_filters: null,
@@ -10,6 +11,7 @@ export default Pie.extend({
       subcategory_filters: null,
     }
   },
+  
   watch: {
     chartData: function (newQuestion) {
       this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false});
@@ -65,6 +67,7 @@ export default Pie.extend({
         if (this.subcategory_filters != null && this.subcategory_filters != '') {
           url += '&subcategory_filter='+this.subcategory_filters
         }
+        console.log(url);
         return url;
     },
     getData () {

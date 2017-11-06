@@ -4,7 +4,8 @@
     <div class="tile is-ancestor">
       <div>
         <multiselect v-model="value" :options="options" :multiple="true" :close-on-select="true" :clear-on-select="false" 
-        :hide-selected="true" :preserve-search="true" selectLabel="" placeholder="All types" label="Type" track-by="Type">
+        :hide-selected="true" :preserve-search="true" selectLabel="" placeholder="All types" label="Type" track-by="Type"
+        @input="updateHandler" >
         </multiselect>
       </div>
     </div>
@@ -35,6 +36,15 @@ export default {
           .catch(function (error) {
             console.log(error);
           });
+  },
+  methods: {
+    updateHandler(data) {
+        var filters = '';
+        this.value.forEach(function(element) { 
+          filters += ",'" + element.Type + "'";
+        }, this);
+        this.$events.fire('type-filter', filters.substring(1));
+      }
   }
 }
 </script>
