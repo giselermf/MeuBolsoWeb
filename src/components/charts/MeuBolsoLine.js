@@ -1,6 +1,6 @@
-import { Bar } from 'vue-chartjs'
+import { Line } from 'vue-chartjs'
 
-export default Bar.extend({
+export default Line.extend({
   data () {
     return {
       year_filters: '',
@@ -8,18 +8,8 @@ export default Bar.extend({
       category_filters: '',
       subcategory_filters: '',
       options: {
-        scales: {
-          yAxes: [{
-            stacked: true
-          }],
-          xAxes: [ {
-            stacked: true,
-            categoryPercentage: 0.5,
-            barPercentage: 1
-          }]
-        },
         legend: {
-          display: false
+          display: true
         },
         responsive: true,
         maintainAspectRatio: false
@@ -60,7 +50,12 @@ export default Bar.extend({
       let backgroundCollors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"];
 
       let labels = [new Set(response.data.data.map(item => item[this.xLabel]))];
-      labels = Array.from(labels[0]);
+      //sort if Date
+      labels = Array.from(labels[0]).sort(function(a,b) {
+          a = a.split('/').reverse().join('');
+          b = b.split('/').reverse().join('');
+          return a > b ? 1 : a < b ? -1 : 0;
+        });
 
       let datasetLabels = [new Set(response.data.data.map(item => item[this.datasetLabel]))];
       datasetLabels = Array.from(datasetLabels[0]);
@@ -69,9 +64,9 @@ export default Bar.extend({
         values = [];
         labels.forEach(function(oneLabel){
             let filterMap = {};
-            filterMap[this.datasetLabel] = aDataset;
-            filterMap[this.xLabel] = oneLabel;
-            let result = this.filter(response.data.data, filterMap);
+            filterMap[this.datasetLabel] = aDataset
+            filterMap[this.xLabel] = oneLabel
+            let result = this.filter(response.data.data, filterMap)
             let total = 0;
             if (result[0] != undefined) {
                total = result[0]['Total'];  
@@ -87,7 +82,7 @@ export default Bar.extend({
               data: values
             });
                 
-      }, this);
+      }, this); 
       let chartData = {
         labels: labels,
         datasets: datasets

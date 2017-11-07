@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
+from server.dto.data_server import running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
 from server.dto.transaction_management import get_transactions, save_transaction
 from server.dto.category_management import get_categories, save_category, delete_category
@@ -33,6 +33,11 @@ def get_filters(request):
 def get_amount_by_subcategory():
     yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
     return app.make_response(amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+
+@app.route('/getRunningBalance/', methods=['GET'])
+def get_running_balance():
+    yearFilter = request.args.get('year_filter')
+    return app.make_response(running_balance(yearFilter))
 
 @app.route('/getAmountByYearMonthAndSubCategory/', methods=['GET'])
 def get_amount_by_subcategory2():

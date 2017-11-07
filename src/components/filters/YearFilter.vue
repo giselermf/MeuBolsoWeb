@@ -44,7 +44,6 @@ export default {
       axios.get(this.getUrl(), querystring.stringify())
         .then((response) => {
           this.options = response.data.filter_year;
-          console.log(this.options);
         })
         .catch(function (error) {
           console.log(error);

@@ -30,11 +30,6 @@ export default {
       subcategory_filters: ''
     }
   },
-  watch: {
-    options: function (newQuestion) {
-      console.log('option changed');
-    }
-  },
   mounted() {
       this.$events.$on('year-filter', eventData => this.onYearFilterSet(eventData));
       this.$events.$on('type-filter', eventData => this.onTypeFilterSet(eventData));

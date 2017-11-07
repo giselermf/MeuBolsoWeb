@@ -25,9 +25,14 @@ def amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFil
  
 def amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
     year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
-    sql_command = "SELECt Year||'/'||Month as [yearmonth],subcategory, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s group by Year,Month,subcategory order by year, month" % (year_clause, type_clause, category_clause, subcategory_clause)
+    sql_command = "SELECt Year||'/'||Month as [yearmonth], subcategory, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s group by Year,Month,subcategory order by year, month" % (year_clause, type_clause, category_clause, subcategory_clause)
     return run_sql_command('data', sql_command)
- 
+
+def running_balance(yearFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, None, None, None)
+    sql_command = "SELECt BankName, Date, round(RunningBalance) as Total FROM Transactions where Day=1 and %s order by 1,2" % (year_clause)
+    print(sql_command)
+    return run_sql_command('data', sql_command)
 
 def run_sql_command(param_name, sql_command):
     print(sql_command)

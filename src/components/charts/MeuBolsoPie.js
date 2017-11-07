@@ -3,29 +3,19 @@ import { Pie } from 'vue-chartjs'
 export default Pie.extend({
   data () {
     return {
-      chartData: null,
       year_filters: '',
       type_filters: '',
       category_filters: '',
-      subcategory_filters: ''
+      subcategory_filters: '',
     }
   },
   props: ['url', 'label'],
-  watch: {
-    chartData: function (newQuestion) {
-      this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false});
-    }
-  },
   mounted () {
       this.getData();
-      this.$events.$on('year-filter', eventData => this.onYearFilterSet(eventData))
-      this.$events.$on('type-filter', eventData => this.onTypeFilterSet(eventData))
-      this.$events.$on('category-filter', eventData => this.onCategoryFilterSet(eventData))
-      this.$events.$on('subcategory-filter', eventData => this.onSubcategoryFilterSet(eventData))
-      this.gradient = this.$refs.canvas.getContext('2d').createLinearGradient(0, 0, 0, 600)
-      this.gradient.addColorStop(0, 'rgba(255, 0,0, 0.5)')
-      this.gradient.addColorStop(0.5, 'rgba(255, 0, 0, 0.25)');
-      this.gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');      
+      this.$events.$on('year-filter', eventData => this.onYearFilterSet(eventData));
+      this.$events.$on('type-filter', eventData => this.onTypeFilterSet(eventData));
+      this.$events.$on('category-filter', eventData => this.onCategoryFilterSet(eventData));
+      this.$events.$on('subcategory-filter', eventData => this.onSubcategoryFilterSet(eventData));   
   },
   methods: {
     getUrl() {
@@ -44,25 +34,29 @@ export default Pie.extend({
       let results = response.data.data
       let labels = [];
       let values = [];
+      let colors = [];
+      let backgroundCollors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"];
       for (let index in results) {
           let element = results[index];
           labels.push(element[this.label]);
-          values.push(Math.abs(element['Total']));
+          colors.push(backgroundCollors[values.length % backgroundCollors.length]);
+          values.push( Math.abs(element['Total']));
       }
-      this.chartData = {
+      let chartData = {
         labels: labels,
         datasets: [
           {
             label: 'Data One',
-            borderColor: '#FC2525',
             pointBackgroundColor: 'white',
-            borderWidth: 1,
+            borderWidth: 1, 
             pointBorderColor: 'white',
-            backgroundColor: this.gradient,
+            backgroundColor: colors,
             data: values
           }
         ]
-      }
+      };
+      if (this._chart) this._chart.destroy();
+      this.renderChart(chartData, {responsive: true, maintainAspectRatio: false, legend: { display: false } });
     },
     getData () {
       var axios = require('axios');
