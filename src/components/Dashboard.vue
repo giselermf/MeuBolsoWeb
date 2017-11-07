@@ -13,14 +13,13 @@
       </div>
     </div>
     </div>
-
-    <div class="tile is-ancestor">
+   <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
           <div class="tile is-parent">
             <article class="tile is-child box">
               <div class="Chart">
-                <h2>Linechart</h2>
-                <line-example></line-example>
+                <h2>Amount by Category</h2>
+                <meu-bolso-pie url="http://127.0.0.1:5000/getAmountBySubCategory?" label="SubCategory" ></meu-bolso-pie>
               </div>
             </article>
         </div>
@@ -32,7 +31,7 @@
             <article class="tile is-child box">
               <div class="Chart">
                 <h2>Amount by Category</h2>
-                <category-doughnut></category-doughnut>
+                <meu-bolso-bar url="http://127.0.0.1:5000/getAmountByYearMonthAndSubCategory?" label="SubCategory" ></meu-bolso-bar>
               </div>
             </article>
         </div>
@@ -42,8 +41,8 @@
 </template>
 
 <script>
-import LineExample from './LineChart.js'
-import CategoryDoughnut from './charts/CategoryDoughnut.js'
+import meuBolsoPie from './charts/MeuBolsoPie.js'
+import meuBolsoBar from './charts/MeuBolsoBar.js'
 import YearFilter from './filters/YearFilter.vue'
 import CategoryFilter from './filters/CategoryFilter.vue'
 import TypeFilter from './filters/TypeFilter.vue'
@@ -51,7 +50,7 @@ import SubcategoryFilter from './filters/SubcategoryFilter.vue'
 
 export default {
   components: {
-    LineExample, CategoryDoughnut, YearFilter, CategoryFilter, TypeFilter, SubcategoryFilter
+    YearFilter, CategoryFilter, TypeFilter, SubcategoryFilter, meuBolsoPie, meuBolsoBar
   },
 
 }

@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import amount_by_category, distinct_years, distinct_types, distinct_categories, distinct_subCategories
+from server.dto.data_server import amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
 from server.dto.transaction_management import get_transactions, save_transaction
 from server.dto.category_management import get_categories, save_category, delete_category
@@ -22,30 +22,42 @@ def post_transactions():
 def delete_category_id(id):
     return app.make_response(delete_category(id))
 
-
-@app.route('/getAmountByCategory/', methods=['GET'])
-def get_amount_by_category():
+def get_filters(request):
     yearFilter = request.args.get('year_filter')
     typeFilter = request.args.get('type_filter')
     categoryFilter = request.args.get('category_filter')
     subcategoryFilter = request.args.get('subcategory_filter')
-    return app.make_response(amount_by_category(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    return yearFilter, typeFilter, categoryFilter, subcategoryFilter
+
+@app.route('/getAmountBySubCategory/', methods=['GET'])
+def get_amount_by_subcategory():
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+
+@app.route('/getAmountByYearMonthAndSubCategory/', methods=['GET'])
+def get_amount_by_subcategory2():
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 @app.route('/getDistinctYears/', methods=['GET'])
 def get_distinct_years():
-    return app.make_response(distinct_years())
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(distinct_years(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 @app.route('/getDistinctTypes/', methods=['GET'])
 def get_distinct_types():
-    return app.make_response(distinct_types())
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(distinct_types(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 @app.route('/getDistinctCategories/', methods=['GET'])
 def get_distinct_categories():
-    return app.make_response(distinct_categories())
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(distinct_categories(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 @app.route('/getDistinctSubCategories/', methods=['GET'])
 def get_distinct_subCategories():
-    return app.make_response(distinct_subCategories())
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
+    return app.make_response(distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
 
 def getParams(request):
     sort_params = request.args.get('sort')

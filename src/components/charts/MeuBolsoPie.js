@@ -3,15 +3,14 @@ import { Pie } from 'vue-chartjs'
 export default Pie.extend({
   data () {
     return {
-      url: null,
       chartData: null,
-      year_filters: null,
-      type_filters: null,
-      category_filters: null,
-      subcategory_filters: null,
+      year_filters: '',
+      type_filters: '',
+      category_filters: '',
+      subcategory_filters: ''
     }
   },
-  
+  props: ['url', 'label'],
   watch: {
     chartData: function (newQuestion) {
       this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false});
@@ -29,13 +28,25 @@ export default Pie.extend({
       this.gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');      
   },
   methods: {
+    getUrl() {
+      var url = this.url;
+      if (this.year_filters != null && this.year_filters != '')
+        url += '&year_filter='+this.year_filters;
+      if (this.type_filters != null && this.type_filters != '') 
+        url += '&type_filter='+this.type_filters;
+      if (this.category_filters != null && this.category_filters != '')
+        url += '&category_filter='+this.category_filters;
+      if (this.subcategory_filters != null && this.subcategory_filters != '')
+        url += '&subcategory_filter='+this.subcategory_filters;
+      return url;
+    },
     udpdateData(response) {
       let results = response.data.data
       let labels = [];
       let values = [];
       for (let index in results) {
           let element = results[index];
-          labels.push(element['Category']);
+          labels.push(element[this.label]);
           values.push(Math.abs(element['Total']));
       }
       this.chartData = {
@@ -53,27 +64,10 @@ export default Pie.extend({
         ]
       }
     },
-    getURL() {
-        var url = 'http://127.0.0.1:5000/getAmountByCategory?';
-        if (this.year_filters != null && this.year_filters != '') {
-           url += '&year_filter='+this.year_filters
-        }
-        if (this.type_filters != null && this.type_filters != '') {
-          url += '&type_filter='+this.type_filters
-        }
-        if (this.category_filters != null && this.category_filters != '') {
-          url += '&category_filter='+this.category_filters
-        }
-        if (this.subcategory_filters != null && this.subcategory_filters != '') {
-          url += '&subcategory_filter='+this.subcategory_filters
-        }
-        console.log(url);
-        return url;
-    },
     getData () {
       var axios = require('axios');
       var querystring = require('querystring');
-      axios.get(this.getURL())
+      axios.get(this.getUrl())
           .then((response) => {
               this.udpdateData(response);
           })

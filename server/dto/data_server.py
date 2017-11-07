@@ -1,50 +1,56 @@
 from server.dto.base import create_connection, getResponse
 import json
 
-def amount_by_category(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
-    conn = create_connection()
-    c = conn.cursor()
+def get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
     year_clause = type_clause = category_clause = subcategory_clause = '1=1'
     
     if yearFilter is not None:
-        year_clause =  " year in (%s) " % (yearFilter) 
+        year_clause =  " year in (%s) " % (yearFilter)
     
     if typeFilter is not None:
-        type_clause =  "type in (%s) " % (typeFilter) 
+        type_clause =  "type in (%s) " % (typeFilter)
 
     if categoryFilter is not None:
         category_clause =  "Category in (%s) " % (categoryFilter) 
 
     if subcategoryFilter is not None:
         subcategory_clause =  "SubCategory in (%s) " % (subcategoryFilter) 
+    
+    return year_clause, type_clause, category_clause, subcategory_clause
 
-    sql_comand = "SELECT Category, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s  group by Category" % (year_clause, type_clause, category_clause, subcategory_clause)
-    print ('sql_comand', sql_comand)
-    conn = create_connection()
-    with conn:
-        c = conn.cursor()
-        c.execute(sql_comand)
-        all_entries = c.fetchall()
-        return json.dumps({"data": all_entries})
+def amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    sql_command = "SELECT SubCategory, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s group by SubCategory" % (year_clause, type_clause, category_clause, subcategory_clause)
+    return run_sql_command('data', sql_command)
+ 
+def amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    sql_command = "SELECt Year||'/'||Month as [yearmonth],subcategory, sum(AmountEUR) as Total FROM Transactions where %s and %s and %s and %s group by Year,Month,subcategory order by year, month" % (year_clause, type_clause, category_clause, subcategory_clause)
+    return run_sql_command('data', sql_command)
+ 
 
-def run_sql_command(param_name, sql_comand):
+def run_sql_command(param_name, sql_command):
+    print(sql_command)
     conn = create_connection()
     c = conn.cursor()
     conn = create_connection()
     with conn:
         c = conn.cursor()
-        c.execute(sql_comand)
+        c.execute(sql_command)
         return json.dumps({param_name: c.fetchall()})
 
-def distinct_years():
-    return run_sql_command("filter_year", "select distinct strftime('%Y',Date) as year from Transactions order by 1")
+def distinct_years(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    return run_sql_command("filter_year", "select distinct Year from Transactions where %s and %s and %s order by 1" % (type_clause, category_clause, subcategory_clause))
 
-def distinct_types():
-    return run_sql_command("filter_type", "select distinct Type from Transactions order by 1")
+def distinct_types(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    return run_sql_command("filter_type", "select distinct Type from Transactions where %s and %s and %s order by 1" % (year_clause, category_clause, subcategory_clause))
 
-def distinct_categories():
-    return run_sql_command("filter_categories", "select distinct Category from Transactions order by 1")
+def distinct_categories(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    return run_sql_command("filter_categories", "select distinct Category from Transactions where %s and %s and %s order by 1" % (year_clause, type_clause, subcategory_clause))
 
-def distinct_subCategories():
-    return run_sql_command("filter_subcategories", 
-"select distinct SubCategory from Transactions where Subcategory is not null order by 1")
+def distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter):
+    year_clause, type_clause, category_clause, subcategory_clause = get_where_clauses(yearFilter, typeFilter, categoryFilter, subcategoryFilter)
+    return run_sql_command("filter_subcategories", "select distinct SubCategory from Transactions where Subcategory is not null and %s and %s and %s order by 1" % (year_clause, type_clause, category_clause))
