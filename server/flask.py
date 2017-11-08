@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
+from server.dto.data_server import distinct_bankAccounts, running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
 from server.dto.transaction_management import get_transactions, save_transaction
 from server.dto.category_management import get_categories, save_category, delete_category
@@ -27,42 +27,49 @@ def get_filters(request):
     typeFilter = request.args.get('type_filter')
     categoryFilter = request.args.get('category_filter')
     subcategoryFilter = request.args.get('subcategory_filter')
-    return yearFilter, typeFilter, categoryFilter, subcategoryFilter
+    accountFilters = request.args.get('account_filters')
+    return yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters
 
 @app.route('/getAmountBySubCategory/', methods=['GET'])
 def get_amount_by_subcategory():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/getRunningBalance/', methods=['GET'])
 def get_running_balance():
     yearFilter = request.args.get('year_filter')
-    return app.make_response(running_balance(yearFilter))
+    accountFilters = request.args.get('account_filters')
+    return app.make_response(running_balance(yearFilter, accountFilters))
 
 @app.route('/getAmountByYearMonthAndSubCategory/', methods=['GET'])
 def get_amount_by_subcategory2():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/getDistinctYears/', methods=['GET'])
 def get_distinct_years():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(distinct_years(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(distinct_years(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/getDistinctTypes/', methods=['GET'])
 def get_distinct_types():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(distinct_types(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(distinct_types(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/getDistinctCategories/', methods=['GET'])
 def get_distinct_categories():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(distinct_categories(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(distinct_categories(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/getDistinctSubCategories/', methods=['GET'])
 def get_distinct_subCategories():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter = get_filters(request)
-    return app.make_response(distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter))
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
+
+@app.route('/getDistinctBankAccounts/', methods=['GET'])
+def get_distinct_bankAccounts():
+    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
+    return app.make_response(distinct_bankAccounts(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 def getParams(request):
     sort_params = request.args.get('sort')

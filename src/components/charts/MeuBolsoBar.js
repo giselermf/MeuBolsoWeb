@@ -1,4 +1,5 @@
 import { Bar } from 'vue-chartjs'
+import {getChartData, getUrlFilters} from './ChartUtils.js'
 
 export default Bar.extend({
   data () {
@@ -7,6 +8,7 @@ export default Bar.extend({
       type_filters: '',
       category_filters: '',
       subcategory_filters: '',
+      account_filters: '',
       options: {
         scales: {
           yAxes: [{
@@ -29,69 +31,18 @@ export default Bar.extend({
   props: ['url', 'xLabel', 'datasetLabel'],
   mounted () {
       this.getData();
-      this.$events.$on('year-filter', eventData => this.onYearFilterSet(eventData));
-      this.$events.$on('type-filter', eventData => this.onTypeFilterSet(eventData));
-      this.$events.$on('category-filter', eventData => this.onCategoryFilterSet(eventData));
-      this.$events.$on('subcategory-filter', eventData => this.onSubcategoryFilterSet(eventData)); 
+      this.$events.$on('filter_year', eventData => this.onYearFilterSet(eventData));
+      this.$events.$on('filter_type', eventData => this.onTypeFilterSet(eventData));
+      this.$events.$on('filter_categories', eventData => this.onCategoryFilterSet(eventData));
+      this.$events.$on('filter_subcategories', eventData => this.onSubcategoryFilterSet(eventData));
+      this.$events.$on('filter_bankAccounts', eventData => this.onAccountFilterSet(eventData));      
   },
   methods: {
     getUrl() {
-      var url = this.url;
-      if (this.year_filters != null && this.year_filters != '')
-        url += '&year_filter='+this.year_filters;
-      if (this.type_filters != null && this.type_filters != '') 
-        url += '&type_filter='+this.type_filters;
-      if (this.category_filters != null && this.category_filters != '')
-        url += '&category_filter='+this.category_filters;
-      if (this.subcategory_filters != null && this.subcategory_filters != '')
-        url += '&subcategory_filter='+this.subcategory_filters;
-      return url;
-    },
-    filter(arr, criteria) {
-      return arr.filter(function(obj) {
-        return Object.keys(criteria).every(function(c) {
-          return obj[c] == criteria[c];
-        });
-      });
+      return this.url + getUrlFilters(this.year_filters, this.type_filters, this.category_filters, this.subcategory_filters, this.account_filters);
     },
     udpdateData(response) {
-      let datasets = [];
-      let values = [];
-      let backgroundCollors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"];
-
-      let labels = [new Set(response.data.data.map(item => item[this.xLabel]))];
-      labels = Array.from(labels[0]);
-
-      let datasetLabels = [new Set(response.data.data.map(item => item[this.datasetLabel]))];
-      datasetLabels = Array.from(datasetLabels[0]);
-
-      datasetLabels.forEach(function(aDataset) { 
-        values = [];
-        labels.forEach(function(oneLabel){
-            let filterMap = {};
-            filterMap[this.datasetLabel] = aDataset;
-            filterMap[this.xLabel] = oneLabel;
-            let result = this.filter(response.data.data, filterMap);
-            let total = 0;
-            if (result[0] != undefined) {
-               total = result[0]['Total'];  
-            } 
-            values.push(total);
-            
-          }, this);
-          datasets.push(
-            {
-              label: aDataset,
-              borderWidth: 1,
-              backgroundColor: backgroundCollors[datasets.length % backgroundCollors.length],
-              data: values
-            });
-                
-      }, this);
-      let chartData = {
-        labels: labels,
-        datasets: datasets
-      };
+      let chartData = getChartData(response.data.data, this.xLabel, this.datasetLabel )
       if (this._chart) this._chart.destroy();
       this.renderChart(chartData, this.options )
     },
@@ -120,6 +71,10 @@ export default Bar.extend({
     },
     onSubcategoryFilterSet (filterText) {
       this.subcategory_filters = filterText;
+      this.getData();
+    },
+    onAccountFilterSet (filterText) {
+      this.account_filters = filterText;
       this.getData();
     },
   }

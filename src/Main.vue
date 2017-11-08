@@ -1,13 +1,13 @@
 <template>
   <div class="container">
     <tabs animation="slide" :only-fade="false">
-      <tab-pane label="Home" selected>Home
+      <tab-pane label="Home" selected>
         <dashboard></dashboard>
       </tab-pane>
-      <tab-pane label="Categories">Categories
+      <tab-pane label="Categories">
             <category></category>
       </tab-pane>
-      <tab-pane label="Bank Records">Bank Records
+      <tab-pane label="Bank Records">
         <transaction></transaction>
       </tab-pane>
       <tab-pane label="About">About</tab-pane>

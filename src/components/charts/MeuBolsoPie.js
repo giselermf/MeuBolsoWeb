@@ -1,4 +1,5 @@
 import { Pie } from 'vue-chartjs'
+import { getUrlFilters} from './ChartUtils.js'
 
 export default Pie.extend({
   data () {
@@ -7,28 +8,23 @@ export default Pie.extend({
       type_filters: '',
       category_filters: '',
       subcategory_filters: '',
+      account_filters: '',
+      chartOptions: {responsive: false, maintainAspectRatio: false, legend: { display: false } }
     }
   },
   props: ['url', 'label'],
   mounted () {
       this.getData();
-      this.$events.$on('year-filter', eventData => this.onYearFilterSet(eventData));
-      this.$events.$on('type-filter', eventData => this.onTypeFilterSet(eventData));
-      this.$events.$on('category-filter', eventData => this.onCategoryFilterSet(eventData));
-      this.$events.$on('subcategory-filter', eventData => this.onSubcategoryFilterSet(eventData));   
+      this.$events.$on('filter_year', eventData => this.onYearFilterSet(eventData));
+      this.$events.$on('filter_type', eventData => this.onTypeFilterSet(eventData));
+      this.$events.$on('filter_categories', eventData => this.onCategoryFilterSet(eventData));
+      this.$events.$on('filter_subcategories', eventData => this.onSubcategoryFilterSet(eventData));
+      this.$events.$on('filter_bankAccounts', eventData => this.onAccountFilterSet(eventData));      
+      
   },
   methods: {
     getUrl() {
-      var url = this.url;
-      if (this.year_filters != null && this.year_filters != '')
-        url += '&year_filter='+this.year_filters;
-      if (this.type_filters != null && this.type_filters != '') 
-        url += '&type_filter='+this.type_filters;
-      if (this.category_filters != null && this.category_filters != '')
-        url += '&category_filter='+this.category_filters;
-      if (this.subcategory_filters != null && this.subcategory_filters != '')
-        url += '&subcategory_filter='+this.subcategory_filters;
-      return url;
+      return this.url + getUrlFilters(this.year_filters, this.type_filters, this.category_filters, this.subcategory_filters, this.account_filters);
     },
     udpdateData(response) {
       let results = response.data.data
@@ -56,7 +52,7 @@ export default Pie.extend({
         ]
       };
       if (this._chart) this._chart.destroy();
-      this.renderChart(chartData, {responsive: true, maintainAspectRatio: false, legend: { display: false } });
+      this.renderChart(chartData, this.chartOptions);
     },
     getData () {
       var axios = require('axios');
@@ -83,6 +79,10 @@ export default Pie.extend({
     },
     onSubcategoryFilterSet (filterText) {
       this.subcategory_filters = filterText;
+      this.getData();
+    },
+    onAccountFilterSet (filterText) {
+      this.account_filters = filterText;
       this.getData();
     },
   }
