@@ -7,12 +7,12 @@ software architecture:
 
 
 preparing the environment:
-* the IDE I am using is https://code.visualstudio.com/
+* for coding: https://code.visualstudio.com/
 * for database administration: SQLiteStudio (https://sqlitestudio.pl/index.rvt)
-* to sync with code repository GitHub client like https://desktop.github.com/
+* to interact with code repository: any GitHub client like https://desktop.github.com/
 
-Getting the code and dependencies:
-1) download the source code to a folder in your computer from https://github.com/giselermf/MeuBolsoWeb
+Getting the source code and dependencies:
+1) download the source code (https://github.com/giselermf/MeuBolsoWeb) to a folder in your computer
 2) install python 3 https://www.python.org/
 3) study and install npm (https://docs.npmjs.com/getting-started/what-is-npm)
 4) go to the source code folder in your computer (where the file package.json is) and run "npm install".
