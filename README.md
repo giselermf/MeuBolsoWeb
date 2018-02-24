@@ -1,9 +1,9 @@
 # Vue 2.0 MeuBolsoWeb
 
 software architecture:
-Client side: VUE (https://vuejs.org/v2/guide/) + JavaScript
-Server side: Python + Flask (http://flask.pocoo.org/)
-Database: SQLite (https://www.sqlite.org/)
+* Client side: VUE (https://vuejs.org/v2/guide/) + JavaScript
+* Server side: Python + Flask (http://flask.pocoo.org/)
+* Database: SQLite (https://www.sqlite.org/)
 
 
 preparing the environment:
