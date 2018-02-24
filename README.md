@@ -19,9 +19,9 @@ Getting the source code and dependencies:
 5) a lot of libraries will be downloaded to folder node_modules/
 
 to start the application:
-1) in server/flask:
+1) in server folder:
   export FLASK_APP=flask.py
   flask run
   
-2) in src:
+2) in client folder:
   npm run dev
