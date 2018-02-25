@@ -36,10 +36,16 @@
     </div>
     <div class="tile is-ancestor">
       <div class="tile is-vertical is-12">
-          <div class="Chart">
-            <h2>Running Balance</h2>
-            <meu-bolso-line url="http://127.0.0.1:5000/getRunningBalance?" xLabel="Date" datasetLabel="BankName" ></meu-bolso-line>
+        <div class="tile"> 
+          <div class="tile is-12 is-parent">
+            <article class="tile is-child box">
+              <div class="Chart">
+                <h2>Running Balance</h2>
+                <meu-bolso-line url="http://127.0.0.1:5000/getRunningBalance?" xLabel="Date" datasetLabel="BankName" ></meu-bolso-line>
+              </div>
+            </article>
           </div>
+        </div>
       </div> 
     </div> 
   </div>

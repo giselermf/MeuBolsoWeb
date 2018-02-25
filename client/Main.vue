@@ -10,6 +10,9 @@
       <tab-pane label="Bank Records">
         <transaction></transaction>
       </tab-pane>
+      <tab-pane label="Process Records">
+        <process-data></process-data>
+      </tab-pane>
       <tab-pane label="About">About</tab-pane>
     </tabs>
   </div>
@@ -20,10 +23,11 @@
   import Category from './components/data_management/Category.vue'
   import Transaction from './components/data_management/Transaction.vue'
   import Dashboard from './components/Dashboard.vue'
+  import ProcessData from './components/process/ProcessData.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, Dashboard, Transaction
+      Tabs,TabPane, Category, Dashboard, Transaction, ProcessData
     }
   }
 </script>

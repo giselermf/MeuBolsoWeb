@@ -1,12 +1,19 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.data_server import distinct_bankAccounts, running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
+from server.dto.datashboard_management import distinct_bankAccounts, running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
-from server.dto.transaction_management import get_transactions, save_transaction
+from server.dto.transaction_management import get_transactions, update_transaction_category
 from server.dto.category_management import get_categories, save_category, delete_category
+from server.process_data.processor import Processor
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/processData/', methods=['GET'])
+def process_data():
+    folder = request.args.get('folder')
+    Processor(folder).process()
+    return app.make_response('ok')
 
 @app.route('/categories/', methods=['POST'])
 def post_categories():
@@ -16,7 +23,7 @@ def post_categories():
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
     return app.make_response(
-        save_transaction(request.form['id'], request.form['category'], request.form['SubCategory']))
+        update_transaction_category(request.form['id'], request.form['category'], request.form['SubCategory']))
 
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):

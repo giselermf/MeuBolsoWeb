@@ -1,23 +1,4 @@
-import sqlite3
-import os
 import json
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-database_name = os.path.join(BASE_DIR, 'dto/dbMeuBolso.db')
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-def create_connection():
-    try:
-        conn = sqlite3.connect(database_name)
-        conn.row_factory = dict_factory
-        return conn
-    except Error as e:
-        print(e)
 
 def getFilterByCategoryClause(filter_param):
     if filter_param is not None and filter_param != "":

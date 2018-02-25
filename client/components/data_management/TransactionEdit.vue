@@ -65,5 +65,5 @@
 
 
 <style
-  src="../../../static/meuBolso.css">
+  src="../../static/meuBolso.css">
 </style>
