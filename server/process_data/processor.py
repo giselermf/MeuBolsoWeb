@@ -2,46 +2,44 @@ import csv
 from datetime import date
 from os import listdir
 from os.path import isfile, join
-from server.process_data.bank_processor import ProcessUNFCU, ProcessBankAustria, Categories
+from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
+from server.process_data.category_management import Categories
 from server.database.database_connection import run_select, run_update
-from server.dto.transaction_management import update_transaction_number, get_transaction, insert_transaction
+from server.dto.transaction_management import get_transaction, insert_transaction, get_all_transactions, update_transaction
 
 class Processor(object):
 
     def __init__(self, folder):
-        self.entries = []
         self.folder = folder.replace('"', '').strip().rstrip()
-        self.processedFiles = self.getProcessedFiles()
         self.categories = Categories()
+        self.running_balances_perBank = {}
 
     def process(self):
-        self.processBank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
-        self.processBank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        return self.entries
+        self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
+        self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
+        self._update_running_balance()
 
-    def processBank(self, folder, inputProcessor):
-        fileNames = self.getAllFiles(folder)       
+    def _process_bank(self, folder, inputProcessor):
+        fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
         for fileName in fileNames:
-            if fileName not in self.processedFiles:
-                self.processFile( fileName, inputProcessor)
+            if fileName not in self._get_processed_files():
+                self._process_file( fileName, inputProcessor)
 
-    def getProcessedFiles(self):
+    def _get_processed_files(self):
         sql_comand = "select distinct fileName from ProcessedFiles where completed='True'"
         return [f['fileName'] for f in run_select(sql_comand )]
 
-    def mark_file_as_processed(self, fileName,numEntries, status):
+    def _mark_file_as_processed(self, fileName,numEntries, status):
         fileName = fileName.replace(self.folder, '')
         print(fileName, numEntries, status)
        # sql_comand = 'insert into ProcessedFiles(fileName, processedDate, numEntries, status) values (?,?,?,?)'
        # return run_update(sql_comand, (fileName, date.today, status))
 
-    def getAllFiles(self, folder):
-        fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
-        return fileNames
+    def _update_transaction_number(new_transaction_number, current_transaction_number, id):
+        if new_transaction_number != '...' and new_transaction_number != None and new_transaction_number != current_transaction_number and len(new_transaction_number) < 16:
+            update_transaction(id=id, transaction_number=new_transaction_number)
 
-    def processFile(self, fileName, inputProcessor):
-        entries_in_file = []
-        to_be_inserted = []
+    def _process_file(self, fileName, inputProcessor):
         all_passed = True
         print('processing ', fileName)
         with open(fileName, newline='', encoding='iso-8859-1') as csvfile:
@@ -53,11 +51,11 @@ class Processor(object):
                     if entry:
                         from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date_str'], entry['Description'][:30])
                         if len(from_database) == 1:
-                            update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
+                            self._update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
                         if len(from_database) > 1 and entry['Number'] != '...' and  entry['Number'] != None:
                             from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date_str'], entry['Description'][:30],entry['Number'])
                             if len(from_database) == 1:
-                                update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
+                                self._update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
                             if len(from_database) > 1:
                                 print('found more than one', entry, row, from_database)
                         elif len(from_database) == 0:
@@ -65,17 +63,27 @@ class Processor(object):
                                                 entry['Number'], entry['Currency'], entry['Amount'], \
                                                 entry['Bank Name'], entry['Amount in EUR'] , \
                                                 entry['Date_str'], entry['Date'] )
-                            to_be_inserted.append(entry)
-                        entries_in_file.append(entry)
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())
                     print ('row ignored ' + str(row), entry)
         
-        self.mark_file_as_processed(fileName, len(entries_in_file), all_passed==True)
-        self.entries.append(entries_in_file)
-        print('to be inserted', len(to_be_inserted))
-      #  print(t.['Date']+ "-" t.['Amount']  for t in to_be_inserted )
+        self._mark_file_as_processed(fileName, len(entries_in_file), all_passed==True)
 
 
-                        
+    def _get_bank_balance(self, bankName):
+        if bankName in self.running_balances_perBank:
+            return self.running_balances_perBank[bankName]
+        return 0
+
+    def _update_bank_balance(self, bankName, balance):
+        self.running_balances_perBank[bankName] = balance
+
+    def _update_running_balance(self):
+        print('update running balance')
+        transactions = get_all_transactions(oder_by = "bankName,Date")
+        for t in transactions:
+            t['RunningBalance'] = self._get_bank_balance(t['BankName']) + t['AmountEUR']
+            update_transaction(id=t['id'], RunningBalance =  t['RunningBalance']  )
+            self._update_bank_balance(t['BankName'], t['RunningBalance'])
+    

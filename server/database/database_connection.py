@@ -18,24 +18,31 @@ def create_connection():
         conn.row_factory = dict_factory
         return conn
     except:
-        print('error')
+        print('error creating connection')
         raise 
 
 def run_select(sql_command, param_name=None):
     conn = create_connection()
     with conn:
         c = conn.cursor()
-        c.execute(sql_command)
-        if param_name is None:
-            return c.fetchall()
-        else:
-            return json.dumps({param_name: c.fetchall()})
+        try:
+            c.execute(sql_command)
+            if param_name is None:
+                return c.fetchall()
+            else:
+                return json.dumps({param_name: c.fetchall()})
+        except:
+            print(sql_command)
+            raise
 
 def run_update(sql_command, *params):
     conn = create_connection()
     with conn:
         c = conn.cursor()
-        print(sql_command)
-        c.execute(sql_command, *params)
-        conn.commit()
-        return json.dumps({"data": 'sucess'})
+        try:
+            c.execute(sql_command, *params)
+            conn.commit()
+            return json.dumps({"data": 'sucess'})
+        except:
+            print(sql_command, 'params', *params)
+            raise

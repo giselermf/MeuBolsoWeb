@@ -1,6 +1,12 @@
 from server.dto.base import getResponse, getFilterByCategoryClause, getLimitClause, getSortClause
 from server.database.database_connection import run_select, run_update
 
+def get_all_transactions(oder_by=None):
+    sql_command = "Select id, category, subcategory, type, description, bankName, AmountEUR, Date from Transactions"
+    if oder_by is not None:
+        sql_command += " order by " + oder_by
+    return run_select(sql_command)
+
 def get_transactions(sort, sort_order, filter_param, page_number, per_page):
     sql_command = "Select * from Transactions"
     sql_command += getFilterByCategoryClause(filter_param)
@@ -25,14 +31,21 @@ def insert_transaction(category, sub_category, entry_type, description, transact
     return run_update(sql_commnad, (category, sub_category, entry_type, description, transaction_number, currency, amount, date_str, bank_name, amount_eur, date, date.year, date.month, date.day)  )
     #print('new entry', category, sub_category, entry_type, description, transaction_number, currency, amount, bank_name, amount_eur, date)
 
-def update_transaction_number(new_transaction_number, current_transaction_number, transaction_id):
-    if new_transaction_number != '...' and new_transaction_number != None and new_transaction_number != current_transaction_number and len(new_transaction_number) < 16:
-        run_update("update Transactions set TransactionNumber = ? where id = ? ", (new_transaction_number, transaction_id))
-
-def update_transaction_category(id, category, sub_category):
-    if id == '':
+def update_transaction(id, category=None, sub_category=None, type=None, transaction_number= None, RunningBalance=None):
+    if id == '' or id==None:
         return json.dumps({"data": 'fail'})
     else:
-        sql_command = "update Transactions set SubCategory = ?, Category = ? where id = ?"
-        return run_update(sql_command, (sub_category, category, int(id)))
-
+        sql_command = "update Transactions set "
+        if category is not None:
+            sql_command += " category = '{0}' ,".format(category)
+        if sub_category is not None:
+            sql_command += " subcategory = '{0}' ,".format(sub_category)
+        if type is not None:
+            sql_command += " type = '{0}' ,".format(type)
+        if transaction_number is not None:
+            sql_command += " transaction_number = {0} ,".format(transaction_number)
+        if RunningBalance is not None:
+            sql_command += " RunningBalance = {0} ,".format(RunningBalance)
+        sql_command = sql_command[:-1] + " where id = ? "
+        return run_update(sql_command, (id,))
+    
