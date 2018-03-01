@@ -4,7 +4,7 @@ from server.database.database_connection import run_select, run_update
 def get_all_categories():
     return run_select("Select category, subcategory, type, description from Category")
 
-def get_categories(sort, sort_order, filter_param, page_number, per_page):
+def get_categories(sort, sort_order=None, filter_param=None, page_number=None, per_page=None):
     sql_comand = "Select * from Category"
     sql_comand += getFilterByCategoryClause(filter_param)
     sql_comand += getSortClause(sort, sort_order)

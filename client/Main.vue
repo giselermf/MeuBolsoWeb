@@ -10,6 +10,9 @@
       <tab-pane label="Bank Records">
         <transaction></transaction>
       </tab-pane>
+      <tab-pane label="Bank Records Search">
+        <transaction-search></transaction-search>
+      </tab-pane>
       <tab-pane label="Process Records">
         <process-data></process-data>
       </tab-pane>
@@ -22,12 +25,13 @@
   import { Tabs, TabPane } from 'vue-bulma-tabs'
   import Category from './components/data_management/Category.vue'
   import Transaction from './components/data_management/Transaction.vue'
+  import TransactionSearch from './components/data_management/TransactionSearch.vue'
   import Dashboard from './components/Dashboard.vue'
   import ProcessData from './components/process/ProcessData.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, Dashboard, Transaction, ProcessData
+      Tabs,TabPane, Category, Dashboard, Transaction, ProcessData, TransactionSearch
     }
   }
 </script>

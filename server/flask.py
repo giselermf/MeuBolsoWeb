@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from server.dto.datashboard_management import distinct_bankAccounts, running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
-from server.dto.transaction_management import get_transactions, update_transaction
+from server.dto.transaction_management import get_transactions, update_transaction, get_filter_data, get_transactions_filtered
 from server.dto.category_management import get_categories, save_category, delete_category
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
@@ -79,6 +79,10 @@ def get_distinct_subCategories():
     yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
     return app.make_response(distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
+@app.route('/getFilterData/', methods=['GET'])
+def filter_data():
+    return app.make_response(get_filter_data())
+
 @app.route('/getDistinctBankAccounts/', methods=['GET'])
 def get_distinct_bankAccounts():
     yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
@@ -103,7 +107,18 @@ def categories():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
     return app.make_response((get_categories(sort, sort_order, filter_param, page_number, per_page ), 200))
 
-@app.route('/transactions/', methods=['GET'])
+@app.route('/transactionsFiltered/', methods=['POST'])
 def transactions():
-    sort, sort_order, filter_param, page_number, per_page = getParams(request)
-    return app.make_response((get_transactions(sort, sort_order, filter_param, page_number, per_page ), 200))
+    all_transactions = get_transactions_filtered ( 
+        request.form.get('bankName'),
+        request.form.get('Categories'), 
+        request.form.get('SubCategories'),
+        request.form.get('Types'),
+        request.form.get('description'),  
+        request.form.get('fromAmount'), 
+        request.form.get('toAmount'), 
+        request.form.get('fromDate'),  
+        request.form.get('toDate'),  
+        request.form.get('Currencies') )
+    return app.make_response(all_transactions)
+
