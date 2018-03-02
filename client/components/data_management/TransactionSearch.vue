@@ -37,24 +37,38 @@
                 </ul>
             </div>
         </div>
+         <div>
+            <label class="form-label">Currency:</label>
+            <div class="multiple-select" >
+                <ul>
+                    <li v-for="currency in getFilterValue('Currency')" v-bind:key="currency.value">
+                        <input type="checkbox" :id="currency.value" :value="currency.value" v-model="selectedCurrencies">
+                        <label :for="currency.value">{{currency.value}}</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>     
     <div class="ui  segment">
-        <div>
+         <div>
             <label class="form-label">Category:</label>
-            <select  class="multiple-select"  v-model="selectedCategories" multiple>
-                <option v-for="category in getFilterValue('Category')" v-bind:key="category.value">
-                    {{ category.value }}
-                </option>
-            </select>
+            <div class="multiple-select" >
+                <ul>
+                    <li v-for="category in getFilterValue('Category')" v-bind:key="category.value">
+                        <input type="checkbox" :id="category.value" :value="category.value" v-model="selectedCategories">
+                        <label :for="category.value">{{category.value}}</label>
+                    </li>
+                </ul>
+            </div>
         </div> 
-        <div>
+       <!-- <div>
             <label class="form-label">Sub-Category:</label>
             <select class="multiple-select" v-model="selectedSubategories" multiple>
                 <option v-for="subcategory in getFilterValue('SubCategory')" v-bind:key="subcategory.value">
                     {{ subcategory.value }}
                 </option>
             </select>
-        </div> 
+        </div> !-->
     </div>
     </div>
     <div id="app" class="ui horizontal segments" >
@@ -72,6 +86,7 @@
       return {
         selectedCategories: [],
         selectedSubategories: [], 
+        selectedCurrencies: [],
         selectedTypes: [],
         selectedBank: null,
         all_filter_data: [],
@@ -79,7 +94,8 @@
         fromAmount: null,
         toAmount: null,
         fromDate: null,
-        toDate: null
+        toDate: null,
+        filterParams: {}
       };
     },
     mounted () {
@@ -94,6 +110,7 @@
         reset: function() {
             this.selectedCategories = [];
             this.selectedSubategories = [];
+            this.selectedCurrencies = [];
             this.selectedTypes = [];
             this.selectedBank = null;
             this.description = null;
@@ -101,27 +118,24 @@
             this.toAmount = null;
             this.fromDate = null;
             this.toDate = null;
+            this.$events.fire('filter-reset');
+        },
+        addFilterParam: function(filterName, filterValue) {
+            if (filterValue != null  && filterValue.length > 0)
+                this.filterParams[filterName] = filterValue;
         },
         search: function() {
-          var axios = require('axios');
-          var querystring = require('querystring');
-          axios.post('http://127.0.0.1:5000/transactionsFiltered/', querystring.stringify({ 
-              Categories: this.selectedCategories,
-              SubCategories: this.selectedSubategories,
-              Types: this.selectedTypes,
-              bankName: this.selectedBank,
-              fromAmount: this.fromAmount,
-              toAmount: this.toAmount,
-              fromDate: this.fromDate,
-              toDate: this.toDate,
-              description: this.description
-              }))
-            .then((response) => {
-              console.log(response);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
+            this.addFilterParam('Categories', this.selectedCategories);
+            this.addFilterParam('SubCategories', this.selectedSubategories);
+            this.addFilterParam('Types', this.selectedTypes);
+            this.addFilterParam('bankName', this.selectedBank);
+            this.addFilterParam('fromAmount', this.fromAmount);
+            this.addFilterParam('toAmount', this.toAmount);
+            this.addFilterParam('fromDate', this.fromDate);
+            this.addFilterParam('toDate', this.toDate);
+            this.addFilterParam('description', this.description);
+            this.addFilterParam('Currencies', this.selectedCurrencies);
+            this.$events.fire('filter-set', this.filterParams);
         },
         getCategoriesFromServer: function() {
           var axios = require('axios');

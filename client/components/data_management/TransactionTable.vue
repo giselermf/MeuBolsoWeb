@@ -2,7 +2,7 @@
     <div id="app" class="ui vertical stripe segment">
         <div id="content" class="ui basic segment">
         <my-vuetable ref="vuetable"
-                api-url="http://127.0.0.1:5000/transactions/"
+                api-url="http://127.0.0.1:5000/transactionsFiltered/"
                 :fields="fields"
                 :sort-order="sortOrder"
                 :append-params="moreParams"
@@ -30,7 +30,12 @@
             selected_description: '',
             fields: [ 
                     {
-                        name: 'id',
+                        name: 'BankName',
+                        titleClass: 'center aligned',
+                        dataClass: 'center aligned',
+                    },
+                    {
+                        name: 'Type',
                         titleClass: 'center aligned',
                         dataClass: 'center aligned',
                     },
@@ -45,6 +50,16 @@
                         dataClass: 'center aligned',
                     },
                     {
+                        name: 'Description',
+                        titleClass: 'center aligned',
+                        dataClass: 'center aligned',
+                    },
+                 /*   {
+                        name: 'TransactionNumber',
+                        titleClass: 'center aligned',
+                        dataClass: 'center aligned',
+                    },*/
+                    {
                         name: 'Currency',
                         titleClass: 'center aligned',
                         dataClass: 'center aligned',
@@ -55,7 +70,7 @@
                         dataClass: 'center aligned',
                     },
                     {
-                        name: 'Date',
+                        name: 'Date_str',
                         titleClass: 'center aligned',
                         dataClass: 'center aligned',
                     },
@@ -68,18 +83,18 @@
                 ],
                 sortOrder: [
                     {
-                    field: 'Category',
-                    sortField: 'Category',
-                    direction: 'asc'
+                    field: 'Date',
+                    sortField: 'Date',
+                    direction: 'desc'
                     }
                 ],
                 moreParams: {},
 	        }
         },
     methods: {
-	        onEdit (data) {
-                this.$events.fire('edit-record', data)
-            }
+        onEdit (data) {
+            this.$events.fire('edit-record', data)
+        }
     }
   }
 </script>

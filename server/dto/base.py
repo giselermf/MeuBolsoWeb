@@ -8,7 +8,7 @@ def getFilterByCategoryClause(filter_param):
 
 def getSortClause(sort, sort_order):
     if sort is not None and sort != '':
-        return " order by '%s' %s " % (sort, sort_order)
+        return " order by %s %s " % (sort, sort_order)
     return ''
 
 def getLimitClause( page_number, per_page):

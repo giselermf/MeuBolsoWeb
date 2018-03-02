@@ -8,48 +8,39 @@ def get_all_transactions(oder_by=None):
         sql_command += " order by " + oder_by
     return run_select(sql_command)
 
-def get_transactions(sort, sort_order, filter_param, page_number, per_page):
-    print('filter_param', filter_param)
-    sql_command = "Select * from Transactions"
-    sql_command += getFilterByCategoryClause(filter_param)
+
+def add_param(column_name, comparison, param_value):
+    if param_value != None:
+        if comparison == 'in':
+            return "{0} {1} ('{2}') and ".format(column_name, comparison, "','".join(param_value))
+        if comparison == 'like':
+            return "{0} {1} '%{2}%' and ".format(column_name, comparison, param_value)
+        else:
+            return "{0} {1} '{2}' and ".format(column_name, comparison, param_value)
+    return ""
+
+def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page):
+    sql_command = "select * from Transactions "
+    if  filter_param != None and filter_param != {} :
+        sql_command += " where "
+        sql_command += add_param('bankName', '=', filter_param.get('bankName') )
+        sql_command += add_param('Category', "in", filter_param.get('Categories') )
+        sql_command += add_param('SubCategory', "in", filter_param.get('SubCategories') )
+        sql_command += add_param('Type', "in", filter_param.get('Types') )
+        sql_command += add_param('Description', "like", filter_param.get('description') )
+        sql_command += add_param('AmountEUR', '>=',filter_param.get('fromAmount') )
+        sql_command += add_param('AmountEUR', '<=',filter_param.get('toAmount') )
+        sql_command += add_param('Date', '>=',filter_param.get('fromDate') )
+        sql_command += add_param('Date', '<=',filter_param.get('toDate') )
+        sql_command += add_param('Currency', 'in',filter_param.get('Currencies') )
+        k = sql_command.rfind("and")
+        sql_command = sql_command[:k]
     sql_command += getSortClause(sort, sort_order)
     sql_command += getLimitClause(page_number, per_page)
+    print(sql_command)
     all_entries = run_select(sql_command)
     total_records = run_select('select count(*) as total from Transactions')[0]['total']
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
-
-def get_transactions_filtered(bankName=None, Categories=None, SubCategories=None, \
-    Types=None, Description=None, AmountFrom=None, AmountTo=None, DateFrom=None, DateTo=None, Currencies=None):
-    
-    sql_command = "select * from Transactions "
-    if  bankName!='' or Categories!=None or SubCategories!=None or Types!=None or Description!='' or \
-        AmountFrom!='' or AmountTo!='' or DateFrom!='' or DateTo!='' or Currencies!=None:
-        sql_command += " where "
-    if bankName != '':
-       sql_command += "BankName = '{0}' and ".format(bankName)
-    if Categories != None and len(Categories) > 0:
-        sql_command += "Category in ('{0}') and ".format(Categories) 
-    if SubCategories != None and len(SubCategories) > 0:
-        sql_command += "SubCategory in ('{0}') and ".format(SubCategories) 
-    if Types != None and len(Types) > 0:
-        sql_command += "Type in ('{0}') and ".format(Types) 
-    if Description != '':
-        sql_command += "Description like '%{0}%' and ".format(Description)
-    if AmountFrom != '':
-        sql_command += "AmountEUR >= {0} and ".format(AmountFrom)
-    if AmountTo != '':
-        sql_command += "AmountEUR <= {0} and ".format(AmountTo)
-    if DateFrom != '':
-        sql_command += "Date >= '{0}' and ".format(DateFrom)
-    if DateTo != '':
-        sql_command += "Date <= '{0}' and ".format(DateTo)
-    if Currencies != None and len(Currencies) > 0: 
-        sql_command += "Currency in ('{0}')".format(Currencies)
-    
-    k = sql_command.rfind("and")
-    sql_command = sql_command[:k]
-    print(sql_command)
-    return json.dumps(run_select(sql_command))
 
 def get_transaction(currency, bank_name, amount, date_str, description, transaction_number=None):
     sql_command = "SELECt * FROM Transactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date_str={3}"\
@@ -60,7 +51,7 @@ def get_transaction(currency, bank_name, amount, date_str, description, transact
     return run_select(sql_command)
 
 def get_filter_data():
-    all_entries = run_select("Select distinct BankName, Category, SubCategory, Type from Transactions")
+    all_entries = run_select("Select distinct Currency, BankName, Category, SubCategory, Type from Transactions")
     return json.dumps(all_entries)
 
 def insert_transaction(category, sub_category, entry_type, description, transaction_number, currency, amount, bank_name, amount_eur, date_str, date ):

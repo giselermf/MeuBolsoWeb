@@ -80,7 +80,6 @@ class Processor(object):
         self.running_balances_perBank[bankName] = balance
 
     def _update_running_balance(self):
-        print('update running balance')
         transactions = get_all_transactions(oder_by = "bankName,Date")
         for t in transactions:
             t['RunningBalance'] = self._get_bank_balance(t['BankName']) + t['AmountEUR']

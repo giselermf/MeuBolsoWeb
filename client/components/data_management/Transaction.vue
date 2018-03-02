@@ -1,17 +1,18 @@
 <template>
 <div class="container">
-    <transaction-edit></transaction-edit>
+    <transaction-search></transaction-search>
     <transaction-table></transaction-table>
 </div>
 </template>
 
 <script>
-  import TransactionEdit from './TransactionEdit.vue'
+  //import TransactionEdit from './TransactionEdit.vue'
+  import TransactionSearch from './TransactionSearch.vue'
   import TransactionTable from './TransactionTable.vue'
 
   export default {
     components: {
-      TransactionEdit,TransactionTable
+      TransactionSearch,TransactionTable
     }
   }
 </script>s
