@@ -1,68 +1,106 @@
-export function filter(arr, criteria) {
-  return arr.filter(function(obj) {
-    return Object.keys(criteria).every(function(c) {
-      return obj[c] == criteria[c];
-    });
+export let colors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
+
+export function getDatasetColors(values) {
+  let datasetColors = [];
+  for (let index in values) {
+    datasetColors.push(colors[index % colors.length]);
+  }
+  return datasetColors;
+};
+
+export function groupDataBy(all_data, grouper) {
+  let data = all_data.reduce(function(r, a) {
+    r[a[grouper]] = r[a[grouper]] || 0;
+    r[a[grouper]] += a["AmountEUR"];
+    return r;
+  }, Object.create(null));
+  return {
+    labels: Object.keys(data),
+    values: Object.values(data).map(x => Math.round(Math.abs(x)))
+  };
+};
+
+export function getDataSet(labels, values) {
+  return {
+    labels: labels,
+    datasets: [
+      {
+        label: "Data One",
+        pointBackgroundColor: "white",
+        borderWidth: 1,
+        pointBorderColor: "white",
+        backgroundColor: getDatasetColors(values),
+        data: values
+      }
+    ]
+  };
+};
+
+export function getGroupByMonthAnd(all_data, groupByOther) {
+  let datasets = [];
+  let xLabel = "yearmonth";
+  let datasetLabel = groupByOther;
+  let labels = [];
+  let datasetLabels = [];
+
+  //group by year and month
+  let groupedData = all_data.reduce(function (r, a) {
+    r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || [];
+    r[a["Year"] + "/" + a["Month"]].push(a);
+    return r;
+  }, Object.create(null));
+
+  //group "groupByOther" 
+  for (let e in groupedData) {
+    groupedData[e] = groupedData[e].reduce(function (r, a) {
+      r[a[groupByOther]] = r[a[groupByOther]] || [];
+      r[a[groupByOther]].push(a);
+      return r;
+    }, Object.create(null));
+  }
+
+  // calculate grandTotal by yearmonth and "groupByOther"
+  for (let e in groupedData) {
+    for (let x in groupedData[e]) {
+      let grandTotal = 0;
+      {
+        for (let r in groupedData[e][x]) {
+          grandTotal += groupedData[e][x][r]["AmountEUR"]
+        }
+      }
+      groupedData[e][x] = grandTotal;
+    }
+  }
+
+  // get labels and datasetLabels (x values)
+  for (let e in groupedData) {
+    for (let x in groupedData[e]) {
+      if (!labels.includes(e)) labels.push(e);
+      if (!datasetLabels.includes(x)) datasetLabels.push(x);
+    }
+  }
+  //sort datasetLabels (yearmonth)
+  datasetLabels = datasetLabels.sort(function (a, b) {
+    a = a.split("/").reverse().join("");
+    b = b.split("/").reverse().join("");
+    return a > b ? 1 : a < b ? -1 : 0;
   });
-};
 
-export function getUrlFilters(year_filters, type_filters, category_filters, subcategory_filters, account_filters) {
-  let filters = '';
-  if (year_filters != null && year_filters != '')
-    filters += '&year_filter='+year_filters;
-  if (type_filters != null && type_filters != '') 
-    filters += '&type_filter='+type_filters;
-  if (category_filters != null && category_filters != '')
-    filters += '&category_filter='+category_filters;
-  if (subcategory_filters != null && subcategory_filters != '')
-    filters += '&subcategory_filter='+subcategory_filters;
-  if (account_filters != null && account_filters != '')
-    filters += '&account_filters='+account_filters;
-  return filters;
-};
-
-export function getChartData (response, xLabel, datasetLabel) {
-    let datasets = [];
+  datasetLabels.forEach(function (aDataset) {
     let values = [];
-    let backgroundCollors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"];
-
-    let labels = [new Set(response.map(item => item[xLabel]))];
-    labels = Array.from(labels[0]);
-
-    let datasetLabels = [new Set(response.map(item => item[datasetLabel]))];
-    //sort if Date
-    datasetLabels = Array.from(datasetLabels[0]).sort(function(a,b) {
-        a = a.split('/').reverse().join('');
-        b = b.split('/').reverse().join('');
-        return a > b ? 1 : a < b ? -1 : 0;
-      });
-
-    datasetLabels.forEach(function(aDataset) { 
-      values = [];
-      labels.forEach(function(oneLabel){
-          let filterMap = {};
-          filterMap[datasetLabel] = aDataset;
-          filterMap[xLabel] = oneLabel;
-          let result = filter(response, filterMap);
-          let total = 0;
-          if (result[0] != undefined) {
-             total = result[0]['Total'];  
-          } 
-          values.push(total);
-          
-        }, this);
-        datasets.push(
-          {
-            label: aDataset,
-            borderWidth: 1,
-            backgroundColor: backgroundCollors[datasets.length % backgroundCollors.length],
-            data: values
-          });
-              
+    labels.forEach(function (oneLabel) {
+      values.push(groupedData[oneLabel][aDataset] || 0);
     }, this);
-    let chartData = {
-      labels: labels,
-      datasets: datasets
-    };
-    return chartData;
+    datasets.push({
+      label: aDataset,
+      borderWidth: 1,
+      backgroundColor: colors[datasets.length % colors.length],
+      data: values
+    });
+  }, this);
+
+  return {
+    labels: labels,
+    datasets: datasets
+  };
 }

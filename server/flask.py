@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_cors import CORS
-from server.dto.datashboard_management import distinct_bankAccounts, running_balance, amount_by_subcategory, amount_by_year_month_and_subcategory, distinct_years, distinct_types, distinct_categories, distinct_subCategories
 from flask import request
 from server.dto.transaction_management import update_transaction, get_filter_data, get_transactions_filtered
 from server.dto.category_management import get_categories, save_category, delete_category
@@ -27,60 +26,9 @@ def post_categories():
     return app.make_response(
         save_category(request.form['id'], request.form['category'], request.form['description']))
 
-
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
     return app.make_response(delete_category(id))
-
-def get_filters(request):
-    yearFilter = request.args.get('year_filter')
-    typeFilter = request.args.get('type_filter')
-    categoryFilter = request.args.get('category_filter')
-    subcategoryFilter = request.args.get('subcategory_filter')
-    accountFilters = request.args.get('account_filters')
-    return yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters
-
-@app.route('/getAmountBySubCategory/', methods=['GET'])
-def get_amount_by_subcategory():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(amount_by_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-@app.route('/getRunningBalance/', methods=['GET'])
-def get_running_balance():
-    yearFilter = request.args.get('year_filter')
-    accountFilters = request.args.get('account_filters')
-    return app.make_response(running_balance(yearFilter, accountFilters))
-
-@app.route('/getAmountByYearMonthAndSubCategory/', methods=['GET'])
-def get_amount_by_subcategory2():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(amount_by_year_month_and_subcategory(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-@app.route('/getDistinctYears/', methods=['GET'])
-def get_distinct_years():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(distinct_years(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-@app.route('/getDistinctTypes/', methods=['GET'])
-def get_distinct_types():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(distinct_types(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-@app.route('/getDistinctCategories/', methods=['GET'])
-def get_distinct_categories():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(distinct_categories(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-@app.route('/getDistinctSubCategories/', methods=['GET'])
-def get_distinct_subCategories():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(distinct_subCategories(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
-
-
-@app.route('/getDistinctBankAccounts/', methods=['GET'])
-def get_distinct_bankAccounts():
-    yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters = get_filters(request)
-    return app.make_response(distinct_bankAccounts(yearFilter, typeFilter, categoryFilter, subcategoryFilter, accountFilters))
 
 @app.route('/categories/', methods=['GET'])
 def categories():
@@ -96,6 +44,7 @@ def filter_data():
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
+    print('***', filter_param)
     if filter_param is not None:
         filter_param = json.loads(filter_param)
     return app.make_response((get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page ), 200))

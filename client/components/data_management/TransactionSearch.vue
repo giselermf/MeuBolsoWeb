@@ -75,12 +75,15 @@
         <div class="ui  segment" style="display: flex;justify-content: center;padding-top: 1em">
             <button type="button" @click="search()" >Search</button>
             <button type="button" @click="reset()" >Reset</button>
+            <button type="button" @click="search_with_default()" >Search with defaults</button>
         </div>
     </div>
 </div>
 </template>
 
 <script>
+import moment from 'moment'
+
   export default {
     data() {
       return {
@@ -100,6 +103,7 @@
     },
     mounted () {
       this.getCategoriesFromServer();
+      this.search_with_default();
     },
     methods: {
         getFilterValue: function (fieldName) {
@@ -123,6 +127,11 @@
         addFilterParam: function(filterName, filterValue) {
             if (filterValue != null  && filterValue.length > 0)
                 this.filterParams[filterName] = filterValue;
+        },
+        search_with_default: function() {
+            this.fromDate = moment(new Date()).subtract(3, 'month').startOf('month').format('YYYY-MM-DD');
+            this.toDate = moment(new Date()).format('YYYY-MM-DD');
+            this.search();
         },
         search: function() {
             this.addFilterParam('Categories', this.selectedCategories);

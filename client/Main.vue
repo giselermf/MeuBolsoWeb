@@ -1,14 +1,11 @@
 <template>
   <div class="container">
     <tabs animation="slide" :only-fade="false">
-      <tab-pane label="Home" selected>
-        <dashboard></dashboard>
+      <tab-pane label="Bank Records">
+        <transaction></transaction>
       </tab-pane>
       <tab-pane label="Categories">
             <category></category>
-      </tab-pane>
-      <tab-pane label="Bank Records">
-        <transaction></transaction>
       </tab-pane>
       <tab-pane label="Process Records">
         <process-data></process-data>
@@ -22,12 +19,11 @@
   import { Tabs, TabPane } from 'vue-bulma-tabs'
   import Category from './components/data_management/Category.vue'
   import Transaction from './components/data_management/Transaction.vue'
-  import Dashboard from './components/Dashboard.vue'
   import ProcessData from './components/process/ProcessData.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, Dashboard, Transaction, ProcessData
+      Tabs,TabPane, Category, Transaction, ProcessData
     }
   }
 </script>

@@ -21,25 +21,27 @@ def add_param(column_name, comparison, param_value):
 
 def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page):
     sql_command = "select * from Transactions "
+    where_clause = ""
     if  filter_param != None and filter_param != {} :
-        sql_command += " where "
-        sql_command += add_param('bankName', '=', filter_param.get('bankName') )
-        sql_command += add_param('Category', "in", filter_param.get('Categories') )
-        sql_command += add_param('SubCategory', "in", filter_param.get('SubCategories') )
-        sql_command += add_param('Type', "in", filter_param.get('Types') )
-        sql_command += add_param('Description', "like", filter_param.get('description') )
-        sql_command += add_param('AmountEUR', '>=',filter_param.get('fromAmount') )
-        sql_command += add_param('AmountEUR', '<=',filter_param.get('toAmount') )
-        sql_command += add_param('Date', '>=',filter_param.get('fromDate') )
-        sql_command += add_param('Date', '<=',filter_param.get('toDate') )
-        sql_command += add_param('Currency', 'in',filter_param.get('Currencies') )
-        k = sql_command.rfind("and")
-        sql_command = sql_command[:k]
+        where_clause = " where "
+        where_clause += add_param('bankName', '=', filter_param.get('bankName') )
+        where_clause += add_param('Category', "in", filter_param.get('Categories') )
+        where_clause += add_param('SubCategory', "in", filter_param.get('SubCategories') )
+        where_clause += add_param('Type', "in", filter_param.get('Types') )
+        where_clause += add_param('Description', "like", filter_param.get('description') )
+        where_clause += add_param('AmountEUR', '>=',filter_param.get('fromAmount') )
+        where_clause += add_param('AmountEUR', '<=',filter_param.get('toAmount') )
+        where_clause += add_param('Date', '>=',filter_param.get('fromDate') )
+        where_clause += add_param('Date', '<=',filter_param.get('toDate') )
+        where_clause += add_param('Currency', 'in',filter_param.get('Currencies') )
+        k = where_clause.rfind("and")
+        where_clause = where_clause[:k]
+    sql_command += where_clause
     sql_command += getSortClause(sort, sort_order)
     sql_command += getLimitClause(page_number, per_page)
     print(sql_command)
     all_entries = run_select(sql_command)
-    total_records = run_select('select count(*) as total from Transactions')[0]['total']
+    total_records = run_select('select count(*) as total from Transactions ' + where_clause )[0]['total']
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
 
 def get_transaction(currency, bank_name, amount, date_str, description, transaction_number=None):
