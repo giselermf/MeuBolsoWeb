@@ -23,8 +23,10 @@ def recategorize():
 
 @app.route('/categories/', methods=['POST'])
 def post_categories():
-    return app.make_response(
-        save_category(request.form['id'], request.form['category'], request.form['description']))
+    print(request.form)
+    return app.make_response (
+        save_category(request.form['id'], request.form['type'], request.form['category'], request.form['subcategory'], request.form['description'])
+        )
 
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
@@ -33,6 +35,9 @@ def delete_category_id(id):
 @app.route('/categories/', methods=['GET'])
 def categories():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
+    print('***categories', filter_param)
+    if filter_param is not None:
+        filter_param = json.loads(filter_param)
     return app.make_response((get_categories(sort, sort_order, filter_param, page_number, per_page ), 200))
 
 # TRANSACTIONS
@@ -44,7 +49,7 @@ def filter_data():
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
-    print('***', filter_param)
+    print('***transactionsFiltered', filter_param)
     if filter_param is not None:
         filter_param = json.loads(filter_param)
     return app.make_response((get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page ), 200))

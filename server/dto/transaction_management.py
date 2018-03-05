@@ -1,4 +1,4 @@
-from server.dto.base import getResponse, getFilterByCategoryClause, getLimitClause, getSortClause
+from server.dto.base import getResponse, getLimitClause, getSortClause
 from server.database.database_connection import run_select, run_update
 import json
 
