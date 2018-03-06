@@ -6,18 +6,27 @@ export default Bar.extend({
       options: {
         scales: {
           yAxes: [{
-            stacked: true
+            stacked: true,
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              display: true
+            }
           }],
           xAxes: [ {
             stacked: true,
             categoryPercentage: 0.5,
-            barPercentage: 1
+            barPercentage: 1,
+            gridLines: {
+              display: false
+            }
           }]
         },
         legend: {
-          display: false
+          display: true
         },
-        responsive: true,
+        responsive: false,
         maintainAspectRatio: false
       }
     }

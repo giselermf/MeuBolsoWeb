@@ -2,6 +2,9 @@
   <div class="container">
     <tabs animation="slide" :only-fade="false">
       <tab-pane label="Bank Records">
+        <main-dashboard></main-dashboard>
+      </tab-pane>
+      <tab-pane label="Bank Records">
         <transaction></transaction>
       </tab-pane>
       <tab-pane label="Categories">
@@ -17,13 +20,14 @@
 
 <script>
   import { Tabs, TabPane } from 'vue-bulma-tabs'
-  import Category from './components/data_management/Category.vue'
+  import MainDashboard from './components/main_dashboard/MainDashboard.vue'
+  import Category from './components/data_management/CategoryEdit.vue'
   import Transaction from './components/data_management/Transaction.vue'
   import ProcessData from './components/process/ProcessData.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, Transaction, ProcessData
+      Tabs,TabPane, Category, Transaction, ProcessData, MainDashboard
     }
   }
 </script>

@@ -20,72 +20,88 @@
 
 
 <script>
-  import axios from 'axios';
-  import MyVuetable from './/MyVuetable'
+import axios from "axios";
+import MyVuetable from ".//MyVuetable";
 
-  export default {
-    components: {
-      MyVuetable
-    },
-    data () {
-        return {
-            selected_id: '',
-            selected_category: '',
-            selected_description: '',
-            fields: [ 
-                    {
-                        name: 'id',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    },
-                    {
-                        name: 'category',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    },
-                    {
-                        name: 'description',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                        callback: 'formatDescription'
-                    },
-                    {
-                        name: '__slot:actions',
-                        title: 'Slot Actions',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    }
-                ],
-                sortOrder: [
-                    {
-                    field: 'category',
-                    sortField: 'category',
-                    direction: 'asc'
-                    }
-                ],
-                moreParams: {},
-	        }
+export default {
+  props: ["filters"],
+  components: {
+    MyVuetable
+  },
+  watch: {
+    filters: function(val) {
+      this.fullName = val + " " + this.lastName;
+    }
+  },
+  data() {
+    return {
+      selected_id: "",
+      selected_category: "",
+      selected_description: "",
+      fields: [
+        {
+          name: "id",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
         },
-    methods: {
-	        onEdit (data) {
-                this.$events.fire('edit-record', data)
-                this.selected_id = data.id
-                this.selected_category = data.Category
-                this.selected_description = data.Description 
-            },
-            onDelete (data) {
-                this.$events.fire('delete-record', data)
-                this.selected_id = data.id
-                this.selected_category = data.Category
-                this.selected_description = data.Description 
-            }
+        {
+          name: "type",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
+        },
+        {
+          name: "category",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
+        },
+        {
+          name: "subcategory",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
+        },
+        {
+          name: "description",
+          titleClass: "center aligned",
+          dataClass: "center aligned",
+          callback: "formatDescription"
+        },
+        {
+          name: "__slot:actions",
+          title: "Slot Actions",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
+        }
+      ],
+      sortOrder: [
+        {
+          field: "category",
+          sortField: "category",
+          direction: "asc"
+        }
+      ],
+      moreParams: {}
+    };
+  },
+  methods: {
+    onEdit(data) {
+      this.$events.fire("edit-record", data);
+      this.selected_id = data.id;
+      this.selected_category = data.Category;
+      this.selected_description = data.Description;
+    },
+    onDelete(data) {
+      this.$events.fire("delete-record", data);
+      this.selected_id = data.id;
+      this.selected_category = data.Category;
+      this.selected_description = data.Description;
     }
   }
+};
 </script>
 
 <style>
 .ui.table td {
-    padding: 1px;
+  padding: 1px;
 }
 </style>
 

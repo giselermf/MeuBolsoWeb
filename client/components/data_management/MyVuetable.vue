@@ -8,7 +8,6 @@ import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePagination
  
  
 Vue.use(VueEvents)
-//Vue.component('filter-bar', FilterBar)
 
 export default {
   components: {
@@ -116,7 +115,6 @@ export default {
       this.$refs.vuetable.changePage(page)
     },
     onFilterSet (filterParams) {
-      console.log('see filters', filterParams)
       this.appendParams.filter = filterParams
       Vue.nextTick( () => this.$refs.vuetable.refresh() )
     },

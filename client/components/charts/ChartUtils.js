@@ -1,4 +1,4 @@
-export let colors = ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"]
+export let colors = ["Red", "Green","Blue", "Yellow",  "Purple", "Orange"]
 
 export function getDatasetColors(values) {
   let datasetColors = [];
@@ -6,6 +6,17 @@ export function getDatasetColors(values) {
     datasetColors.push(colors[index % colors.length]);
   }
   return datasetColors;
+};
+
+export function addFilterParam(allPossibleFilters) {
+  let filterParams = {};
+  Object.keys(allPossibleFilters).forEach(function(key,index) {
+    let filterValue = allPossibleFilters[key];
+    if (filterValue != null && filterValue.length > 0)
+      filterParams[key] = filterValue;
+  });
+  console.log('filter params', filterParams)
+  return filterParams;
 };
 
 export function groupDataBy(all_data, grouper) {
@@ -20,7 +31,7 @@ export function groupDataBy(all_data, grouper) {
   };
 };
 
-export function getDataSet(labels, values) {
+export function getDataSetPie(labels, values) {
   return {
     labels: labels,
     datasets: [
@@ -37,11 +48,8 @@ export function getDataSet(labels, values) {
 };
 
 export function getGroupByMonthAnd(all_data, groupByOther) {
-  let datasets = [];
   let xLabel = "yearmonth";
   let datasetLabel = groupByOther;
-  let labels = [];
-  let datasetLabels = [];
 
   //group by year and month
   let groupedData = all_data.reduce(function (r, a) {
@@ -68,11 +76,18 @@ export function getGroupByMonthAnd(all_data, groupByOther) {
           grandTotal += groupedData[e][x][r]["AmountEUR"]
         }
       }
-      groupedData[e][x] = grandTotal;
+      groupedData[e][x] = Math.round(grandTotal);
     }
   }
+  return groupedData;
+};
 
-  // get labels and datasetLabels (x values)
+export function getLabelAndDatabaseBar(groupedData, datasetColors) {
+  let labels = [];
+  let datasetLabels = [];
+  let datasets = [];
+
+// get labels and datasetLabels (x values)
   for (let e in groupedData) {
     for (let x in groupedData[e]) {
       if (!labels.includes(e)) labels.push(e);
@@ -94,7 +109,9 @@ export function getGroupByMonthAnd(all_data, groupByOther) {
     datasets.push({
       label: aDataset,
       borderWidth: 1,
-      backgroundColor: colors[datasets.length % colors.length],
+      beginzero: "true",
+      fill: false,
+      backgroundColor: datasetColors[datasets.length % colors.length],
       data: values
     });
   }, this);

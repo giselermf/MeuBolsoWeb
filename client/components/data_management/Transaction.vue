@@ -1,14 +1,21 @@
 <template>
 <div class="container">
-    <transaction-search></transaction-search>
-    <dashboard></dashboard>
-    <transaction-table></transaction-table>
+    <div id="app" class="ui horizontal segments" >
+      <div class="ui  segment">
+          <transaction-search></transaction-search>
+      </div>  
+      <div class="ui  segment"> 
+      <dashboard></dashboard> 
+      </div> 
+    </div>
+        <transaction-table></transaction-table>
+
 </div>
 </template>
 
 <script>
   import TransactionSearch from './TransactionSearch.vue'
-  import Dashboard from './Dashboard.vue'
+  import Dashboard from './TransactionDashboard.vue'
   import TransactionTable from './TransactionTable.vue'
 
   export default {

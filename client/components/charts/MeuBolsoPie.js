@@ -13,6 +13,7 @@ export default Pie.extend({
 	watch:{
     'chartData': {
       handler (newData, oldData) {
+        if (this._chart) this._chart.destroy();
         this.renderChart(this.chartData, this.chartOptions);
       }
     }
