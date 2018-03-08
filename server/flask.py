@@ -35,7 +35,6 @@ def delete_category_id(id):
 @app.route('/categories/', methods=['GET'])
 def categories():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
-    print('***categories', filter_param)
     if filter_param is not None:
         filter_param = json.loads(filter_param)
     return app.make_response((get_categories(sort, sort_order, filter_param, page_number, per_page ), 200))

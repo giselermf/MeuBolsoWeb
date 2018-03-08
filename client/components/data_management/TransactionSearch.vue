@@ -79,10 +79,10 @@ export default {
   },
   mounted() {
     this.fromDate = moment(new Date())
-      .subtract(3, "month")
+      .subtract(1, "month")
       .startOf("month")
       .format("YYYY-MM-DD");
-    this.toDate = moment(new Date()).format("YYYY-MM-DD");
+    this.toDate = moment(new Date()).subtract(1, "month").endOf("month").format("YYYY-MM-DD");
     this.getCategoriesFromServer();
     this.search();
   },

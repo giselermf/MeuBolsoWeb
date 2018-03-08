@@ -27,7 +27,8 @@ export function groupDataBy(all_data, grouper) {
   }, Object.create(null));
   return {
     labels: Object.keys(data),
-    values: Object.values(data).map(x => Math.round(Math.abs(x)))
+    values_negatives: Object.values(data).map(x => { if (x<0) return Math.round(Math.abs(x) )}),
+    values_positives: Object.values(data).map(x => { if (x>0) return Math.round(x) })
   };
 };
 
