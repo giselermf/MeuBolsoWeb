@@ -2,7 +2,6 @@
 <div id="app" class="ui vertical segments" >
     <div id="app" class="ui horizontal segments" >
       <div class="ui  segment">
-          <div class="content">
               <h2>Expenses by Category</h2>
               <meu-bolso-pie :width="200" :height="200" :chartData="amountByCategoryChartDataNegative" ></meu-bolso-pie>
               <br>
@@ -12,8 +11,6 @@
                     table-wrapper="#content"
                     :fields="['Category', 'Value']"
               ></vuetable>
-              
-          </div>
       </div>
       <div class="ui  segment">
         <div class="content">

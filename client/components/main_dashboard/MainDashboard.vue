@@ -10,8 +10,7 @@
         <div>
           <h2>Net Income</h2>
           <meu-bolso-bar :width="500" :height="300" :chartData="barChartData"></meu-bolso-bar>
-          <category-drill-down :width="200" :height="200" :allData="allData" :title="incomeTitle" :positives="true" ></category-drill-down>
-          <category-drill-down  :width="200" :height="200" :allData="allData" :title="expenseTitle" :positives="false" ></category-drill-down>
+          <drill-down-with-table :allData="allData" :title="incomeTitle" :positives="false"></drill-down-with-table>
         </div>
       </div>
 </div>
@@ -19,19 +18,17 @@
 
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
-import CategoryDrillDown from "../charts/CategoryDrillDown.js";
+import DrillDownWithTable from "../data_management/DrillDownWithTable";
 import moment from "moment";
 import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar, colors
 } from "../charts/ChartUtils.js";
 
-
-
 export default {
   components: {
     meuBolsoBar,
-    CategoryDrillDown
+    DrillDownWithTable
   },
   data() {
     return {
