@@ -7,18 +7,24 @@
             <input placeholder="to" v-model="toDate" class="form-field-small"/> 
             <button type="button" @click="search()" >Search</button>
         </div>
-        <div>
-          <h2>Net Income</h2>
-          <meu-bolso-bar :width="500" :height="300" :chartData="barChartData"></meu-bolso-bar>
-          <drill-down-with-table :allData="allData" :title="incomeTitle" :positives="false"></drill-down-with-table>
-        </div>
       </div>
+      <div id="app" class="ui horizontal segments" >
+            <div class="ui  segment">
+              <h2>Net Income</h2>
+              <meu-bolso-bar :width="500" :height="300" :chartData="barChartData"></meu-bolso-bar>
+              <br>
+              <over-month-with-table :width="500" :height="300" :allData="allData"></over-month-with-table>
+            </div>
+            <drill-down-with-table :allData="allData"></drill-down-with-table>
+      </div>
+      
 </div>
 </template>
 
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
-import DrillDownWithTable from "../data_management/DrillDownWithTable";
+import DrillDownWithTable from "../data_management/DrillDownPieWithTable";
+import OverMonthWithTable from "../data_management/OverMonthBarWithTable";
 import moment from "moment";
 import {
   getGroupByMonthAnd,
@@ -28,7 +34,8 @@ import {
 export default {
   components: {
     meuBolsoBar,
-    DrillDownWithTable
+    DrillDownWithTable,
+    OverMonthWithTable
   },
   data() {
     return {

@@ -1,6 +1,5 @@
 <template>
-    <div id="app" class="ui vertical stripe segment">
-        <div id="content" class="ui basic segment">
+    <div>
         <my-vuetable ref="vuetable"
                 api-url="http://127.0.0.1:5000/transactionsFiltered/"
                 :fields="fields"
@@ -11,7 +10,6 @@
                     <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
                 </template>
             </my-vuetable>
-        </div>
     </div>
 </template>
 

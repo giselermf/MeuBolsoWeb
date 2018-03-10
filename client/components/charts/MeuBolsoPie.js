@@ -1,21 +1,42 @@
 import { Pie } from 'vue-chartjs'
+import {
+  getDataSetPie
+} from "./ChartUtils.js";
 
 export default Pie.extend({
-  props: ['chartData'],
-	data(){
-		return{
-      chartOptions: {responsive: false, maintainAspectRatio: false, legend: { display: false } }
-    }
-  },
-  mounted () {
-    this.renderChart(this.chartData, this.chartOptions);
-  },
-	watch:{
-    'chartData': {
-      handler (newData, oldData) {
-        if (this._chart) this._chart.destroy();
-        this.renderChart(this.chartData, this.chartOptions);
+  props: ['chartLabels', 'chartValues', 'positives', 'title'],
+  data() {
+    return {
+      chartOptions: {
+        responsive: false, maintainAspectRatio: false,
+        title: {
+          display: true
+        },
+        tooltips: {
+          enabled: true,
+          mode: 'single',
+        },
+        legend: { display: true, position:'right' },
+        'onClick': this.graphClickEvent
       }
     }
-	},
+  },
+  watch: {
+    chartValues: {
+      handler(newData, oldData) {
+        this.render();
+      }
+    }
+  },
+  methods: {
+    render() {
+      let dataset = getDataSetPie(this.chartLabels, this.chartValues);
+      if (this._chart) this._chart.destroy();
+      this.chartOptions.title.text = this.title;
+      this.renderChart(dataset, this.chartOptions);
+    },
+    graphClickEvent(event, item) {
+      this.$events.fire("drilldown-click", item[0]._index);
+    }
+  }
 })
