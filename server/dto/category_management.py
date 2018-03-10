@@ -12,6 +12,7 @@ def add_param(column_name, param_value):
 def get_categories(sort, sort_order=None, filter_param=None, page_number=None, per_page=None):
     sql_comand = "Select * from Category"
     where_clause  = ""
+    print('filter_param', filter_param)
     if  filter_param != None and filter_param != {} :
         where_clause = " where "
         where_clause += add_param('type', filter_param.get('type') )
@@ -25,7 +26,6 @@ def get_categories(sort, sort_order=None, filter_param=None, page_number=None, p
     sql_comand += getLimitClause(page_number, per_page)
 
     all_entries = run_select(sql_comand)
-    print(sql_comand)
     total_records = run_select('select count(*) as total from Category ' + where_clause)[0]['total']
     return getResponse('category', total_records, per_page, page_number, all_entries)
 

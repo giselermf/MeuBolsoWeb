@@ -111,18 +111,21 @@ export default {
     },
     search: function() {
       let params = {
-        Categories: this.selectedCategories,
-        SubCategories: this.selectedSubategories,
-        Types: this.selectedTypes,
-        bankName: this.selectedBank,
-        fromAmount: this.fromAmount,
-        toAmount: this.toAmount,
-        fromDate: this.fromDate,
-        toDate: this.toDate,
-        description: this.description,
-        Currencies: this.selectedCurrencies
+        filterType: "Transactions",
+        params: {
+            Categories: this.selectedCategories,
+            SubCategories: this.selectedSubategories,
+            Types: this.selectedTypes,
+            bankName: this.selectedBank,
+            fromAmount: this.fromAmount,
+            toAmount: this.toAmount,
+            fromDate: this.fromDate,
+            toDate: this.toDate,
+            description: this.description,
+            Currencies: this.selectedCurrencies
+        }
       };
-      this.$events.fire("filter-set", addFilterParam(params));
+      this.$events.fire("filter-set", addFilterParam('Transactions', params));
     },
     getCategoriesFromServer: function() {
       var axios = require("axios");

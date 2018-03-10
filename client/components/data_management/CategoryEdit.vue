@@ -117,13 +117,15 @@ export default {
         });
     },
     search: function() {
-      let params = {
-        category: this.category,
-        subcategory: this.subcategory,
-        description: this.description,
-        type: this.type
+      let filter = {
+        filterType: "Categories",
+        params: {
+          category: this.category,
+          subcategory: this.subcategory,
+          description: this.description,
+          type: this.type }
       };
-      this.$events.fire("filter-set", addFilterParam(params));
+      this.$events.fire("filter-set",  addFilterParam(params));
     },
     reset: function() {
       this.category_id = null;

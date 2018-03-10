@@ -2,14 +2,14 @@
 <div >
     <h2>Type over Months</h2>
     <meu-bolso-bar :width="width" :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="Category"></meu-bolso-bar>  
- <!--   <div class="ui  segment">
+    <div v-if="showTable" class="ui  segment">
       <vuetable
             :data="tableData"
             :api-mode=false
             table-wrapper="#content"
             :fields="['Year', 'Month', 'Type', 'Value']"
       ></vuetable> 
-    </div>!-->
+    </div>
 </div>
 </template>
 
@@ -28,7 +28,7 @@ export default {
     meuBolsoBar,
     Vuetable
   },
-  props: ["allData", "width", "height"],
+  props: ["allData", "width", "height", "showTable"],
   data() {
     const width = 500;
     const height = width * 0.75;

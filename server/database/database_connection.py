@@ -26,6 +26,7 @@ def run_select(sql_command, param_name=None):
     with conn:
         c = conn.cursor()
         try:
+            print(sql_command)
             c.execute(sql_command)
             if param_name is None:
                 return c.fetchall()
@@ -40,6 +41,7 @@ def run_update(sql_command, *params):
     with conn:
         c = conn.cursor()
         try:
+            print(sql_command)
             c.execute(sql_command, *params)
             conn.commit()
             return json.dumps({"data": 'sucess'})

@@ -48,7 +48,6 @@ def filter_data():
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
-    print('***transactionsFiltered', filter_param)
     if filter_param is not None:
         filter_param = json.loads(filter_param)
     return app.make_response((get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page ), 200))

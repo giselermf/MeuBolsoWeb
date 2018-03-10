@@ -39,7 +39,6 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
     sql_command += where_clause
     sql_command += getSortClause(sort, sort_order)
     sql_command += getLimitClause(page_number, per_page)
-    print(sql_command)
     all_entries = run_select(sql_command)
     total_records = run_select('select count(*) as total from Transactions ' + where_clause )[0]['total']
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
