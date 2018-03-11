@@ -9,7 +9,8 @@
           <option disabled value="">Please select one</option>
           <option>Type</option>
           <option>Category</option>
-      </select>
+          <option>SubCategory</option>
+        </select>
        <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="true" :grouper="grouper" ></over-month-with-table>
       </div>
     </div>
@@ -37,7 +38,7 @@ export default {
       grouper: "Category"
     };
   },
-  mounted() {
+  created() {
     this.getData();
     this.$events.$on("transaction-filter-set", eventData => this.onFilterSet(eventData));
     this.$events.$on("transaction-filter-reset", e => this.onFilterReset());

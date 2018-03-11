@@ -18,7 +18,7 @@ def add_param(column_name, comparison, param_value):
         else:
             return "{0} {1} '{2}' and ".format(column_name, comparison, param_value)
     return ""
-
+    
 def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page):
     sql_command = "select * from Transactions "
     where_clause = ""
@@ -28,7 +28,8 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
         where_clause += add_param('Category', "in", filter_param.get('Categories') )
         where_clause += add_param('SubCategory', "in", filter_param.get('SubCategories') )
         where_clause += add_param('Type', "in", filter_param.get('Types') )
-        where_clause += add_param('Description', "like", filter_param.get('description') )
+        where_clause += add_param('Description', "like", filter_param.get('Description') )
+        where_clause += add_param('SubCategory', "like", filter_param.get('SubCategory') )
         where_clause += add_param('AmountEUR', '>=',filter_param.get('fromAmount') )
         where_clause += add_param('AmountEUR', '<=',filter_param.get('toAmount') )
         where_clause += add_param('Date', '>=',filter_param.get('fromDate') )

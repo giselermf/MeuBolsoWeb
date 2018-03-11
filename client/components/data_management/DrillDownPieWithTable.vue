@@ -1,7 +1,6 @@
 <template>
 <div>
     <select v-model="currentCategoryType" @change="reset()" >
-      <option disabled value="">Please select one</option>
       <option>Incomes</option>
       <option>Expenses</option>
     </select>

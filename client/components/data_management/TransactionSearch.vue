@@ -1,6 +1,6 @@
 <template>
     <div id="app" class="ui vertical segments" >
-        <div class="ui  segment">
+        <div class="ui  segment">         
             <div>
                 <label class="form-label">Bank:</label>
                 <select class="form-field" v-model="selectedBank">
@@ -13,6 +13,12 @@
                 <label class="form-label">Date:</label>
                 <input placeholder="from" v-model="fromDate" class="form-field-small"/> 
                 <input placeholder="to" v-model="toDate" class="form-field-small"/> 
+                <select v-model="dateRangeOption" @change="setDateRange()" >
+                    <option>Current Month</option>
+                    <option>Previous Month</option>
+                    <option>Last 3 Months</option>
+                    <option>Last 6 Months</option>
+                </select>
             </div>
             <div>
                 <label class="form-label">Amount:</label>
@@ -21,7 +27,7 @@
             </div>
             <div>
                 <label class="form-label">Description:</label>
-                <input placeholder="" v-model="description" class="form-field"/> 
+                <input placeholder="" v-model="Description" class="form-field"/> 
             </div>
         </div>
         <div class="ui  segment">
@@ -47,6 +53,10 @@
                     </ul>
                 </div>
             </div> 
+            <div>
+                <label class="form-label">SubCategory:</label>
+                <input placeholder="" v-model="SubCategory" class="form-field"/> 
+            </div>
         </div>
         <div id="app" class="ui horizontal segments" >
             <div class="ui  segment" style="display: flex;justify-content: center;padding-top: 1em">
@@ -70,24 +80,18 @@ export default {
       selectedTypes: [],
       selectedBank: null,
       all_filter_data: [],
-      description: null,
+      Description: null,
+      SubCategory: null,
       fromAmount: null,
       toAmount: null,
       fromDate: null,
-      toDate: null
+      toDate: null,
+      dateRangeOption: "Current Month"
     };
   },
   mounted() {
-    this.fromDate = moment(new Date())
-      .subtract(1, "month")
-      .startOf("month")
-      .format("YYYY-MM-DD");
-    this.toDate = moment(new Date())
-      .subtract(1, "month")
-      .endOf("month")
-      .format("YYYY-MM-DD");
+    this.setDateRange();
     this.getCategoriesFromServer();
-    this.search();
   },
   methods: {
     getFilterValue: function(fieldName) {
@@ -105,11 +109,13 @@ export default {
       this.selectedCurrencies = [];
       this.selectedTypes = [];
       this.selectedBank = null;
-      this.description = null;
+      this.Description = null;
+      this.SubCategory = null;
       this.fromAmount = null;
       this.toAmount = null;
       this.fromDate = null;
       this.toDate = null;
+      this.dateRangeOption = "Current Month";
       this.$events.fire("transaction-filter-reset");
     },
     search: function() {
@@ -121,11 +127,36 @@ export default {
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
         fromDate: this.fromDate,
+        SubCategory: this.SubCategory,
         toDate: this.toDate,
-        description: this.description,
+        Description: this.Description,
         Currencies: this.selectedCurrencies
       };
       this.$events.fire("transaction-filter-set", addFilterParam(params));
+    },
+    setDateRange: function() {
+      let begin, end;
+
+      let end_of_last_month = moment(new Date())
+        .subtract(1, "month")
+        .endOf("month");
+      let today = moment(new Date());
+      if (this.dateRangeOption == "Current Month") {
+        begin = moment(new Date()).startOf("month");
+        end = today;
+      } else if (this.dateRangeOption == "Previous Month") {
+        begin = today.subtract(1, "month").startOf("month");
+        end = end_of_last_month;
+      } else if (this.dateRangeOption == "Last 3 Months") {
+        begin = today.startOf("month").subtract(3, "month");
+        end = end_of_last_month;
+      } else if (this.dateRangeOption == "Last 6 Months") {
+        begin = today.startOf("month").subtract(6, "month");
+        end = end_of_last_month;
+      }
+      this.fromDate = begin.format("YYYY-MM-DD");
+      this.toDate = end.format("YYYY-MM-DD");
+      this.search();
     },
     getCategoriesFromServer: function() {
       var axios = require("axios");
