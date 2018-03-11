@@ -2,11 +2,11 @@
     <div id="app" class="ui vertical stripe segment">
         <div class="ui container">
             <div id="content" class="ui basic segment">
-            <my-vuetable ref="vuetable"
+            <my-vuetable ref="vuetableCategory"
                   api-url="http://127.0.0.1:5000/categories/"
                   :fields="fields"
                   :sort-order="sortOrder"
-                  :append-params="moreParams"
+                  :append-params="appendParams"
                 >
                     <template slot="actions" scope="props">
                         <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
@@ -20,8 +20,10 @@
 
 
 <script>
-import axios from "axios";
 import MyVuetable from ".//MyVuetable";
+import VueEvents from 'vue-events';
+import Vue from 'vue'
+Vue.use(VueEvents);
 
 export default {
   props: ["filters"],
@@ -32,6 +34,12 @@ export default {
     filters: function(val) {
       this.fullName = val + " " + this.lastName;
     }
+  },
+  mounted() {
+    this.$events.$on("category-filter-set", eventData =>
+      this.onFilterSet(eventData)
+    );
+    this.$events.$on("category-filter-reset", e => this.onFilterReset());
   },
   data() {
     return {
@@ -79,7 +87,7 @@ export default {
           direction: "asc"
         }
       ],
-      moreParams: {}
+      appendParams: {}
     };
   },
   methods: {
@@ -94,6 +102,14 @@ export default {
       this.selected_id = data.id;
       this.selected_category = data.Category;
       this.selected_description = data.Description;
+    },
+    onFilterSet(filterParams) {
+      this.appendParams.filter = filterParams;
+      Vue.nextTick(() => this.$refs.vuetableCategory.$refs.vuetable.refresh());
+    },
+    onFilterReset() {
+      delete this.appendParams.filter;
+      Vue.nextTick(() => this.$refs.vuetableCategory.$refs.vuetable.refresh());
     }
   }
 };

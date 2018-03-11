@@ -1,14 +1,9 @@
 <script>
 import Vue from 'vue'
-import VueEvents from 'vue-events'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination'
-import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo'
-//import FilterBar from './FilterBar'
+import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo' 
  
- 
-Vue.use(VueEvents)
-
 export default {
   components: {
     Vuetable,
@@ -42,11 +37,6 @@ export default {
   },
   data () {
     return {}
-  },
-  mounted () {
-    this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
-    this.$events.$on('filter-reset', e => this.onFilterReset())
-    this.$events.$on('refresh-valuable', e => this.onFilterReset())
   },
   render(h) {
     return h(
@@ -113,14 +103,6 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
-    },
-    onFilterSet (filterParams) {
-      this.appendParams.filter = filterParams
-      Vue.nextTick( () => this.$refs.vuetable.refresh() )
-    },
-    onFilterReset () {
-      delete this.appendParams.filter
-      Vue.nextTick( () => this.$refs.vuetable.refresh() )
     }
   }
 }

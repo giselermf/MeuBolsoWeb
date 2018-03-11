@@ -74,7 +74,7 @@ export default {
       fromAmount: null,
       toAmount: null,
       fromDate: null,
-      toDate: null,
+      toDate: null
     };
   },
   mounted() {
@@ -82,7 +82,10 @@ export default {
       .subtract(1, "month")
       .startOf("month")
       .format("YYYY-MM-DD");
-    this.toDate = moment(new Date()).subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+    this.toDate = moment(new Date())
+      .subtract(1, "month")
+      .endOf("month")
+      .format("YYYY-MM-DD");
     this.getCategoriesFromServer();
     this.search();
   },
@@ -107,25 +110,22 @@ export default {
       this.toAmount = null;
       this.fromDate = null;
       this.toDate = null;
-      this.$events.fire("filter-reset");
+      this.$events.fire("transaction-filter-reset");
     },
     search: function() {
       let params = {
-        filterType: "Transactions",
-        params: {
-            Categories: this.selectedCategories,
-            SubCategories: this.selectedSubategories,
-            Types: this.selectedTypes,
-            bankName: this.selectedBank,
-            fromAmount: this.fromAmount,
-            toAmount: this.toAmount,
-            fromDate: this.fromDate,
-            toDate: this.toDate,
-            description: this.description,
-            Currencies: this.selectedCurrencies
-        }
+        Categories: this.selectedCategories,
+        SubCategories: this.selectedSubategories,
+        Types: this.selectedTypes,
+        bankName: this.selectedBank,
+        fromAmount: this.fromAmount,
+        toAmount: this.toAmount,
+        fromDate: this.fromDate,
+        toDate: this.toDate,
+        description: this.description,
+        Currencies: this.selectedCurrencies
       };
-      this.$events.fire("filter-set", addFilterParam('Transactions', params));
+      this.$events.fire("transaction-filter-set", addFilterParam(params));
     },
     getCategoriesFromServer: function() {
       var axios = require("axios");

@@ -35,6 +35,7 @@
 <script>
 import CategoryTable from "./CategoryTable.vue";
 import { addFilterParam } from "../charts/ChartUtils.js";
+import VueEvents from "vue-events";
 
 export default {
   components: { CategoryTable },
@@ -68,7 +69,7 @@ export default {
           querystring.stringify()
         )
         .then(response => {
-          this.$events.fire("filter-reset");
+          this.$events.fire("category-filter-reset");
         })
         .catch(function(error) {
           console.log(error);
@@ -89,7 +90,7 @@ export default {
           })
         )
         .then(response => {
-          this.$events.fire("filter-reset");
+          this.$events.fire("category-filter-reset");
         })
         .catch(function(error) {
           console.log(error);
@@ -110,22 +111,20 @@ export default {
           })
         )
         .then(response => {
-          this.$events.fire("filter-reset");
+          this.$events.fire("category-filter-reset");
         })
         .catch(function(error) {
           console.log(error);
         });
     },
     search: function() {
-      let filter = {
-        filterType: "Categories",
-        params: {
-          category: this.category,
-          subcategory: this.subcategory,
-          description: this.description,
-          type: this.type }
+      let params = {
+        category: this.category,
+        subcategory: this.subcategory,
+        description: this.description,
+        type: this.type
       };
-      this.$events.fire("filter-set",  addFilterParam(params));
+      this.$events.fire("category-filter-set", addFilterParam(params));
     },
     reset: function() {
       this.category_id = null;
@@ -133,6 +132,7 @@ export default {
       this.description = null;
       this.type = null;
       this.subcategory = null;
+      this.$events.fire("category-filter-reset");
     }
   }
 };
