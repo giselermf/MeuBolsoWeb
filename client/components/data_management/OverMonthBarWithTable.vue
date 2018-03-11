@@ -1,13 +1,12 @@
 <template>
 <div >
-    <h2>Type over Months</h2>
-    <meu-bolso-bar :width="width" :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="Category"></meu-bolso-bar>  
+    <meu-bolso-bar :width="width" :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="grouper" :title="title" ></meu-bolso-bar>  
     <div v-if="showTable" class="ui  segment">
       <vuetable
             :data="tableData"
             :api-mode=false
             table-wrapper="#content"
-            :fields="['Year', 'Month', 'Type', 'Value']"
+            :fields="['YearMonth', 'Desc', 'Value']"
       ></vuetable> 
     </div>
 </div>
@@ -28,7 +27,7 @@ export default {
     meuBolsoBar,
     Vuetable
   },
-  props: ["allData", "width", "height", "showTable"],
+  props: ["allData", "width", "height", "showTable", "grouper"],
   data() {
     const width = 500;
     const height = width * 0.75;
@@ -36,7 +35,8 @@ export default {
       all_data: [],
       appendParams: {},
       chartData: {},
-      tableData: []
+      tableData: [],
+      title: this.grouper + " Over Months"
     };
   },
   watch: {
@@ -44,11 +44,17 @@ export default {
       handler(newData, oldData) {
         this.getOverMonth();
       }
+    },
+    grouper: {
+      handler(newData, oldData) {
+        this.getOverMonth();
+      }
     }
   },
   methods: {
     getOverMonth() {
-      let groupedData = getGroupByMonthAnd(this.allData, "Type");
+      console.log(this.grouper)
+      let groupedData = getGroupByMonthAnd(this.allData, this.grouper);
       //chart data
       this.chartData = getLabelAndDatabaseBar(groupedData, colors);
       //table data
@@ -57,9 +63,8 @@ export default {
         let year_month = x.split("/");
         for (let y in groupedData[x]) {
           let oneEntry = {
-            Year: year_month[0],
-            Month: year_month[1],
-            Type: y,
+            YearMonth: year_month[0] + "/" + year_month[1], 
+            Desc: y,
             Value: groupedData[x][y]
           };
           this.tableData.push(oneEntry);

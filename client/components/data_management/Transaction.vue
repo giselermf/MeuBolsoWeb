@@ -5,7 +5,12 @@
           <transaction-search></transaction-search>
       </div>
       <div class="ui  segment">
-       <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="false" ></over-month-with-table>
+        <select v-model="grouper">
+          <option disabled value="">Please select one</option>
+          <option>Type</option>
+          <option>Category</option>
+      </select>
+       <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="true" :grouper="grouper" ></over-month-with-table>
       </div>
     </div>
     <div class="ui  segment">
@@ -28,13 +33,14 @@ export default {
   data() {
     return {
       appendParams: {},
-      allData: null
+      allData: null,
+      grouper: "Category"
     };
   },
   mounted() {
-    this.$events.$on("filter-set", eventData => this.onFilterSet(eventData));
-    this.$events.$on("filter-reset", e => this.onFilterReset());
     this.getData();
+    this.$events.$on("transaction-filter-set", eventData => this.onFilterSet(eventData));
+    this.$events.$on("transaction-filter-reset", e => this.onFilterReset());
   },
   methods: {
     getData() {
@@ -51,13 +57,15 @@ export default {
     },
     getFilterParam() {
       if ( this.appendParams.filter == undefined ) return "";
-      else return this.appendParams.filter;
+      else return  "?filter=" + JSON.stringify(this.appendParams.filter);
     },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;
+      this.getData();
     },
     onFilterReset() {
       delete this.appendParams.filter;
+      this.getData();
     }
   }
 };

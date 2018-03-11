@@ -23,6 +23,10 @@ export default Bar.extend({
             }
           }]
         },
+        title: {
+          display: true,
+          text: this.title
+        },
         legend: {
           display: true
         },
@@ -31,7 +35,7 @@ export default Bar.extend({
       }
     }
   },
-  props: ['chartData'],
+  props: ['chartData', 'title'],
   mounted () {
     if (this._chart) this._chart.destroy();
     this.renderChart(this.chartData, this.options )

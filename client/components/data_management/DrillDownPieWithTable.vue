@@ -1,6 +1,10 @@
 <template>
 <div>
-    <p><a v-on:click="setIncomes"> Incomes </a> <a v-on:click="setExpenses"> Expenses </a></p>
+    <select v-model="currentCategoryType" @change="reset()" >
+      <option disabled value="">Please select one</option>
+      <option>Incomes</option>
+      <option>Expenses</option>
+    </select>
     <meu-bolso-pie :width="500" :height="200" 
     :chartLabels="chartLabels" :chartValues="chartValues" :title="compositeTitle" :positives="isPositive" ></meu-bolso-pie>
     <br>
@@ -103,7 +107,6 @@ export default {
         return;
       }
       this.drillDownLevel = (this.drillDownLevel + 1) % 4;
-      console.log("on click",this.chartLabels, event, this.typeSelected, this.categorySelected);
       this.prepareData();
     },
     getTitle() {
@@ -115,14 +118,6 @@ export default {
     },
     isPositive() {
       return this.currentCategoryType == "Incomes";
-    },
-    setIncomes() {
-      this.currentCategoryType = "Incomes";
-      this.reset();
-    },
-    setExpenses() {
-      this.currentCategoryType = 'Expenses';
-      this.reset();
     },
     reset() {
       this.drillDownLevel = 1;

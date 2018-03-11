@@ -10,10 +10,9 @@
       </div>
       <div id="app" class="ui horizontal segments" >
             <div class="ui  segment">
-              <h2>Net Income</h2>
-              <meu-bolso-bar :width="500" :height="300" :chartData="barChartData"></meu-bolso-bar>
+              <meu-bolso-bar :width="500" :height="300" :chartData="barChartData" :title="title" ></meu-bolso-bar>
               <br>
-              <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="false" ></over-month-with-table>
+              <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="false" :grouper="grouper" ></over-month-with-table>
             </div>
             <drill-down-with-table :allData="allData"></drill-down-with-table>
       </div>
@@ -44,7 +43,9 @@ export default {
       fromDate: null,
       barChartData: {},
       incomeTitle : "Incomes", 
-      expenseTitle : "Expenses"
+      expenseTitle : "Expenses",
+      grouper: "Type",
+      title: "Net Over Monhts"
     };
   },
   mounted() {
