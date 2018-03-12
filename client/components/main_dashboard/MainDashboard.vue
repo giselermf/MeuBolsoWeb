@@ -14,9 +14,13 @@
               <br>
               <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="false" :grouper="grouper" ></over-month-with-table>
             </div>
-            <drill-down-with-table :allData="allData"></drill-down-with-table>
+            <div class="ui  segment">
+               <drill-down-with-table :allData="allData"></drill-down-with-table>
+            </div>
       </div>
-      
+      <div id="app" class="ui horizontal segments" >
+      <running-balance :width="1000" :height="500" :allData="allData"></running-balance>>
+      </div>
 </div>
 </template>
 
@@ -24,6 +28,8 @@
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../data_management/DrillDownPieWithTable";
 import OverMonthWithTable from "../data_management/OverMonthBarWithTable";
+import RunningBalance from "../data_management/RunningBalance";
+
 import moment from "moment";
 import {
   getGroupByMonthAnd,
@@ -34,7 +40,7 @@ export default {
   components: {
     meuBolsoBar,
     DrillDownWithTable,
-    OverMonthWithTable
+    OverMonthWithTable, RunningBalance
   },
   data() {
     return {

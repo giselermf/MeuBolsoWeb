@@ -42,6 +42,7 @@ class Processor(object):
     def _process_file(self, fileName, inputProcessor):
         all_passed = True
         print('processing ', fileName)
+        entries_in_file = 0
         with open(fileName, newline='', encoding='iso-8859-1') as csvfile:
             reader = csv.reader(csvfile, delimiter=inputProcessor.delimiter,  dialect='excel')
             next(reader, None)  # skip the headers
@@ -49,6 +50,7 @@ class Processor(object):
                 try:
                     entry = inputProcessor.process(row)
                     if entry:
+                        entries_in_file += 1
                         from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date_str'], entry['Description'][:30])
                         if len(from_database) == 1:
                             self._update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
@@ -68,7 +70,7 @@ class Processor(object):
                     print(traceback.print_exc())
                     print ('row ignored ' + str(row), entry)
         
-        self._mark_file_as_processed(fileName, len(entries_in_file), all_passed==True)
+        self._mark_file_as_processed(fileName, entries_in_file, all_passed==True)
 
 
     def _get_bank_balance(self, bankName):

@@ -80,4 +80,14 @@ def update_transaction(id, category=None, sub_category=None, type=None, transact
             sql_command += " RunningBalance = {0} ,".format(RunningBalance)
         sql_command = sql_command[:-1] + " where id = ? "
         return run_update(sql_command, (id,))
-    
+
+def running_balance(filters):
+    print(filters)
+    sql_command = "select BankName, Date, max(RunningBalance) as RunningBalance from Transactions "\
+    "where Date >= '2017-09-03' and Date <= '2018-09-16'"\
+    "group by BankName, Date order by BankName, Date"
+    all_entries = run_select(sql_command)
+    print(all_entries)
+    response = {}
+    response['data'] = all_entries
+    return json.dumps(response)

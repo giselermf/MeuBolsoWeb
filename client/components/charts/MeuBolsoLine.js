@@ -1,15 +1,7 @@
 import { Line } from 'vue-chartjs'
 
 export default Line.extend({
-  data () {
-    return {
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    }
-  },
-  props: ['chartData'],
+  props: ['chartData', 'title'],
   mounted () {
     if (this._chart) this._chart.destroy();
     this.renderChart(this.chartData, this.options )
@@ -17,9 +9,26 @@ export default Line.extend({
   watch:{
     'chartData': {
       handler (newData, oldData) {
+        console.log('watching data')
         if (this._chart) this._chart.destroy();
         this.renderChart(this.chartData, this.options);
       }
     }
 	},
+  data () {
+    return {
+        options: {
+          title: {
+            display: true,
+            text: this.title
+          },
+          legend: {
+            display: true
+          },
+          showLine: true,
+          responsive: true,
+          maintainAspectRatio: false
+        }
+    }
+  }
 })
