@@ -149,10 +149,10 @@ export default {
         end = end_of_last_month;
       } else if (this.dateRangeOption == "Last 3 Months") {
         begin = today.startOf("month").subtract(3, "month");
-        end = end_of_last_month;
+        end =  moment(new Date())
       } else if (this.dateRangeOption == "Last 6 Months") {
         begin = today.startOf("month").subtract(6, "month");
-        end = end_of_last_month;
+        end =  moment(new Date());
       }
       this.fromDate = begin.format("YYYY-MM-DD");
       this.toDate = end.format("YYYY-MM-DD");

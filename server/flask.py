@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
-from server.dto.transaction_management import update_transaction, get_filter_data, get_transactions_filtered, running_balance
+from server.dto.transaction_management import update_transaction, get_filter_data, get_transactions_filtered
 from server.dto.category_management import get_categories, save_category, delete_category
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
@@ -9,13 +9,6 @@ import json
 
 app = Flask(__name__)
 CORS(app)
-
-@app.route('/getRunningBalance/', methods=['GET'])
-def get_running_balance():
-    filter_param = request.args.get('filter')
-    if filter_param is not None:
-        filter_param = json.loads(filter_param)
-    return app.make_response((running_balance(filter_param), 200))
 
 @app.route('/processData/', methods=['GET'])
 def process_data():

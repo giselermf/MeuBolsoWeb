@@ -6,6 +6,7 @@ from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustri
 from server.process_data.category_management import Categories
 from server.database.database_connection import run_select, run_update
 from server.dto.transaction_management import get_transaction, insert_transaction, get_all_transactions, update_transaction
+import traceback
 
 class Processor(object):
 
@@ -35,7 +36,7 @@ class Processor(object):
        # sql_comand = 'insert into ProcessedFiles(fileName, processedDate, numEntries, status) values (?,?,?,?)'
        # return run_update(sql_comand, (fileName, date.today, status))
 
-    def _update_transaction_number(new_transaction_number, current_transaction_number, id):
+    def _update_transaction_number(self, new_transaction_number, current_transaction_number, id):
         if new_transaction_number != '...' and new_transaction_number != None and new_transaction_number != current_transaction_number and len(new_transaction_number) < 16:
             update_transaction(id=id, transaction_number=new_transaction_number)
 

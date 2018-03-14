@@ -45,7 +45,7 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
 
 def get_transaction(currency, bank_name, amount, date_str, description, transaction_number=None):
-    sql_command = "SELECt * FROM Transactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date_str={3}"\
+    sql_command = "SELECt * FROM Transactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date_str='{3}'"\
                     " and Description like '{4}%' "\
                     .format(currency, bank_name, amount, date_str, description)
     if transaction_number is not None:
@@ -62,6 +62,7 @@ def insert_transaction(category, sub_category, entry_type, description, transact
     'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     return run_update(sql_commnad, (category, sub_category, entry_type, description, transaction_number, currency, amount, date_str, bank_name, amount_eur, date, date.year, date.month, date.day)  )
     #print('new entry', category, sub_category, entry_type, description, transaction_number, currency, amount, bank_name, amount_eur, date)
+    #return json.dumps({"data": 'sucess'})
 
 def update_transaction(id, category=None, sub_category=None, type=None, transaction_number= None, RunningBalance=None):
     if id == '' or id==None:
@@ -75,19 +76,8 @@ def update_transaction(id, category=None, sub_category=None, type=None, transact
         if type is not None:
             sql_command += " type = '{0}' ,".format(type)
         if transaction_number is not None:
-            sql_command += " transaction_number = {0} ,".format(transaction_number)
+            sql_command += " TransactionNumber = {0} ,".format(transaction_number)
         if RunningBalance is not None:
             sql_command += " RunningBalance = {0} ,".format(RunningBalance)
         sql_command = sql_command[:-1] + " where id = ? "
         return run_update(sql_command, (id,))
-
-def running_balance(filters):
-    print(filters)
-    sql_command = "select BankName, Date, max(RunningBalance) as RunningBalance from Transactions "\
-    "where Date >= '2017-09-03' and Date <= '2018-09-16'"\
-    "group by BankName, Date order by BankName, Date"
-    all_entries = run_select(sql_command)
-    print(all_entries)
-    response = {}
-    response['data'] = all_entries
-    return json.dumps(response)
