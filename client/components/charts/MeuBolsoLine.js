@@ -25,7 +25,7 @@ export default Line.extend({
           legend: {
             display: true
           },
-          showLine: true,
+          showLines: true,
           responsive: true,
           maintainAspectRatio: false
         }

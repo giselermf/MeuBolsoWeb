@@ -13,7 +13,7 @@ class Processor(object):
     def __init__(self, folder):
         self.folder = folder.replace('"', '').strip().rstrip()
         self.categories = Categories()
-        self.running_balances_perBank = {}
+        self.running_balance_perBank = {}
 
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
@@ -73,19 +73,13 @@ class Processor(object):
         
         self._mark_file_as_processed(fileName, entries_in_file, all_passed==True)
 
-
-    def _get_bank_balance(self, bankName):
-        if bankName in self.running_balances_perBank:
-            return self.running_balances_perBank[bankName]
-        return 0
-
     def _update_bank_balance(self, bankName, balance):
-        self.running_balances_perBank[bankName] = balance
+        self.running_balance_perBank[bankName] = balance
 
     def _update_running_balance(self):
-        transactions = get_all_transactions(oder_by = "bankName,Date")
+        transactions = get_all_transactions(oder_by = "BankName,Date,Id")
         for t in transactions:
-            t['RunningBalance'] = self._get_bank_balance(t['BankName']) + t['AmountEUR']
-            update_transaction(id=t['id'], RunningBalance =  t['RunningBalance']  )
+            t['RunningBalance'] = self.running_balance_perBank.get(t['BankName'], 0) + t['Amount']
+            update_transaction(id=t['id'], RunningBalance =  t['RunningBalance'] )
             self._update_bank_balance(t['BankName'], t['RunningBalance'])
     

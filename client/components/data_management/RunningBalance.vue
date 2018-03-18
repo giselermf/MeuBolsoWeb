@@ -44,9 +44,15 @@ export default {
   methods: {
     createDataset(alabels, bank, allBankSerie, datasetsLength) {
       let values = [];
+      let lastValue = 0;
       for (let x in alabels) {
         let runningDate = alabels[x];
-        values.push(allBankSerie[runningDate]);
+        if (allBankSerie[runningDate] == undefined) {
+          values.push(lastValue);
+        } else {
+          lastValue = allBankSerie[runningDate];
+          values.push(allBankSerie[runningDate]);
+        }
       }
       return {
         label: bank,

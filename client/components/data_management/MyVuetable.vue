@@ -45,7 +45,6 @@ export default {
         class: { ui: true, container: true }
       },
       [
-       // h('filter-bar'),
         this.renderVuetable(h),
         this.renderPagination(h)
       ]

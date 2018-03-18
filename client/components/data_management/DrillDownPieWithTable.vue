@@ -11,7 +11,7 @@
         :data="tableData"
         :api-mode=false
         table-wrapper="#content"
-        :fields="['Group', 'Value']"
+        :fields="fields"
     ></vuetable>      
 </div>
 </template>
@@ -37,6 +37,7 @@ export default {
       chartLabels: null,
       chartValues: null,
       drillDownLevel: 1,
+      fields: [{ name: "Group" }, { name: "Value", callback: "formatValues" }]
     };
   },
   mounted() {
@@ -50,6 +51,15 @@ export default {
     }
   },
   methods: {
+    formatValues(value) {
+      if (value == 0 || value == null) return "";
+      if (!this.isPositive())
+        return '<div style="text-align: end;color: red;">' + value + "</span>";
+      else
+        return (
+          '<div style="text-align: end;color: black;">' + value + "</span>"
+        );
+    },
     prepareData() {
       this.groupData();
       this.prepareTableData();
