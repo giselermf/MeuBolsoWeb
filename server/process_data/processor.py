@@ -62,6 +62,7 @@ class Processor(object):
                             if len(from_database) > 1:
                                 print('found more than one', entry, row, from_database)
                         elif len(from_database) == 0:
+                            #print('to insert', entry['Bank Name'], entry['Amount in EUR'] )
                             insert_transaction( entry['Category'], entry['SubCategory'], entry['Type'], entry['Description'], \
                                                 entry['Number'], entry['Currency'], entry['Amount'], \
                                                 entry['Bank Name'], entry['Amount in EUR'] , \

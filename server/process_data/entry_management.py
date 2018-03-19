@@ -47,7 +47,7 @@ class GenericProcessor(object):
     
     def get_amount(self, row):
         value = self.convert_to_number(row[self.amount_pos])
-        if self.account_name_pos is not None and (row[self.account_name_pos] == 'UNFCU Visa Elite' or row[self.account_name_pos] == 'Credit Card'):
+        if ((self.account_name_pos is not None and ('Visa Elite' in row[self.account_name_pos] or 'Credit Card'in row[self.account_name_pos] ))):
             return -value
         return value
         

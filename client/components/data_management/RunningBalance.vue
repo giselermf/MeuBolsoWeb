@@ -85,7 +85,7 @@ export default {
       let runningValues = [];
       for (let bank in groupedData) {
         if (
-          (this.selectedBank != null && bank == this.selectedBank) ||
+          (this.selectedBank != null && bank.replace(/\s+/g,' ').trim() == this.selectedBank.replace(/\s+/g,' ').trim()) ||
           this.selectedBank == null
         ) {
           datasets.push(

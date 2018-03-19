@@ -71,10 +71,12 @@ export default {
       //this.tableFields.splice(0, this.tableFields.length);
       this.tableFields = ["Desc"];
       //push data into table data
+      let grandTotal = {"Desc": "Total"};
       for (let col in groupedData) {
         if (this.tableFields.indexOf(col) < 0)
           this.tableFields.push({ name: col, callback: "formatValues" });
         for (let desc in groupedData[col]) {
+          grandTotal[col] = (grandTotal[col] || 0) + groupedData[col][desc]
           if (groupedData[col][desc] != 0) {
             if (desc in rows) {
               rows[desc][col] = groupedData[col][desc];
@@ -90,6 +92,7 @@ export default {
         rows[e]["Desc"] = e;
         this.tableData.push(rows[e]);
       }
+      this.tableData.push(grandTotal);
       if (this.$refs.vuetableData) {
         Vue.nextTick(() => this.$refs.vuetableData.normalizeFields());
       }

@@ -48,41 +48,6 @@ export function getDataSetPie(labels, values) {
   };
 };
 
-export function getGroupByGrouperAndMonth(all_data, groupByOther) {
-  let xLabel = "yearmonth";
-  let datasetLabel = groupByOther;
-
-  //group by "groupByOther"
-  let groupedData = all_data.reduce(function (r, a) {
-    r[a[groupByOther]] = r[a[groupByOther]] || [];
-    r[a[groupByOther]].push(a);
-    return r;
-  }, Object.create(null));
-
-  //group month and year
-  for (let e in groupedData) {
-    groupedData[e] = groupedData[e].reduce(function (r, a) {
-      r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || [];
-      r[a["Year"] + "/" + a["Month"]].push(a);
-      return r;
-    }, Object.create(null));
-  }
-
-  // calculate grandTotal by yearmonth and "groupByOther"
-  for (let e in groupedData) {
-    for (let x in groupedData[e]) {
-      let grandTotal = 0;
-      {
-        for (let r in groupedData[e][x]) {
-          grandTotal += groupedData[e][x][r]["AmountEUR"]
-        }
-      }
-      groupedData[e][x] = Math.round(grandTotal);
-    }
-  }
-  return groupedData;
-};
-
 export function getGroupByMonthAnd(all_data, groupByOther) {
   let xLabel = "yearmonth";
   let datasetLabel = groupByOther;

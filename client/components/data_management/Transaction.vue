@@ -17,6 +17,7 @@
     <div class="ui  segment">
       <transaction-table></transaction-table>
     </div> 
+    <transaction-edit></transaction-edit>
   </div>
 </template>
 
@@ -24,12 +25,14 @@
 import TransactionSearch from "./TransactionSearch.vue";
 import TransactionTable from "./TransactionTable.vue";
 import OverMonthWithTable from "../data_management/OverMonthBarWithTable";
+import TransactionEdit from "./TransactionEdit.vue";
 
 export default {
   components: {
     TransactionSearch,
     TransactionTable,
-    OverMonthWithTable
+    OverMonthWithTable,
+    TransactionEdit
   },
   data() {
     return {
