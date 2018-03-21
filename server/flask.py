@@ -59,8 +59,8 @@ def post_transactions():
 
 def getParams(request):
     sort_params = request.args.get('sort')
-    sort = None
-    sort_order = None
+    sort = 'Date'
+    sort_order = 'asc'
     if sort_params is not None:
         sort_params = sort_params.split('|')
         sort = sort_params[0]

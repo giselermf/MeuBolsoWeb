@@ -1,6 +1,6 @@
 <template>
 <div >
-    <meu-bolso-bar :width="width" :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="grouper" :title="title" ></meu-bolso-bar>  
+    <meu-bolso-bar :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="grouper" :title="title" ></meu-bolso-bar>  
     <div v-if="showTable && tableFields.length>0" class="ui  segment">
       <vuetable ref="vuetableData"
             :data="tableData"
@@ -63,6 +63,8 @@ export default {
       if (this.allData == null) return;
       let rows = {};
       let groupedData = getGroupByMonthAnd(this.allData, this.grouper);
+      console.log('allData', this.allData)
+      console.log('groupedData', groupedData)
       //chart data
       this.chartData = getLabelAndDatabaseBar(groupedData, colors);
 

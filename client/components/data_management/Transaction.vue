@@ -1,17 +1,17 @@
 <template>
 <div id="app" class="ui vertical segments" >
     <div id="app" class="ui horizontal segments" >
-      <div class="ui  segment">
+      <div class="ui  segment four wide column">
           <transaction-search></transaction-search>
       </div>
-      <div class="ui  segment">
+      <div class="ui  segment eight wide column">
         <select v-model="grouper">
           <option disabled value="">Please select one</option>
           <option>Type</option>
           <option>Category</option>
           <option>SubCategory</option>
         </select>
-       <over-month-with-table :width="500" :height="300" :allData="allData" :show-table="true" :grouper="grouper" ></over-month-with-table>
+       <over-month-with-table :height="300" :allData="allData" :show-table="true" :grouper="grouper" ></over-month-with-table>
       </div>
     </div>
     <div class="ui  segment">

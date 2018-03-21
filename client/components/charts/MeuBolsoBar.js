@@ -30,7 +30,7 @@ export default Bar.extend({
         legend: {
           display: true
         },
-        responsive: false,
+        responsive: true,
         maintainAspectRatio: false
       }
     }

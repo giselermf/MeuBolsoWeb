@@ -1,4 +1,5 @@
-export let colors = ["Red", "Green","Blue", "Yellow",  "Purple", "Orange"]
+export let colors = ["Red", "Green","Blue", "Yellow", "Purple", 
+"Orange", "Grey", "Pink", "OrangeRed", "Lime", "Tomato", "CadetBlue", "Steelblue", "Magenta", "Brown", "Chocolate"]
 
 export function getDatasetColors(values) {
   let datasetColors = [];

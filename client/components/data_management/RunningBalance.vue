@@ -1,13 +1,14 @@
 <template>
-<div >
+<div class="ui vertical segments twelve wide column">
+    <span>Bank name:</span>
     <select v-model="selectedBank" placeholder="Select a Bank">
         <option v-for="bank in allBanks" :key="bank" >
             {{ bank }}
         </option>
     </select>
 
-    <meu-bolso-line :width="width" :height="height" :chartData="chartData" :title="title" xLabel="Date" datasetLabel="BankName"></meu-bolso-line>
-</div>
+        <meu-bolso-line :height="height" :chartData="chartData" :title="title" xLabel="Date" datasetLabel="BankName"></meu-bolso-line>
+ </div>
 </template>
 
 <script>
@@ -19,10 +20,10 @@ export default {
   components: {
     meuBolsoLine
   },
-  props: ["width", "height", "allData"],
+  props: ["height", "allData"],
   data() {
     return {
-      selectedBank: null,
+      selectedBank: 'All',
       allBanks: [],
       chartData: {},
       title: "Running Balance"
@@ -31,7 +32,8 @@ export default {
   watch: {
     allData: {
       handler(newData, oldData) {
-        this.allBanks = Array.from(new Set(this.allData.map(x => x.BankName)));
+        this.allBanks = ['All']
+        this.allBanks = this.allBanks.concat(Array.from(new Set(this.allData.map(x => x.BankName))));
         this.getChartData();
       }
     },
@@ -57,7 +59,7 @@ export default {
       return {
         label: bank,
         fill: true,
-        backgroundColor: colors[datasetsLength % colors.length],
+        //backgroundColor: colors[datasetsLength % colors.length],
         borderColor: colors[datasetsLength % colors.length],
         data: values,
         showLine: true
@@ -85,8 +87,8 @@ export default {
       let runningValues = [];
       for (let bank in groupedData) {
         if (
-          (this.selectedBank != null && bank.replace(/\s+/g,' ').trim() == this.selectedBank.replace(/\s+/g,' ').trim()) ||
-          this.selectedBank == null
+          (this.selectedBank != 'All' && bank.replace(/\s+/g,' ').trim() == this.selectedBank.replace(/\s+/g,' ').trim()) ||
+          this.selectedBank == 'All'
         ) {
           datasets.push(
             this.createDataset(
