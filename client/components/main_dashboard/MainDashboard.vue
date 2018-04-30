@@ -26,7 +26,6 @@
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../data_management/DrillDownPieWithTable";
-import OverMonthWithTable from "../data_management/OverMonthBarWithTable";
 import RunningBalance from "../data_management/RunningBalance";
 
 import moment from "moment";
@@ -39,7 +38,7 @@ export default {
   components: {
     meuBolsoBar,
     DrillDownWithTable,
-    OverMonthWithTable, RunningBalance
+    RunningBalance
   },
   data() {
     return {

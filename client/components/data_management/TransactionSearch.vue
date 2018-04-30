@@ -3,7 +3,7 @@
         <div class="ui  segment">         
             <div>
                 <label class="form-label">Bank:</label>
-                <select class="form-field" v-model="selectedBank">
+                <select class="form-field" v-model="selectedBank" @change="setDateRange()">
                     <option v-for="bank in getFilterValue('BankName')" v-bind:key="bank.value" v-bind:value="bank.value">
                         {{ bank.value }}
                     </option>
@@ -35,7 +35,7 @@
                 <label class="form-label">Transaction Type:</label>
                 <div class="multiple-select" >
                     <ul>
-                        <li v-for="transaction_type in getFilterValue('Type')" v-bind:key="transaction_type.value">
+                        <li v-for="transaction_type in getFilterValue('type')" v-bind:key="transaction_type.value">
                             <input type="checkbox" :id="transaction_type.value" :value="transaction_type.value" v-model="selectedTypes">
                             <label :for="transaction_type.value">{{transaction_type.value}}</label>
                         </li>
@@ -46,7 +46,7 @@
                 <label class="form-label">Category:</label>
                 <div class="multiple-select" >
                     <ul>
-                        <li v-for="category in getFilterValue('Category')" v-bind:key="category.value">
+                        <li v-for="category in getFilterValue('category')" v-bind:key="category.value">
                             <input type="checkbox" :id="category.value" :value="category.value" v-model="selectedCategories">
                             <label :for="category.value">{{category.value}}</label>
                         </li>
@@ -132,6 +132,7 @@ export default {
         Description: this.Description,
         Currencies: this.selectedCurrencies
       };
+      console.log("fire event transaction-filter-set");
       this.$events.fire("transaction-filter-set", addFilterParam(params));
     },
     setDateRange: function() {
@@ -162,7 +163,7 @@ export default {
       var axios = require("axios");
       var querystring = require("querystring");
       axios
-        .get("http://127.0.0.1:5000/getFilterData/")
+        .get("http://127.0.0.1:5000/getFilterTransactionData/")
         .then(response => {
           this.all_filter_data = response["data"];
         })

@@ -1,6 +1,6 @@
 import json
 
-def getSortClause(sort='Date', sort_order='Desc'):
+def getSortClause(sort, sort_order):
     if sort is not None and sort != '':
         return " order by %s %s " % (sort, sort_order)
     return ''

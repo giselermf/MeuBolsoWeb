@@ -9,7 +9,7 @@ export default Line.extend({
   watch:{
     'chartData': {
       handler (newData, oldData) {
-        console.log('watching data')
+        console.log('watching data from line')
         if (this._chart) this._chart.destroy();
         this.renderChart(this.chartData, this.options);
       }

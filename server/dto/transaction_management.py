@@ -3,7 +3,7 @@ from server.database.database_connection import run_select, run_update
 import json
 
 def get_all_transactions(oder_by=None):
-    sql_command = "Select id, category, subcategory, type, description, bankName, AmountEUR,Amount, Date, Year, Month from Transactions"
+    sql_command = "Select id, category, subcategory, type, description, bankName, AmountEUR,Amount, Date, Year, Month from vwTransactions"
     if oder_by is not None:
         sql_command += " order by " + oder_by
     return run_select(sql_command)
@@ -18,9 +18,13 @@ def add_param(column_name, comparison, param_value):
         else:
             return "{0} {1} '{2}' and ".format(column_name, comparison, param_value)
     return ""
+
+def get_filter_transaction_data(): 
+    all_entries = run_select("Select distinct BankName, category, subCategory, type from vwTransactions where Active=1")
+    return json.dumps(all_entries)
     
 def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_page):
-    sql_command = "select * from Transactions "
+    sql_command = "select * from vwTransactions "
     where_clause = ""
     if  filter_param != None and filter_param != {} :
         where_clause = " where "
@@ -42,20 +46,16 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
     sql_command += getLimitClause(page_number, per_page)
     all_entries = run_select(sql_command)
     print('***', sql_command)
-    total_records = run_select('select count(*) as total from Transactions ' + where_clause )[0]['total']
+    total_records = run_select('select count(*) as total from vwTransactions ' + where_clause )[0]['total']
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
 
 def get_transaction(currency, bank_name, amount, date_str, description, transaction_number=None):
-    sql_command = "SELECt * FROM Transactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date_str='{3}'"\
+    sql_command = "SELECt * FROM vwTransactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date_str='{3}'"\
                     " and Description like '{4}%' "\
                     .format(currency, bank_name, amount, date_str, description)
     if transaction_number is not None:
         sql_command = sql_command + " and TransactionNumber = '{0}'  ".format(transaction_number)
     return run_select(sql_command)
-
-def get_filter_data():
-    all_entries = run_select("Select distinct Currency, BankName, Category, SubCategory, Type from Transactions")
-    return json.dumps(all_entries)
 
 def insert_transaction(category, sub_category, entry_type, description, transaction_number, currency, amount, bank_name, amount_eur, date_str, date ):
     sql_commnad = 'INSERT INTO Transactions '\
@@ -71,7 +71,7 @@ def update_transaction(id, category=None, sub_category=None, type=None, transact
     else:
         sql_command = "update Transactions set "
         if category is not None:
-            sql_command += " category = '{0}' ,".format(category)
+            sql_command += " ategory = '{0}' ,".format(category)
         if sub_category is not None:
             sql_command += " subcategory = '{0}' ,".format(sub_category)
         if type is not None:

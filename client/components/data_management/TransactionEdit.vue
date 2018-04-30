@@ -12,16 +12,28 @@
       </div>  
       <div>
         <label class="form-label">Type:</label>
-        <input v-model="type" placeholder="edit me" class="form-field"> <br> 
+        <select class="form-field" v-model="selectedType" v-on:change="onChangeType" >
+            <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
+                {{ type }}
+            </option>
+        </select>
       </div>
       <div>
         <label class="form-label">Category:</label>
-        <input v-model="category" placeholder="edit me" class="form-field"> <br> 
+        <select class="form-field" v-model="selectedCategory" v-on:change="onChangeCategory">
+            <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
+                {{ category }}
+            </option>
+        </select>
       </div>
       <div>
         <label class="form-label">SubCategory:</label>
-        <input v-model="SubCategory" placeholder="edit me" class="form-field"><br>
-      </div>
+        <select class="form-field" v-model="selectedSubCategory">
+            <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
+                {{ subcategory }}
+            </option>
+        </select>
+      </div> 
       <div style="display: flex;justify-content: center;padding-top: 1em"> 
           <button type="button" @click="save()" >Save</button>
       </div>
@@ -30,13 +42,15 @@
 </template>
 
 <script>
+import CategorySelectCombos from "./CategorySelectCombos.vue"
+
 export default {
+  mixins : [CategorySelectCombos],
   data() {
     return {
       category_id: null,
-      type: null,
-      category: null,
-      SubCategory: null,
+      type_data: null,
+      category_data: null,
       description: null,
       bank: null
     };
@@ -46,12 +60,13 @@ export default {
   },
   methods: {
     onEdit: function(data) {
+      console.log('here', data)
       this.category_id = data.id;
-      this.category = data.Category;
-      this.SubCategory = data.SubCategory;
       this.bank = data.BankName;
       this.description = data.Description;
-      this.type = data.Type;
+      this.selectedType = data.Type;
+      this.selectedCategory = data.Category;
+      this.selectedSubCategory = data.SubCategory;
     },
     save: function() {
       var axios = require("axios");
@@ -61,9 +76,9 @@ export default {
           "http://127.0.0.1:5000/transactions/",
           querystring.stringify({
             id: this.category_id,
-            category: this.category,
-            SubCategory: this.SubCategory,
-            Type: this.type
+            category: this.selectedSubCategory,
+            SubCategory: this.selectedSubCategory,
+            Type: this.selectedType
           })
         )
         .then(response => {

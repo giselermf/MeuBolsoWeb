@@ -16,7 +16,6 @@ export function addFilterParam(allPossibleFilters) {
     if (filterValue != null && filterValue.length > 0)
       filterParams[key] = filterValue;
   });
-  console.log('filter params', filterParams)
   return filterParams;
 };
 

@@ -53,22 +53,22 @@ export default {
           dataClass: "center aligned"
         },
         {
-          name: "type",
+          name: "Type",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "category",
+          name: "Category",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "subcategory",
+          name: "SubCategory",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "description",
+          name: "Description",
           titleClass: "center aligned",
           dataClass: "center aligned",
           callback: "formatDescription"

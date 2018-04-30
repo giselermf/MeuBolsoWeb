@@ -5,21 +5,33 @@
         <p>Id : {{ category_id }}</p>
       </div>
       <div>
-        <label class="form-label">Type:</label>
-        <input v-model="type" placeholder="edit me" class="form-field"> <br> 
-      </div>
-      <div>
-        <label class="form-label">Category:</label>
-        <input v-model="category" placeholder="edit me" class="form-field"> <br> 
-      </div>
-      <div>
-        <label class="form-label">Subcategory:</label>
-        <input v-model="subcategory" placeholder="edit me" class="form-field"> <br> 
-      </div>
-      <div>
         <label class="form-label">Description:</label>
         <input v-model="description" placeholder="edit me" class="form-field"><br>
       </div>
+      <div>
+        <label class="form-label">Type:</label>
+        <select class="form-field" v-model="selectedType" v-on:change="onChangeType" >
+            <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
+                {{ type }}
+            </option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Category:</label>
+        <select class="form-field" v-model="selectedCategory" v-on:change="onChangeCategory">
+            <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
+                {{ category }}
+            </option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">SubCategory:</label>
+        <select class="form-field" v-model="selectedSubCategory">
+            <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
+                {{ subcategory }}
+            </option>
+        </select>
+      </div> 
       <div style="display: flex;justify-content: center;padding-top: 1em"> 
           <button type="button" @click="save()" >Save</button>
           <button type="button" @click="add()" >Add</button>
@@ -34,18 +46,17 @@
 
 <script>
 import CategoryTable from "./CategoryTable.vue";
+import CategorySelectCombos from "./CategorySelectCombos.vue"
 import { addFilterParam } from "../charts/ChartUtils.js";
 import VueEvents from "vue-events";
 
 export default {
-  components: { CategoryTable },
+  mixins : [CategorySelectCombos],
+  components: { CategoryTable},
   data() {
     return {
       category_id: null,
-      category: null,
-      description: null,
-      type: null,
-      subcategory: null
+      description: null
     };
   },
   mounted() {
@@ -54,11 +65,11 @@ export default {
   },
   methods: {
     onEdit: function(data) {
+      this.description = data.Description;
       this.category_id = data.id;
-      this.category = data.category;
-      this.description = data.description;
-      this.type = data.type;
-      this.subcategory = data.subcategory;
+      this.selectedType = data.Type;
+      this.selectedCategory = data.Category;
+      this.selectedSubCategory = data.SubCategory;
     },
     onDelete: function(data) {
       var axios = require("axios");
@@ -83,9 +94,9 @@ export default {
           "http://127.0.0.1:5000/categories/",
           querystring.stringify({
             id: this.category_id,
-            type: this.type,
-            category: this.category,
-            subcategory: this.subcategory,
+            type: this.selectedType,
+            category: this.selectedCategory,
+            subcategory: this.selectedSubCategory,
             description: this.description
           })
         )
@@ -104,9 +115,9 @@ export default {
           "http://127.0.0.1:5000/categories/",
           querystring.stringify({
             id: null,
-            type: this.type,
-            category: this.category,
-            subcategory: this.subcategory,
+            type: this.selectedType,
+            category: this.selectedCategory,
+            subcategory: this.selectedSubCategory,
             description: this.description
           })
         )
@@ -119,8 +130,8 @@ export default {
     },
     search: function() {
       let params = {
-        category: this.category,
-        subcategory: this.subcategory,
+        category: this.selectedCategory,
+        subcategory: this.selectedSubCategory,
         description: this.description,
         type: this.type
       };
@@ -128,10 +139,10 @@ export default {
     },
     reset: function() {
       this.category_id = null;
-      this.category = null;
+      this.selectedCategory = null;
       this.description = null;
-      this.type = null;
-      this.subcategory = null;
+      this.selectedType = null;
+      this.selectedSubCategory = null;
       this.$events.fire("category-filter-reset");
     }
   }

@@ -39,7 +39,7 @@ export default {
     },
     selectedBank: {
       handler(newData, oldData) {
-        this.getChartData();
+        this.getChartData(); 
       }
     }
   },

@@ -45,6 +45,7 @@ export default {
     },
     grouper: {
       handler(newData, oldData) {
+        this.title = this.grouper + " Over Months";
         this.getOverMonth();
       }
     }
@@ -63,10 +64,6 @@ export default {
       if (this.allData == null) return;
       let rows = {};
       let groupedData = getGroupByMonthAnd(this.allData, this.grouper);
-      console.log('allData', this.allData)
-      console.log('groupedData', groupedData)
-      //chart data
-      this.chartData = getLabelAndDatabaseBar(groupedData, colors);
 
       //clean table data
       this.tableData.splice(0, this.tableData.length);
@@ -98,6 +95,8 @@ export default {
       if (this.$refs.vuetableData) {
         Vue.nextTick(() => this.$refs.vuetableData.normalizeFields());
       }
+      //chart data
+      this.chartData = getLabelAndDatabaseBar(groupedData, colors);
     }
   }
 };

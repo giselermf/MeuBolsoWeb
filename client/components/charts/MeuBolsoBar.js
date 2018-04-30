@@ -38,11 +38,12 @@ export default Bar.extend({
   props: ['chartData', 'title'],
   mounted () {
     if (this._chart) this._chart.destroy();
-    this.renderChart(this.chartData, this.options )
+    this.renderChart(this.chartData, this.options );
   },
   watch:{
     'chartData': {
       handler (newData, oldData) {
+        this.options.title.text = this.title;
         if (this._chart) this._chart.destroy();
         this.renderChart(this.chartData, this.options);
       }

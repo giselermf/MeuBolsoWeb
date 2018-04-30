@@ -43,25 +43,31 @@ export default {
   },
   created() {
     this.getData();
-    this.$events.$on("transaction-filter-set", eventData => this.onFilterSet(eventData));
+    this.$events.$on("transaction-filter-set", eventData =>
+      this.onFilterSet(eventData)
+    );
     this.$events.$on("transaction-filter-reset", e => this.onFilterReset());
   },
   methods: {
     getData() {
       let axios = require("axios");
       let querystring = require("querystring");
+      if (this.getFilterParam() != "") { //don't call without filter
       axios
-        .get("http://127.0.0.1:5000/transactionsFiltered/" + this.getFilterParam())
+        .get(
+          "http://127.0.0.1:5000/transactionsFiltered/" + this.getFilterParam()
+        )
         .then(response => {
           this.allData = response["data"]["data"];
         })
         .catch(function(error) {
           console.log(error);
         });
+        }
     },
     getFilterParam() {
-      if ( this.appendParams.filter == undefined ) return "";
-      else return  "?filter=" + JSON.stringify(this.appendParams.filter);
+      if (this.appendParams.filter == undefined) return "";
+      else return "?filter=" + JSON.stringify(this.appendParams.filter);
     },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;

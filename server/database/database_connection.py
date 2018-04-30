@@ -26,7 +26,7 @@ def run_select(sql_command, param_name=None):
     with conn:
         c = conn.cursor()
         try:
-          #  print(sql_command)
+            print(sql_command)
             c.execute(sql_command)
             if param_name is None:
                 return c.fetchall()

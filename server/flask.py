@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
-from server.dto.transaction_management import update_transaction, get_filter_data, get_transactions_filtered
-from server.dto.category_management import get_categories, save_category, delete_category
+from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data
+from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
 import json
@@ -39,11 +39,15 @@ def categories():
         filter_param = json.loads(filter_param)
     return app.make_response(( get_categories(sort, sort_order, filter_param, page_number, per_page ), 200))
 
-# TRANSACTIONS
 
 @app.route('/getFilterData/', methods=['GET'])
 def filter_data():
     return app.make_response(get_filter_data())
+
+# TRANSACTIONS
+@app.route('/getFilterTransactionData/', methods=['GET'])
+def getFilterTransactionData():
+    return app.make_response(get_filter_transaction_data())
 
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
@@ -59,7 +63,7 @@ def post_transactions():
 
 def getParams(request):
     sort_params = request.args.get('sort')
-    sort = 'Date'
+    sort = None
     sort_order = 'asc'
     if sort_params is not None:
         sort_params = sort_params.split('|')
