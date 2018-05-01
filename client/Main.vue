@@ -10,6 +10,9 @@
       <tab-pane label="Categories">
             <category></category>
       </tab-pane>
+      <tab-pane label="Budget">
+        <budget></budget>
+      </tab-pane>
       <tab-pane label="Process Records">
         <process-data></process-data>
       </tab-pane>
@@ -24,10 +27,11 @@
   import Category from './components/data_management/CategoryEdit.vue'
   import Transaction from './components/data_management/Transaction.vue'
   import ProcessData from './components/process/ProcessData.vue'
+  import Budget from './components/budget_management/Budget.vue'
 
   export default {
     components: {
-      Tabs,TabPane, Category, Transaction, ProcessData, MainDashboard
+      Tabs,TabPane, Category, Transaction, ProcessData, MainDashboard, Budget
     }
   }
 </script>

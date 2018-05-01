@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     onEdit: function(data) {
-      console.log('here', data)
       this.category_id = data.id;
       this.bank = data.BankName;
       this.description = data.Description;

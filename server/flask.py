@@ -5,6 +5,8 @@ from server.dto.transaction_management import update_transaction, get_transactio
 from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
+from server.dto.budget_management import get_budget
+
 import json
 
 app = Flask(__name__)
@@ -73,3 +75,8 @@ def getParams(request):
     page_number = request.args.get('page')
     per_page = request.args.get('per_page')
     return sort, sort_order, filter_param, page_number, per_page
+
+# Budget
+@app.route('/budget/', methods=['GET'])
+def getBudget():
+    return app.make_response(get_budget())
