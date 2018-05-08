@@ -21,7 +21,7 @@ import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar,
   colors
-} from "../charts/ChartUtils.js";
+} from "../util/Utils.js";
 
 export default {
   components: {

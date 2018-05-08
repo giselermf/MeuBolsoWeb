@@ -3,7 +3,7 @@
         <div class="ui  segment">         
             <div>
                 <label class="form-label">Bank:</label>
-                <select class="form-field" v-model="selectedBank" @change="setDateRange()">
+                <select class="form-field" v-model="selectedBank" @change="search()">
                     <option v-for="bank in getFilterValue('BankName')" v-bind:key="bank.value" v-bind:value="bank.value">
                         {{ bank.value }}
                     </option>
@@ -11,14 +11,8 @@
             </div> 
             <div>
                 <label class="form-label">Date:</label>
-                <input placeholder="from" v-model="fromDate" class="form-field-small"/> 
-                <input placeholder="to" v-model="toDate" class="form-field-small"/> 
-                <select v-model="dateRangeOption" @change="setDateRange()" >
-                    <option>Current Month</option>
-                    <option>Previous Month</option>
-                    <option>Last 3 Months</option>
-                    <option>Last 6 Months</option>
-                </select>
+                <datepicker class="date-picker" v-model="fromDate" placeholder="from" :minimumView="'day'" :maximumView="'day'"></datepicker>
+                <datepicker class="date-picker" v-model="toDate" placeholder="to" :minimumView="'day'" :maximumView="'day'"></datepicker>
             </div>
             <div>
                 <label class="form-label">Amount:</label>
@@ -69,9 +63,13 @@
 
 <script>
 import moment from "moment";
-import { addFilterParam } from "../charts/ChartUtils.js";
+import { addFilterParam } from "../util/Utils.js";
+import Datepicker from "vuejs-datepicker";
 
 export default {
+  components: {
+    Datepicker
+  },
   data() {
     return {
       selectedCategories: [],
@@ -89,9 +87,18 @@ export default {
       dateRangeOption: "Current Month"
     };
   },
-  mounted() {
-    this.setDateRange();
+  created() {
     this.getCategoriesFromServer();
+    this.fromDate = moment(new Date())
+      .startOf("month")
+      .subtract(2, "month")
+      .format("YYYY-MM-DD");
+    this.toDate = moment(new Date())
+      .add(2, "month")
+      .format("YYYY-MM-DD");
+  },
+  mounted() {
+      this.search();
   },
   methods: {
     getFilterValue: function(fieldName) {
@@ -126,38 +133,13 @@ export default {
         bankName: this.selectedBank,
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
-        fromDate: this.fromDate,
         SubCategory: this.SubCategory,
-        toDate: this.toDate,
+        fromDate: this.fromDate, 
+        toDate: this.toDate, 
         Description: this.Description,
         Currencies: this.selectedCurrencies
       };
-      console.log("fire event transaction-filter-set");
       this.$events.fire("transaction-filter-set", addFilterParam(params));
-    },
-    setDateRange: function() {
-      let begin, end;
-
-      let end_of_last_month = moment(new Date())
-        .subtract(1, "month")
-        .endOf("month");
-      let today = moment(new Date());
-      if (this.dateRangeOption == "Current Month") {
-        begin = moment(new Date()).startOf("month");
-        end = today;
-      } else if (this.dateRangeOption == "Previous Month") {
-        begin = today.subtract(1, "month").startOf("month");
-        end = end_of_last_month;
-      } else if (this.dateRangeOption == "Last 3 Months") {
-        begin = today.startOf("month").subtract(3, "month");
-        end =  moment(new Date())
-      } else if (this.dateRangeOption == "Last 6 Months") {
-        begin = today.startOf("month").subtract(6, "month");
-        end =  moment(new Date());
-      }
-      this.fromDate = begin.format("YYYY-MM-DD");
-      this.toDate = end.format("YYYY-MM-DD");
-      this.search();
     },
     getCategoriesFromServer: function() {
       var axios = require("axios");

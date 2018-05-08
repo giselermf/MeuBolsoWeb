@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import CategorySelectCombos from "./CategorySelectCombos.vue"
+import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 
 export default {
   mixins : [CategorySelectCombos],
@@ -90,9 +90,3 @@ export default {
   }
 };
 </script>
-
-
-<style
-  src="../../static/meuBolso.css">
-
-</style>

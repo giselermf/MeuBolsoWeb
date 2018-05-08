@@ -11,7 +11,7 @@ def add_param(column_name, param_value):
     return ""
 
 def get_filter_data():
-    all_entries = run_select("Select distinct Category, SubCategory, Type from Category")
+    all_entries = run_select("Select id, Category, SubCategory, Type from Category")
     return json.dumps(all_entries)
 
 def get_categories(sort, sort_order=None, filter_param=None, page_number=None, per_page=None):

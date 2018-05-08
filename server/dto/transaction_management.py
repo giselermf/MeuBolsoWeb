@@ -3,7 +3,7 @@ from server.database.database_connection import run_select, run_update
 import json
 
 def get_all_transactions(oder_by=None):
-    sql_command = "Select id, category, subcategory, type, description, bankName, AmountEUR,Amount, Date, Year, Month from vwTransactions"
+    sql_command = "Select id, category, subcategory, type, description, BankName, AmountEUR,Amount, Date, Year, Month from vwTransactions"
     if oder_by is not None:
         sql_command += " order by " + oder_by
     return run_select(sql_command)

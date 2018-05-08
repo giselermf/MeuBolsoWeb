@@ -14,7 +14,7 @@
 <script>
 import meuBolsoLine from "../charts/meuBolsoLine.js";
 import moment from "moment";
-import { colors } from "../charts/ChartUtils.js";
+import { colors } from "../util/Utils.js";
 
 export default {
   components: {

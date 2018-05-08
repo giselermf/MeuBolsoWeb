@@ -22,20 +22,28 @@
 </template>
 
 <script>
-  import { Tabs, TabPane } from 'vue-bulma-tabs'
-  import MainDashboard from './components/main_dashboard/MainDashboard.vue'
-  import Category from './components/data_management/CategoryEdit.vue'
-  import Transaction from './components/data_management/Transaction.vue'
-  import ProcessData from './components/process/ProcessData.vue'
-  import Budget from './components/budget_management/Budget.vue'
+import { Tabs, TabPane } from "vue-bulma-tabs";
+import MainDashboard from "./components/main_dashboard/MainDashboard.vue";
+import Category from "./components/data_management/CategoryEdit.vue";
+import Transaction from "./components/data_management/Transaction.vue";
+import ProcessData from "./components/process/ProcessData.vue";
+import Budget from "./components/budget_management/Budget.vue";
 
-  export default {
-    components: {
-      Tabs,TabPane, Category, Transaction, ProcessData, MainDashboard, Budget
-    }
+export default {
+  components: {
+    Tabs,
+    TabPane,
+    Category,
+    Transaction,
+    ProcessData,
+    MainDashboard,
+    Budget
   }
+};
 </script>
 
+
+
 <style lang="sass">
-  @import '~bulma'
+    @import '~bulma'
 </style>

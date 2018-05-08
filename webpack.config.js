@@ -9,10 +9,16 @@ module.exports = {
     filename: 'build.js'
   },
   module: {
-    rules: [
+  /*  rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            'scss': 'vue-style-loader!css-loader!sass-loader',
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+          }
+        }
       },
       {
         test: /\.js$/,
@@ -23,9 +29,36 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.sass$/,
+        use: [
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
+        ]
+      }
+      
+    ]*/
+    loaders: [
+      {
+        test: /\.vue$/,
+        loader: 'vue'
+      }, 
+      {
+          test: /\.s[a|c]ss$/,
+          loader: 'style!css!sass'
       }
     ]
+  },
+  vue: {
+    loaders: {
+      scss: 'style!css!sass'
+    }
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],

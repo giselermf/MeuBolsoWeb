@@ -46,8 +46,8 @@
 
 <script>
 import CategoryTable from "./CategoryTable.vue";
-import CategorySelectCombos from "./CategorySelectCombos.vue"
-import { addFilterParam } from "../charts/ChartUtils.js";
+import CategorySelectCombos from "../util/CategorySelectCombos.vue"
+import { addFilterParam } from "../util/Utils.js";
 import VueEvents from "vue-events";
 
 export default {
@@ -148,9 +148,3 @@ export default {
   }
 };
 </script>
-
-
-<style
-  src="../../static/meuBolso.css">
-
-</style>

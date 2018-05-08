@@ -19,7 +19,7 @@
 <script>
 import MeuBolsoPie from "../charts/MeuBolsoPie.js";
 import Vuetable from "vuetable-2/src/components/Vuetable.vue";
-import { groupDataBy } from "../charts/ChartUtils.js";
+import { groupDataBy } from "../util/Utils.js";
 
 export default {
   components: {

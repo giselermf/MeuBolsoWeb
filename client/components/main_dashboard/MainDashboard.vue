@@ -2,10 +2,10 @@
 <div id="app" class="ui vertical segments" >
       <div class="ui  segment">
         <div>
-            <label class="form-label">Date:</label>
-            <input placeholder="from" v-model="fromDate" class="form-field-small"/> 
-            <input placeholder="to" v-model="toDate" class="form-field-small"/> 
-            <button type="button" @click="search()" >Search</button>
+            <label class="inline-block">Date:</label>
+              <datepicker class="date-picker inline-block" v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
+              <datepicker class="date-picker inline-block" v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
+            <a class="button is-primary" @click="search()" >Search</a>
         </div>
       </div>
       <div id="app" class="ui horizontal segments" >
@@ -27,18 +27,19 @@
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../data_management/DrillDownPieWithTable";
 import RunningBalance from "../data_management/RunningBalance";
+import Datepicker from "vuejs-datepicker";
 
 import moment from "moment";
 import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar, colors
-} from "../charts/ChartUtils.js";
+} from "../util/Utils.js";
 
 export default {
   components: {
     meuBolsoBar,
     DrillDownWithTable,
-    RunningBalance
+    RunningBalance,Datepicker
   },
   data() {
     return {

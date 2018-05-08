@@ -1,7 +1,7 @@
 import { Pie } from 'vue-chartjs'
 import {
   getDataSetPie
-} from "./ChartUtils.js";
+} from "../util/Utils.js";
 
 export default Pie.extend({
   props: ['chartLabels', 'chartValues', 'positives', 'title'],
