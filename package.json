@@ -12,7 +12,6 @@
   "dependencies": {
     "bulma": "^0.7.1",
     "vue": "^2.4.2",
-    "vue-progress": "^0.2.1",
     "vuejs-datepicker": "^1.1.4",
     "vuetable-2": "^1.6.0"
   },
