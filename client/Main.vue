@@ -1,28 +1,41 @@
 <template>
   <div class="container">
-    <tabs animation="slide" :only-fade="false">
-      <tab-pane label="Bank Records">
-        <main-dashboard></main-dashboard>
-      </tab-pane>
-      <tab-pane label="Bank Records">
-        <transaction></transaction>
-      </tab-pane>
-      <tab-pane label="Categories">
-            <category></category>
-      </tab-pane>
-      <tab-pane label="Budget">
-        <budget></budget>
-      </tab-pane>
-      <tab-pane label="Process Records">
-        <process-data></process-data>
-      </tab-pane>
-      <tab-pane label="About">About</tab-pane>
-    </tabs>
-  </div>
+    <div class="columns">
+      <div class="column is-12">
+          <div class="tabs help-tabs">
+              <ul>
+                  <li :class="[ tab_value === 'home' ? 'is-active' : '']"><a @click="tab_value='home'">Home</a>
+                  </li>
+                  <li :class="[ tab_value === 'records' ? 'is-active' : '']"><a @click="tab_value='records'">Bank Records</a></li>
+                  <li :class="[ tab_value === 'categories' ? 'is-active' : '']"><a @click="tab_value='categories'">Categories</a></li>
+                  <li :class="[ tab_value === 'budget' ? 'is-active' : '']"><a @click="tab_value='budget'">Budget</a></li>
+                  <li :class="[ tab_value === 'process' ? 'is-active' : '']"><a @click="tab_value='process'">Process Data</a></li>
+              </ul>
+          </div>
+        </div>
+      </div>
+
+      <div>
+          <div v-if="tab_value === 'home' ">
+              <main-dashboard></main-dashboard>
+          </div>
+          <div v-if="tab_value ==='records'">
+              <transaction></transaction>
+          </div>
+          <div v-if="tab_value ==='categories'">
+              <category></category>
+          </div>
+          <div v-if="tab_value ==='budget'">
+              <budget></budget>
+          </div>
+          <div v-if="tab_value ==='process'">
+              <process-data></process-data>
+          </div>
+      </div>
+     </div>
 </template>
 
 <script>
-import { Tabs, TabPane } from "vue-bulma-tabs";
 import MainDashboard from "./components/main_dashboard/MainDashboard.vue";
 import Category from "./components/data_management/CategoryEdit.vue";
 import Transaction from "./components/data_management/Transaction.vue";
@@ -31,19 +44,30 @@ import Budget from "./components/budget_management/Budget.vue";
 
 export default {
   components: {
-    Tabs,
-    TabPane,
     Category,
     Transaction,
     ProcessData,
     MainDashboard,
     Budget
+  },
+  data() {
+    return {
+      tab_value: "home"
+    };
   }
 };
 </script>
 
-
-
-<style lang="sass">
-    @import '~bulma'
+<style lang="sass" src="bulma"></style>
+<style>
+input,
+select {
+    width: 100%;
+    height: 2.25em;
+    padding-bottom: calc(0.375em - 1px);
+    padding-left: calc(0.625em - 1px);
+    padding-right: calc(0.625em - 1px);
+    padding-top: calc(0.375em - 1px);
+}
 </style>
+

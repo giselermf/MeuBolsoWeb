@@ -48,11 +48,6 @@ export default {
       selected_description: "",
       fields: [
         {
-          name: "id",
-          titleClass: "center aligned",
-          dataClass: "center aligned"
-        },
-        {
           name: "Type",
           titleClass: "center aligned",
           dataClass: "center aligned"
@@ -75,7 +70,7 @@ export default {
         },
         {
           name: "__slot:actions",
-          title: "Slot Actions",
+          title: "Actions",
           titleClass: "center aligned",
           dataClass: "center aligned"
         }

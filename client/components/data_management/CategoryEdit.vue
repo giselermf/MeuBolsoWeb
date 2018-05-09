@@ -1,47 +1,54 @@
 <template>
-<div id="app" class="ui vertical stripe segment">
-    <div style="display: inline-grid;">
+  <div id="app" class="ui horizontal segments">
+    <div class="ui  segment six wide column" >
       <div>
-        <p>Id : {{ category_id }}</p>
+        <label class="label">Id: </label><label> {{ category_id }} </label>
       </div>
-      <div>
-        <label class="form-label">Description:</label>
-        <input v-model="description" placeholder="edit me" class="form-field"><br>
-      </div>
-      <div>
-        <label class="form-label">Type:</label>
-        <select class="form-field" v-model="selectedType" v-on:change="onChangeType" >
+
+     <div>
+        <label class="label">Description:</label>
+        <input class="control input" v-model="description" placeholder="edit me"/> 
+    </div>
+
+     <div>
+        <label class="label">Type:</label>
+        <select class="select" v-model="selectedType" v-on:change="onChangeType" >
             <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
                 {{ type }}
             </option>
         </select>
-      </div>
-      <div>
-        <label class="form-label">Category:</label>
-        <select class="form-field" v-model="selectedCategory" v-on:change="onChangeCategory">
+    </div>
+    <div>
+        <label class="label">Category:</label>
+        <select class="select" v-model="selectedCategory" v-on:change="onChangeCategory">
             <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
                 {{ category }}
             </option>
         </select>
-      </div>
-      <div>
-        <label class="form-label">SubCategory:</label>
-        <select class="form-field" v-model="selectedSubCategory">
+    </div>
+    <div>
+        <label class="label">SubCategory:</label>
+        <select class="select" v-model="selectedSubCategory">
             <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
                 {{ subcategory }}
             </option>
         </select>
-      </div> 
-      <div style="display: flex;justify-content: center;padding-top: 1em"> 
-          <button type="button" @click="save()" >Save</button>
-          <button type="button" @click="add()" >Add</button>
-          <button type="button" @click="search()" >Search</button>
-          <button type="button" @click="reset()" >Reset</button>
-      </div>
-    </div>
-    <category-table></category-table>
+    </div> 
 
-</div>
+
+    <div class="buttons">
+      <button class="button is-link" type="button" @click="save()" >Save</button>
+      <button class="button is-link" type="button" @click="add()" >Add</button>
+      <button class="button is-link" type="button" @click="search()" >Search</button>
+      <button class="button is-link" type="button" @click="reset()" >Reset</button>
+    </div>
+
+    </div>
+  
+    <div class="ui  segment six wide column" >
+      <category-table></category-table>
+    </div>  
+  </div>
 </template>
 
 <script>

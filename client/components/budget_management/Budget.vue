@@ -1,15 +1,23 @@
 <template>
       <div id="app" class="ui vertical segments" >
-        <div class="ui  segment">         
-            <div>
-                <label class="form-label">Date:</label>
-                <datepicker class="date-picker" v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                <datepicker class="date-picker" v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                <button id="show-modal" @click="onSearch">Search</button>
-            </div>
-          </div>
+
+      <div class="field is-horizontal-left" >
+          <div class="field-body">
+              <div class="field is-grouped">
+                  <p class="control">
+                          <datepicker v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
+                  </p>
+                  <p class="control">
+                      <datepicker v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
+                  </p>
+                  <p class="control">
+                    <button class="button is-link" @click="search()" >Search</button>
+                  </p>
+          </div></div>
+      </div>
+      <div id="app" class="ui horizontal segments" >
         <div class="table-component__table-wrapper"  >
-          <table>
+          <table class="vuetable ui blue selectable celled stackable attached table">
               <thead>
               <tr>
                   <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
@@ -23,9 +31,10 @@
               ></budget-row>
               </tbody>
           </table>
-          <button id="show-modal" @click="showModal = true">Add</button>
+          <button class="button is-link" id="show-modal" @click="showModal = true">Add</button>
           <modal v-if="showModal" @close="showModal = false"></modal>
         </div>
+      </div>
     </div>
 </template>
 
@@ -55,7 +64,7 @@ export default {
     };
   },
   created() {
-    this.onSearch();
+    this.search();
     this.fromDate = moment(new Date())
       .startOf("month").subtract(2, 'month')
       .format("YYYY-MM-DD");
@@ -77,7 +86,7 @@ export default {
         params["toDate"] = this.toDate;
       return "?filter=" + JSON.stringify(params);
     },
-    onSearch() {
+    search() {
       let axios = require("axios");
       let querystring = require("querystring");
       axios

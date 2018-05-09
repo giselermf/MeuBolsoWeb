@@ -1,13 +1,20 @@
 <template>
-<div id="app" class="ui vertical segments" >
-      <div class="ui  segment">
-        <div>
-            <label class="inline-block">Date:</label>
-              <datepicker class="date-picker inline-block" v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
-              <datepicker class="date-picker inline-block" v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
-            <a class="button is-primary" @click="search()" >Search</a>
-        </div>
+<div id="app" class="ui vertical" >
+      <div class="field is-horizontal-left" >
+          <div class="field-body">
+              <div class="field is-grouped">
+                  <p class="control">
+                          <datepicker v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
+                  </p>
+                  <p class="control">
+                      <datepicker v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
+                  </p>
+                  <p class="control">
+                    <button class="button is-link" @click="search()" >Search</button>
+                  </p>
+          </div></div>
       </div>
+
       <div id="app" class="ui horizontal segments" >
             <div class="ui  segment">
               <meu-bolso-bar :height="300" :chartData="barChartData" :title="title" ></meu-bolso-bar>
@@ -17,9 +24,7 @@
                <drill-down-with-table :allData="allData"></drill-down-with-table>
             </div>
       </div>
-      <div id="app" class="ui horizontal segments twelve wide column ">
       <running-balance  :height="500" :allData="allData"></running-balance>>
-      </div>
 </div>
 </template>
 

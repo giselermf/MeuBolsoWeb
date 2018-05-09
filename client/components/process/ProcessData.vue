@@ -1,9 +1,16 @@
 <template>
     <div>
-      <button v-on:click="processData">Process Data</button>
-        <div>
-            <input v-model="folder" placeholder="source of bank files" class="form-field"> <br> 
-        </div>
+      <div class="field is-horizontal-left" >
+          <div class="field-body">
+              <div class="field is-grouped">
+                  <p class="control is-expanded">
+                          <input type="text" class="input" v-model="folder" placeholder="source of bank files"> <br> 
+                  </p>
+                  <p class="control">
+                      <button class="button is-link" v-on:click="processData">Process Data</button>
+                  </p>
+          </div></div>
+      </div>
     </div>
 </template>
 

@@ -1,62 +1,109 @@
 <template>
-    <div id="app" class="ui vertical segments" >
-        <div class="ui  segment">         
-            <div>
-                <label class="form-label">Bank:</label>
-                <select class="form-field" v-model="selectedBank" @change="search()">
-                    <option v-for="bank in getFilterValue('BankName')" v-bind:key="bank.value" v-bind:value="bank.value">
-                        {{ bank.value }}
-                    </option>
-                </select>
-            </div> 
-            <div>
-                <label class="form-label">Date:</label>
-                <datepicker class="date-picker" v-model="fromDate" placeholder="from" :minimumView="'day'" :maximumView="'day'"></datepicker>
-                <datepicker class="date-picker" v-model="toDate" placeholder="to" :minimumView="'day'" :maximumView="'day'"></datepicker>
+    <div >
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Bank</label>
             </div>
-            <div>
-                <label class="form-label">Amount:</label>
-                <input placeholder="from" v-model="fromAmount" class="form-field-small"/> 
-                <input placeholder="to" v-model="toAmount" class="form-field-small"/> 
-            </div>
-            <div>
-                <label class="form-label">Description:</label>
-                <input placeholder="" v-model="Description" class="form-field"/> 
-            </div>
-        </div>
-        <div class="ui  segment">
-            <div>
-                <label class="form-label">Transaction Type:</label>
-                <div class="multiple-select" >
-                    <ul>
-                        <li v-for="transaction_type in getFilterValue('type')" v-bind:key="transaction_type.value">
-                            <input type="checkbox" :id="transaction_type.value" :value="transaction_type.value" v-model="selectedTypes">
-                            <label :for="transaction_type.value">{{transaction_type.value}}</label>
-                        </li>
-                    </ul>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <select class="select" v-model="selectedBank" @change="search()">
+                            <option v-for="bank in getFilterValue('BankName')" v-bind:key="bank.value" v-bind:value="bank.value">
+                                {{ bank.value }}
+                            </option>
+                        </select> 
+                    </p>
                 </div>
             </div>
-            <div>
-                <label class="form-label">Category:</label>
-                <div class="multiple-select" >
-                    <ul>
-                        <li v-for="category in getFilterValue('category')" v-bind:key="category.value">
-                            <input type="checkbox" :id="category.value" :value="category.value" v-model="selectedCategories">
-                            <label :for="category.value">{{category.value}}</label>
-                        </li>
-                    </ul>
+        </div>
+
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Date</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                            <datepicker v-model="fromDate" placeholder="from" :minimumView="'day'" :maximumView="'day'"></datepicker>
+                    </p>
+                    <p class="control is-expanded">
+                        <datepicker v-model="toDate" placeholder="to" :minimumView="'day'" :maximumView="'day'"></datepicker>
+                    </p>
+            </div></div>
+        </div>
+
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Amount</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <input class=" field control input"  placeholder="from" v-model="fromAmount"/>
+                    </p>
+                    <p class="control is-expanded">
+                        <input  class=" field control input" placeholder="to" v-model="toAmount"/>
+                    </p>
+            </div></div>
+        </div>
+
+
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Description</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <input class="control input"  placeholder="" v-model="Description"/> 
+                    </p>
+            </div></div>
+        </div>
+
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Type and Category</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <div class="select is-multiple select-enhancement" >
+                            <select class="select" multiple size="6" v-model="selectedTypes">
+                                <option v-for="transaction_type in getFilterValue('type')" v-bind:key="transaction_type.value">{{transaction_type.value}}</option>
+                            </select>
+                        </div>
+                    </p>
+                    <p class="control is-expanded">
+                        <div class="select is-multiple select-enhancement">
+                            <select class="select" multiple size="15" v-model="selectedCategories" >
+                                <option v-for="category in getFilterValue('category')" v-bind:key="category.value">{{category.value}}</option>
+                            </select>
+                        </div>
+                    </p>
                 </div>
-            </div> 
-            <div>
-                <label class="form-label">SubCategory:</label>
-                <input placeholder="" v-model="SubCategory" class="form-field"/> 
             </div>
         </div>
-        <div id="app" class="ui horizontal segments" >
-            <div class="ui  segment" style="display: flex;justify-content: center;padding-top: 1em">
-                <button type="button" @click="search()" >Search</button>
-                <button type="button" @click="reset()" >Reset</button>
+
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">SubCategory</label>
             </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <input class="control input" placeholder="" v-model="SubCategory"/> 
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="field is-grouped is-grouped-centered">
+            <p class="control">
+                <button class="button is-link"  @click="search()" >Search</button>
+            </p>
+            <p class="control">
+                <button class="button is-link" @click="reset()" >Reset</button>
+            </p>
         </div>
     </div>
 </template>
@@ -89,18 +136,21 @@ export default {
   },
   created() {
     this.getCategoriesFromServer();
-    this.fromDate = moment(new Date())
-      .startOf("month")
-      .subtract(2, "month")
-      .format("YYYY-MM-DD");
-    this.toDate = moment(new Date())
-      .add(2, "month")
-      .format("YYYY-MM-DD");
+    this.setDateRangeDefault();
   },
   mounted() {
-      this.search();
+    this.search();
   },
   methods: {
+    setDateRangeDefault() {
+      this.fromDate = moment(new Date())
+        .startOf("month")
+        .subtract(2, "month")
+        .format("YYYY-MM-DD");
+      this.toDate = moment(new Date())
+        .add(2, "month")
+        .format("YYYY-MM-DD");
+    },
     getFilterValue: function(fieldName) {
       var values = this.all_filter_data.map(x => {
         return x[fieldName];
@@ -120,9 +170,7 @@ export default {
       this.SubCategory = null;
       this.fromAmount = null;
       this.toAmount = null;
-      this.fromDate = null;
-      this.toDate = null;
-      this.dateRangeOption = "Current Month";
+      this.setDateRangeDefault();
       this.$events.fire("transaction-filter-reset");
     },
     search: function() {
@@ -134,8 +182,8 @@ export default {
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
         SubCategory: this.SubCategory,
-        fromDate: this.fromDate, 
-        toDate: this.toDate, 
+        fromDate: this.fromDate,
+        toDate: this.toDate,
         Description: this.Description,
         Currencies: this.selectedCurrencies
       };
@@ -156,3 +204,15 @@ export default {
   }
 };
 </script>
+
+<style>
+input,
+select {
+    width: 100%;
+    height: 2.25em;
+    padding-bottom: calc(0.375em - 1px);
+    padding-left: calc(0.625em - 1px);
+    padding-right: calc(0.625em - 1px);
+    padding-top: calc(0.375em - 1px);
+}
+</style>
