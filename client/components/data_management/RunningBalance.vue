@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="ui vertical segments twelve wide column">
     <span>Bank name:</span>
     <select v-model="selectedBank" placeholder="Select a Bank">
         <option v-for="bank in allBanks" :key="bank" >

@@ -59,15 +59,5 @@ export default {
 </script>
 
 <style lang="sass" src="bulma"></style>
-<style>
-input,
-select {
-    width: 100%;
-    height: 2.25em;
-    padding-bottom: calc(0.375em - 1px);
-    padding-left: calc(0.625em - 1px);
-    padding-right: calc(0.625em - 1px);
-    padding-top: calc(0.375em - 1px);
-}
-</style>
+
 
