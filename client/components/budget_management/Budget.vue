@@ -17,7 +17,7 @@
       </div>
       <div id="app" class="ui horizontal segments" >
         <div class="table-component__table-wrapper"  >
-          <table class="vuetable ui blue selectable celled stackable attached table">
+          <table  class="vuetable ui blue selectable celled stackable attached table">
               <thead>
               <tr>
                   <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
@@ -25,13 +25,15 @@
               </thead>
               <tbody>
               <budget-row
-                      v-for="row in tableData" :key="row.Name"
+                      v-for="row in tableData" :key="row.categoryId"
                       :row="row"
                       :columns="columns"
               ></budget-row>
               </tbody>
           </table>
-          <button class="button is-link" id="show-modal" @click="showModal = true">Add</button>
+          <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;" >
+              <button class="button is-link" @click="showModal = true">Add</button>
+          </div>
           <modal v-if="showModal" @close="showModal = false"></modal>
         </div>
       </div>
@@ -101,6 +103,8 @@ export default {
     },
     onModalClose(eventData) {
       this.showModal = false;
+
+      if (eventData.categoryId == null) return;
       // check if the row is not already on the table.
       for (let row in this.tableData) {
         if (this.tableData[row].category_id == eventData.categoryId) return;
@@ -113,12 +117,6 @@ export default {
         SubCategory: eventData.selectedSubCategory,
         category_id: eventData.categoryId
       };
-      for (let col in this.columns) {
-        let aCol = this.columns[col];
-        if (!aCol.isHeader) {
-          newRow[aCol.Name] = aCol;
-        }
-      }
       this.tableData.push(newRow);
     },
     getColumns() {

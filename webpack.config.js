@@ -1,6 +1,6 @@
-var path = require('path')
+var path = require('path');
 var webpack = require('webpack')
-
+ 
 module.exports = {
   entry: './client/main.js',
   output: {
@@ -9,16 +9,10 @@ module.exports = {
     filename: 'build.js'
   },
   module: {
-  /*  rules: [
+    rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          loaders: {
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
-          }
-        }
+        loader: 'vue-loader'
       },
       {
         test: /\.js$/,
@@ -29,36 +23,9 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      },
-      {
-        test: /\.sass$/,
-        use: [
-          {
-            loader: 'css-loader'
-          },
-          {
-            loader: 'sass-loader'
-          }
-        ]
-      }
-      
-    ]*/
-    loaders: [
-      {
-        test: /\.vue$/,
-        loader: 'vue'
-      }, 
-      {
-          test: /\.s[a|c]ss$/,
-          loader: 'style!css!sass'
+        use: [ 'style-loader', 'css-loader' ]
       }
     ]
-  },
-  vue: {
-    loaders: {
-      scss: 'style!css!sass'
-    }
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],

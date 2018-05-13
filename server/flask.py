@@ -27,7 +27,7 @@ def recategorize():
 def post_categories():
     print(request.form)
     return app.make_response (
-        save_category(request.form['id'], request.form['type'], request.form['category'], request.form['subcategory'], request.form['description'])
+        save_category(request.form['id'], request.form['selectedCategoryid'], request.form['description'])
         )
 
 @app.route('/categories/<int:id>', methods=['DELETE'])

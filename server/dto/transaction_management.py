@@ -29,9 +29,9 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
     if  filter_param != None and filter_param != {} :
         where_clause = " where "
         where_clause += add_param('bankName', '=', filter_param.get('bankName') )
-        where_clause += add_param('Category', "in", filter_param.get('Categories') )
-        where_clause += add_param('SubCategory', "in", filter_param.get('SubCategories') )
-        where_clause += add_param('Type', "in", filter_param.get('Types') )
+        where_clause += add_param('Category', "=", filter_param.get('Category') )
+        where_clause += add_param('SubCategory', "=", filter_param.get('SubCategory') )
+        where_clause += add_param('Type', "=", filter_param.get('Type') )
         where_clause += add_param('Description', "like", filter_param.get('Description') )
         where_clause += add_param('SubCategory', "like", filter_param.get('SubCategory') )
         where_clause += add_param('AmountEUR', '>=',filter_param.get('fromAmount') )

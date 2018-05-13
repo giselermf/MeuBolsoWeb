@@ -41,7 +41,7 @@ def run_update(sql_command, *params):
     with conn:
         c = conn.cursor()
         try:
-           # print(sql_command)
+            print(sql_command)
             c.execute(sql_command, *params)
             conn.commit()
             return json.dumps({"data": 'sucess'})

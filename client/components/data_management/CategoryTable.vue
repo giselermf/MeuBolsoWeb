@@ -1,21 +1,17 @@
 <template>
-    <div id="app" class="ui vertical stripe segment">
-        <div class="ui container">
-            <div id="content" class="ui basic segment">
-            <my-vuetable ref="vuetableCategory"
-                  api-url="http://127.0.0.1:5000/categories/"
-                  :fields="fields"
-                  :sort-order="sortOrder"
-                  :append-params="appendParams"
-                >
-                    <template slot="actions" scope="props">
-                        <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
-                        <a style="cursor:pointer" @click="onDelete(props.rowData)"> &#10060;</a>
-                    </template>
-                </my-vuetable>
-            </div>
-        </div>
-    </div>
+  <div >
+    <my-vuetable ref="vuetableCategory"
+          api-url="http://127.0.0.1:5000/categories/"
+          :fields="fields"
+          :sort-order="sortOrder"
+          :append-params="appendParams"
+        >
+            <template slot="actions" scope="props">
+                <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
+                <a style="cursor:pointer" @click="onDelete(props.rowData)"> &#10060;</a>
+            </template>
+        </my-vuetable>
+  </div>
 </template>
 
 

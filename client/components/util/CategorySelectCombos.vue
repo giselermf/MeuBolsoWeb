@@ -1,3 +1,47 @@
+<template>
+  <div>
+    <div class="field is-horizontal" >
+        <div class="field-label">
+            <label class="label">Type</label>
+        </div>
+        <div class="field-body">
+            <div class="field is-grouped">
+                <select class="select" v-model="selectedType" v-on:change="onChangeType" >
+                  <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
+                      {{ type }}
+                  </option>
+              </select>
+        </div></div>
+    </div>
+    <div class="field is-horizontal" >
+        <div class="field-label">
+            <label class="label">Category</label>
+        </div>
+        <div class="field-body">
+            <div class="field is-grouped">
+              <select class="select" v-model="selectedCategory" v-on:change="onChangeCategory">
+                  <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
+                      {{ category }}
+                  </option>
+              </select>
+        </div></div>
+    </div>
+    <div class="field is-horizontal" >
+        <div class="field-label">
+            <label class="label">SubCategory</label>
+        </div>
+        <div class="field-body">
+            <div class="field is-grouped">
+              <select class="select" v-model="selectedSubCategory">
+                  <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
+                      {{ subcategory }}
+                  </option>
+              </select>
+        </div></div>
+    </div>
+  </div>  
+</template>
+
 <script>
 export default {
   data() {
@@ -17,26 +61,12 @@ export default {
       .then(response => {
         this.allData = response["data"];
         this.processData();
-        this.setInitalValues();
       })
       .catch(function(error) {
         console.log(error);
       });
   },
   methods: {
-    setInitalValues() {
-      if (this.type_data != null && this.selectedType == null) {
-        this.selectedType = Object.keys(this.type_data)[0];
-        if (this.category_data != null && this.selectedCategory == null) {
-          this.selectedCategory = Object.keys(this.category_data)[0];
-          if (this.selectedSubCategory == null) {
-            this.selectedSubCategory = Array.from(this.category_data[
-              this.selectedCategory
-            ])[0];
-          }
-        }
-      }
-    },
     onChangeType() {
       this.selectedCategory = null;
       this.selectedSubCategory = null;
@@ -57,6 +87,25 @@ export default {
         this.category_data[this.selectedCategory] != null
       )
         return Array.from(this.category_data[this.selectedCategory]);
+    },
+    resetValues() {
+      this.selectedType = null;
+      this.selectedCategory = null;
+      this.selectedSubCategory = null;
+    },
+    setValues(type, category, subcategory) {
+      this.selectedType = type;
+      this.selectedCategory = category;
+      this.selectedSubCategory = subcategory;
+    },
+    getSelectedType() {
+      return this.selectedType;
+    },
+    getSelectedCategory() {
+      return this.selectedCategory;
+    },
+    getSelectedSubCategory() {
+      return this.selectedSubCategory;
     },
     getSelectedCategoryId() {
       if (

@@ -42,7 +42,7 @@ export default {
     return h(
       'div', 
       {
-        class: { ui: true, container: true }
+        class: { }
       },
       [
         this.renderVuetable(h),

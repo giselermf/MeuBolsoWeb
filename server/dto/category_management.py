@@ -33,13 +33,13 @@ def get_categories(sort, sort_order=None, filter_param=None, page_number=None, p
     total_records = run_select('select count(*) as total from vwCategories ' + where_clause)[0]['total']
     return getResponse('category', total_records, per_page, page_number, all_entries)
 
-def save_category(id, type, category, subcategory, description):
+def save_category(id, selectedCategoryid, description):
     if id == '':
-        sql_comand = "insert into CategoryDescription(description, category_id) select ?, id from Category where category = ? and subcategory = ? and type = ?"
-        return run_update(sql_comand, (description, category, subcategory, type))
+        sql_comand = "insert into CategoryDescription(description, category_id) values (?, ?)"
+        return run_update(sql_comand, (description, selectedCategoryid))
     else:
-        sql_comand = "update CategoryDescription set description = ?, category_id = (select id from Category where category = ? and subcategory = ? and type = ?) where id = ?"
-        return run_update(sql_comand, (description, category, subcategory, type, int(id)))
+        sql_comand = "update CategoryDescription set description = ?, category_id = ? where id = ?"
+        return run_update(sql_comand, (description, selectedCategoryid, int(id)))
 
 def delete_category(id):
     sql_comand = "delete from CategoryDescription where id = ?"

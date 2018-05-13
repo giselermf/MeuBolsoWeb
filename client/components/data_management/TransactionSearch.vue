@@ -59,45 +59,9 @@
                     </p>
             </div></div>
         </div>
+        <category-select-combos ref="search_typecombos" ></category-select-combos>
 
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">Type and Category</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <p class="control is-expanded">
-                        <div class="select is-multiple select-enhancement" >
-                            <select class="select" multiple size="6" v-model="selectedTypes">
-                                <option v-for="transaction_type in getFilterValue('type')" v-bind:key="transaction_type.value">{{transaction_type.value}}</option>
-                            </select>
-                        </div>
-                    </p>
-                    <p class="control is-expanded">
-                        <div class="select is-multiple select-enhancement">
-                            <select class="select" multiple size="15" v-model="selectedCategories" >
-                                <option v-for="category in getFilterValue('category')" v-bind:key="category.value">{{category.value}}</option>
-                            </select>
-                        </div>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">SubCategory</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <p class="control is-expanded">
-                        <input class="control input" placeholder="" v-model="SubCategory"/> 
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="field is-grouped is-grouped-centered">
+        <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;">
             <p class="control">
                 <button class="button is-link"  @click="search()" >Search</button>
             </p>
@@ -112,10 +76,11 @@
 import moment from "moment";
 import { addFilterParam } from "../util/Utils.js";
 import Datepicker from "vuejs-datepicker";
+import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 
-export default {
+export default { 
   components: {
-    Datepicker
+    Datepicker, CategorySelectCombos
   },
   data() {
     return {
@@ -161,31 +126,26 @@ export default {
       });
     },
     reset: function() {
-      this.selectedCategories = [];
-      this.selectedSubategories = [];
-      this.selectedCurrencies = [];
-      this.selectedTypes = [];
       this.selectedBank = null;
       this.Description = null;
       this.SubCategory = null;
       this.fromAmount = null;
       this.toAmount = null;
       this.setDateRangeDefault();
+      this.$refs.search_typecombos.resetValues();
       this.$events.fire("transaction-filter-reset");
     },
     search: function() {
       let params = {
-        Categories: this.selectedCategories,
-        SubCategories: this.selectedSubategories,
-        Types: this.selectedTypes,
+        Category: this.$refs.search_typecombos.getSelectedCategory(),
+        SubCategory: this.$refs.search_typecombos.getSelectedSubCategory(),
+        Type: this.$refs.search_typecombos.getSelectedType(),
         bankName: this.selectedBank,
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
-        SubCategory: this.SubCategory,
         fromDate: this.fromDate,
         toDate: this.toDate,
         Description: this.Description,
-        Currencies: this.selectedCurrencies
       };
       this.$events.fire("transaction-filter-set", addFilterParam(params));
     },

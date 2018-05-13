@@ -9,30 +9,7 @@
       <p class="modal-card-title">Select Category</p>
     </header>
     <section class="modal-card-body">
-        <div>
-            <label class="label">Type:</label>
-            <select class="select" v-model="selectedType" v-on:change="onChangeType" >
-                <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
-                    {{ type }}
-                </option>
-            </select>
-        </div>
-        <div>
-            <label class="label">Category:</label>
-            <select class="select" v-model="selectedCategory" v-on:change="onChangeCategory">
-                <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
-                    {{ category }}
-                </option>
-            </select>
-        </div>
-        <div>
-            <label class="label">SubCategory:</label>
-            <select class="select" v-model="selectedSubCategory">
-                <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
-                    {{ subcategory }}
-                </option>
-            </select>
-        </div> 
+        <category-select-combos ref="typecombos" ></category-select-combos>
     </section>
     <footer class="modal-card-foot">
       <button class="button is-success" @click="CloseModal">Close</button>
@@ -43,21 +20,22 @@
 </template>
 
 <script>
-import CategorySelectCombos from "../util/CategorySelectCombos.vue"
+import CategorySelectCombos from "../util/CategorySelectCombos.vue";
 
 export default {
-  mixins : [CategorySelectCombos],
+  components: {
+    CategorySelectCombos
+  },
   methods: {
-      CloseModal() {
-          let data = {
-              selectedType : this.selectedType,
-              selectedCategory : this.selectedCategory,
-              selectedSubCategory : this.selectedSubCategory,
-              categoryId: this.getSelectedCategoryId()
-          }
-          
-          this.$events.fire("close-category-modal", data);
-      }
+    CloseModal() {
+      let data = {
+        selectedType: this.$refs.typecombos.getSelectedType(),
+        selectedCategory: this.$refs.typecombos.getSelectedCategory(),
+        selectedSubCategory: this.$refs.typecombos.getSelectedSubCategory(),
+        categoryId: this.$refs.typecombos.getSelectedCategoryId()
+      };
+      this.$events.fire("close-category-modal", data);
+    }
   }
 };
 </script>
@@ -70,14 +48,9 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: table;
-  transition: opacity .3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
+  transition: opacity 0.3s ease;
 }
 
 .modal-container {
@@ -87,13 +60,12 @@ export default {
   padding: 20px 30px;
   background-color: #fff;
   border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
 }
 
 .modal-default-button {
   float: right;
 }
-
 </style>
