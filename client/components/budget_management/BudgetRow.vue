@@ -21,6 +21,7 @@ export default {
   },
   methods: {
     getElement(isHeader, Name, Month, Year) {
+      
       if (!isHeader) {
         for (let e in this.row) {
           if (this.row[e].Month == Month && this.row[e].Year == Year) {

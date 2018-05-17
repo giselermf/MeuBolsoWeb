@@ -1,16 +1,23 @@
 <template>
 
-    <td v-if="isHeader">{{element}}</td>
+    <td  style="width: 250px;" v-if="isHeader">{{element}}</td>
     <td v-else >
-      <input class="input budget-cell" v-model="budgetValue" @change="saveBudget">
-      <label>{{actualsValue}}</label>
-      <progress :class="progressBarClass" :value="progressValue" :max="100"></progress>
 
+      <div class="columns">
+        <p class="column is-one-quarter">
+          <input v-bind:class="budgetClass" v-model="budgetValue" @change="saveBudget">
+        </p>
+        <p class="column is-one-quarter">
+          <input v-bind:class="actualsClass" type="text" v-model="actualsValue" disabled>
+        </p>
+        <p class="column is-one-quarter">
+          <progress :class="progressBarClass" style="width: 100px; margin-top: 10px;" :value="progressValue" :max="100"></progress>
+        </p>
+      </div>
     </td> 
 </template>
 
 <script>
-
 export default {
   props: ["element", "isHeader", "categoryId", "Month", "Year"],
   components: {},
@@ -21,6 +28,20 @@ export default {
       progressValue: null,
       progressBarClass: null
     };
+  },
+  computed: {
+    budgetClass: function() {
+      return {
+        negative: this.budgetValue < 0,
+        "input budget-cell": true
+      };
+    },
+    actualsClass: function() {
+      return {
+        negative: this.actualsValue < 0,
+        "input": true
+      };
+    }
   },
   created() {
     this.getProgress();
@@ -39,7 +60,9 @@ export default {
             Year: this.Year,
             CategoryId: this.categoryId
           })
-        )
+        ).then(response => {
+          this.$events.fire("search-budget", response);
+        })
         .catch(function(error) {
           console.log(error);
         });
@@ -50,32 +73,43 @@ export default {
       }
     },
     getBudget() {
-      if (this.element != undefined) {
+      if (this.element != undefined && this.element.Budget != "") {
         return parseInt(this.element.Budget);
       }
       return 0;
     },
     getActuals() {
-      if (this.element != undefined) return parseInt(this.element.Actuals);
+      if (this.element != undefined && this.element.Actuals != "")
+        return parseInt(this.element.Actuals);
       return 0;
     },
     getProgress() {
-      if (this.getBudget() != 0) this.progressValue = Math.abs(this.getActuals()/this.getBudget())*100;
+      if (this.getBudget() != 0)
+        this.progressValue =
+          Math.abs(this.getActuals() / this.getBudget()) * 100;
       else this.progressValue = 0;
       this.getProgressBarClass();
     },
     getProgressBarClass() {
-      this.progressBarClass = 'progress is-small ';
-      if (this.progressValue > 70) this.progressBarClass += 'is-danger';
-      else if (this.progressValue > 50) this.progressBarClass += 'is-warning';
-      else this.progressBarClass += 'is-success';
+      this.progressBarClass = "progress is-small ";
+      if (this.progressValue > 70) this.progressBarClass += "is-danger";
+      else if (this.progressValue > 50) this.progressBarClass += "is-warning";
+      else this.progressBarClass += "is-success";
     }
   }
 };
 </script>
  
  <style>
- .budget-cell {
-   max-width: 50%
- }
- </style>
+.budget-cell {
+  max-width: 50%;
+  min-width: 80px;
+}
+
+.label-cell {
+  margin-top: 10px
+}
+.negative {
+  color: red;
+}
+</style>

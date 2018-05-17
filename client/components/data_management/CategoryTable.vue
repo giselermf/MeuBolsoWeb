@@ -106,10 +106,6 @@ export default {
 };
 </script>
 
-<style>
-.ui.table td {
-  padding: 1px;
-}
-</style>
+
 
 

@@ -7,7 +7,7 @@ export function getDatasetColors(values) {
     datasetColors.push(colors[index % colors.length]);
   }
   return datasetColors;
-};
+};  
 
 export function addFilterParam(allPossibleFilters) {
   let filterParams = {};

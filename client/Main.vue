@@ -9,6 +9,7 @@
                   <li :class="[ tab_value === 'records' ? 'is-active' : '']"><a @click="tab_value='records'">Bank Records</a></li>
                   <li :class="[ tab_value === 'categories' ? 'is-active' : '']"><a @click="tab_value='categories'">Categories</a></li>
                   <li :class="[ tab_value === 'budget' ? 'is-active' : '']"><a @click="tab_value='budget'">Budget</a></li>
+                  <li :class="[ tab_value === 'cashFlow' ? 'is-active' : '']"><a @click="tab_value='cashFlow'">Cash Flow</a></li>
                   <li :class="[ tab_value === 'process' ? 'is-active' : '']"><a @click="tab_value='process'">Process Data</a></li>
               </ul>
           </div>
@@ -28,6 +29,9 @@
           <div v-if="tab_value ==='budget'">
               <budget></budget>
           </div>
+          <div v-if="tab_value ==='cashFlow'">
+              <cash-flow></cash-flow>
+          </div>
           <div v-if="tab_value ==='process'">
               <process-data></process-data>
           </div>
@@ -41,6 +45,8 @@ import Category from "./components/data_management/CategoryEdit.vue";
 import Transaction from "./components/data_management/Transaction.vue";
 import ProcessData from "./components/process/ProcessData.vue";
 import Budget from "./components/budget_management/Budget.vue";
+import CashFlow from "./components/cash_flow/CashFlow.vue";
+
 
 export default {
   components: {
@@ -48,7 +54,7 @@ export default {
     Transaction,
     ProcessData,
     MainDashboard,
-    Budget
+    Budget, CashFlow
   },
   data() {
     return {
@@ -60,4 +66,8 @@ export default {
 
 <style lang="sass" src="bulma"></style>
 
-
+<style>
+.ui.table td {
+  padding: 1px;
+}
+</style>

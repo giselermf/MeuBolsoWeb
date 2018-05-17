@@ -99,6 +99,7 @@ export default {
         groupedData[e] = result;
       }
       this.barChartData = getLabelAndDatabaseBar(groupedData, ["Red","Green"]);
+      console.log("***", this.barChartData);
 
       // net dataset is line
       for (let x in this.barChartData.datasets) {

@@ -5,7 +5,7 @@ from server.dto.transaction_management import update_transaction, get_transactio
 from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
-from server.dto.budget_management import get_budget, update_budget
+from server.dto.budget_management import get_budget, update_budget, get_cashFlow, get_RunningBalance
 
 import json
 
@@ -89,3 +89,18 @@ def post_budget():
     return app.make_response(
         update_budget(id=request.form['id'], CategoryId=request.form['CategoryId'], \
         Value=request.form['Value'], Month=request.form['Month'], Year=request.form['Year']))
+
+# CASH_FLOW
+@app.route('/cashFlow/', methods=['GET'])
+def getCashFlow():
+    filter_param = request.args.get('filter')
+    if filter_param is not None:
+        filter_param = json.loads(filter_param)
+    return app.make_response(get_cashFlow(filter_param))
+
+@app.route('/RunningBalance/', methods=['GET'])
+def getRunningBalance():
+    filter_param = request.args.get('filter')
+    if filter_param is not None:
+        filter_param = json.loads(filter_param)
+    return app.make_response(get_RunningBalance(filter_param))

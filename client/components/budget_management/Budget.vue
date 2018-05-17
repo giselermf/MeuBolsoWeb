@@ -1,42 +1,79 @@
 <template>
-      <div id="app" class="ui vertical segments" >
-
-      <div class="field is-horizontal-left" >
-          <div class="field-body">
-              <div class="field is-grouped">
-                  <p class="control">
-                          <datepicker v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                  </p>
-                  <p class="control">
-                      <datepicker v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                  </p>
-                  <p class="control">
-                    <button class="button is-link" @click="search()" >Search</button>
-                  </p>
-          </div></div>
+  <div id="app" class="ui vertical segments" >
+    <div id="app" class="ui vertical segments" >
+      <div class="field is-grouped">
+        <p class="control">
+          <date-range ref="cashFlow_range" minimumView="month"></date-range>            
+        </p>
+        <p class="control">
+          <button class="button is-link" @click="search()" >Search</button>
+        </p>
       </div>
-      <div id="app" class="ui horizontal segments" >
-        <div class="table-component__table-wrapper"  >
-          <table  class="vuetable ui blue selectable celled stackable attached table">
-              <thead>
-              <tr>
-                  <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
-              </tr>
-              </thead>
-              <tbody>
-              <budget-row
-                      v-for="row in tableData" :key="row.categoryId"
-                      :row="row"
-                      :columns="columns"
-              ></budget-row>
-              </tbody>
-          </table>
-          <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;" >
-              <button class="button is-link" @click="showModal = true">Add</button>
-          </div>
-          <modal v-if="showModal" @close="showModal = false"></modal>
+    </div>
+    <div id="app" class="ui vertical segments" >
+      <div class="ui vertical segment" >
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Income</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <div class="table-component__table-wrapper"  >
+                    <table  class="vuetable ui blue selectable celled stackable attached table">
+                      <thead>
+                        <tr>
+                            <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
+                        </tr>
+                      </thead>
+                        <tbody>
+                        <budget-row
+                                v-for="row in tableDataIncome" :key="row.categoryId"
+                                :row="row"
+                                :columns="columns"  
+                        ></budget-row>
+                        </tbody>
+                    </table>
+                  </div>
+            </div>
         </div>
       </div>
+      <div class="ui vertical segment" >
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Expenses</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <div class="table-component__table-wrapper"  >
+                      <div class="table-component__table-wrapper"  >
+                        <table  class="vuetable ui blue selectable celled stackable attached table">
+                            <thead>
+                              <tr>
+                                  <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            <budget-row
+                                    v-for="row in tableDataExpense" :key="row.categoryId"
+                                    :row="row"
+                                    :columns="columns"  
+                            ></budget-row>
+                            </tbody>
+                        </table>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;" >
+        <button class="button is-link" @click="showModal = true">Add</button>
+    </div>
+    <modal v-if="showModal" @close="showModal = false"></modal>
+  </div>
+</div>
+
+      
     </div>
 </template>
 
@@ -45,48 +82,36 @@ import BudgetRow from "./BudgetRow";
 import Modal from "../util/CategoryModal.vue";
 import Datepicker from "vuejs-datepicker";
 import { addFilterParam } from "../util/Utils.js";
+import DateRange from "../util/DateRange.vue";
 import moment from "moment";
 
 export default {
   components: {
     BudgetRow,
     Modal,
-    Datepicker
+    DateRange
   },
   data() {
     return {
-      headers: ["Type", "Category", "SubCategory", "category_id"],
+      headers: ["Category & SubCategory", "category_id"],
       columns: [],
       tableFields: [],
-      tableData: [],
-      allData: null,
-      showModal: false,
-      fromDate: null,
-      toDate: null
+      tableDataIncome: [],
+      tableDataExpense: [],
+      showModal: false
     };
   },
-  created() {
-    this.search();
-    this.fromDate = moment(new Date())
-      .startOf("month").subtract(2, 'month')
-      .format("YYYY-MM-DD");
-    this.toDate = moment(new Date())
-      .add(2, 'month')
-     .format("YYYY-MM-DD");
-  },
   mounted() {
+    this.$refs.cashFlow_range.setRange(0, 0);
+    this.search(); 
+    this.$events.$on("search-budget", eventData => {this.$forceUpdate()});
     this.$events.$on("close-category-modal", eventData =>
       this.onModalClose(eventData)
     );
   },
   methods: {
     getParams() {
-      let params = {};
-      if (this.fromDate)
-        params["fromDate"] = this.fromDate;
-      if (this.toDate)
-        params["toDate"] = this.toDate;
-      return "?filter=" + JSON.stringify(params);
+      return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     search() {
       let axios = require("axios");
@@ -94,61 +119,69 @@ export default {
       axios
         .get("http://127.0.0.1:5000/budget/" + this.getParams())
         .then(response => {
-          this.allData = response["data"]["data"];
-          this.setTableData();
+          this.setTableData(response["data"]["data"]);
         })
         .catch(function(error) {
           console.log(error);
         });
     },
+    addIfNotThereYet(newRow, table) {
+      for (let row in table) {
+        if (table[row].category_id == newRow.category_id) return;
+      }
+      table.push(newRow);
+    },
     onModalClose(eventData) {
       this.showModal = false;
 
       if (eventData.categoryId == null) return;
-      // check if the row is not already on the table.
-      for (let row in this.tableData) {
-        if (this.tableData[row].category_id == eventData.categoryId) return;
-      }
 
       // add new row
-      let newRow = {
-        Type: eventData.selectedType,
-        Category: eventData.selectedCategory,
-        SubCategory: eventData.selectedSubCategory,
-        category_id: eventData.categoryId
-      };
-      this.tableData.push(newRow);
+      let newRow = {};
+      newRow["Category & SubCategory"] = eventData.selectedCategory + " & " + eventData.selectedSubCategory;
+      newRow["category_id"] = eventData.categoryId;
+      if (eventData.selectedType == "Income") {
+         this.addIfNotThereYet(newRow, this.tableDataIncome);
+      } else {
+         this.addIfNotThereYet(newRow, this.tableDataExpense);
+      }
     },
     getColumns() {
       // first column
-      this.columns.push({ Name: "Type", isHeader: true });
-      this.columns.push({ Name: "Category", isHeader: true });
-      this.columns.push({ Name: "SubCategory", isHeader: true });
-
+      this.columns.push({ Name: "Category & SubCategory", isHeader: true });
       // months/year columns
-      let x = moment(this.fromDate);
-      while (x <= moment(this.toDate)) {
-        let month = x.month()+1;
+      let x = moment(this.$refs.cashFlow_range.fromDate);
+      while (x <= moment(this.$refs.cashFlow_range.toDate)) {
+        let month = x.month() + 1;
         let year = x.year();
         let name = month + "/" + year;
-
-        let newEntry = {Name: name, isHeader: false, Year: year, Month: month};
-        if (!this.columns.find(function(obj) { return obj.Name === newEntry.Name;})) {
+        let newEntry = {
+          Name: name,
+          isHeader: false,
+          Year: year,
+          Month: month
+        };
+        if (
+          !this.columns.find(function(obj) {
+            return obj.Name === newEntry.Name;
+          })
+        ) {
           this.columns.push(newEntry);
         }
         x = moment(x).add(1, "month");
       }
     },
-    setTableData() {
-      if (this.allData == null) return;
+    setTableData(allData) {
+      if (allData == null) return;
 
       //clean table
-      this.tableData.splice(0, this.tableData.length);
+      this.tableDataIncome.splice(0, this.tableDataIncome.length);
+      this.tableDataExpense.splice(0, this.tableDataExpense.length);
+
       this.columns.splice(0, this.columns.length);
 
       this.getColumns();
-
-      let groupedData = this.allData.reduce(function(r, a) {
+      let groupedData = allData.reduce(function(r, a) {
         let groupName =
           a["Type"] + "/" + a["Category"] + "/" + a["SubCategory"];
         r[groupName] = r[groupName] || [];
@@ -156,18 +189,21 @@ export default {
         return r;
       }, Object.create(null));
 
-      this.tableData = [];
+      this.tableDataIncome = [];
+      this.tableDataExpense = [];
       for (let e in groupedData) {
         let oneRow = {};
-        oneRow["Type"] = groupedData[e][0]["Type"];
-        oneRow["Category"] = groupedData[e][0]["Category"];
-        oneRow["SubCategory"] = groupedData[e][0]["SubCategory"];
+        oneRow["Category & SubCategory"] = groupedData[e][0]["Category"] + " & " + groupedData[e][0]["SubCategory"];
         oneRow["category_id"] = groupedData[e][0]["category_id"];
         for (let i in groupedData[e]) {
           let a = groupedData[e][i];
           oneRow[a.Month + "/" + a.Year] = a;
         }
-        this.tableData.push(oneRow);
+        if (groupedData[e][0]["Type"] == "Income") {
+          this.tableDataIncome.push(oneRow);
+        } else {
+          this.tableDataExpense.push(oneRow);
+        }
       }
     }
   }
@@ -175,7 +211,5 @@ export default {
 </script>
 
 <style>
-.table-component__table-wrapper {
-  min-height: 1300px;
-}
+
 </style>
