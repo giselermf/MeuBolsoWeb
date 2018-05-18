@@ -1,16 +1,18 @@
 <template>
-
     <td  style="width: 250px;" v-if="isHeader">{{element}}</td>
     <td v-else >
-
       <div class="columns">
-        <p class="column is-one-quarter">
+        <p  v-if="isTotal" class="column is-one-quarter total">
+            <label>{{budgetValue}}</label>
+        <p v-else class="column is-one-quarter">
           <input v-bind:class="budgetClass" v-model="budgetValue" @change="saveBudget">
         </p>
-        <p class="column is-one-quarter">
-          <input v-bind:class="actualsClass" type="text" v-model="actualsValue" disabled>
+        <p  v-if="isTotal" class="column is-one-quarter">
+            <label>{{actualsValue}}</label>
+        <p v-else  class="column is-one-quarter">  
+            <input v-bind:class="actualsClass" type="text" v-model="actualsValue" disabled>
         </p>
-        <p class="column is-one-quarter">
+        <p  v-if="!isTotal" class="column is-one-quarter">
           <progress :class="progressBarClass" style="width: 100px; margin-top: 10px;" :value="progressValue" :max="100"></progress>
         </p>
       </div>
@@ -25,6 +27,7 @@ export default {
     return {
       budgetValue: this.getBudget(),
       actualsValue: this.getActuals(),
+      isTotal: this.getIsTotal(),
       progressValue: null,
       progressBarClass: null
     };
@@ -44,6 +47,7 @@ export default {
     }
   },
   created() {
+    console.log('new cell', this.Month, this.Year, this.categoryId, this.getBudget(), this.getActuals())
     this.getProgress();
   },
   methods: {
@@ -72,7 +76,13 @@ export default {
         return this.element.id;
       }
     },
-    getBudget() {
+    getIsTotal() {
+      if (this.element != undefined && this.element.isTotal != "") {
+        return this.element.isTotal;
+      }
+      return false;
+    },
+   getBudget() {
       if (this.element != undefined && this.element.Budget != "") {
         return parseInt(this.element.Budget);
       }
@@ -111,5 +121,11 @@ export default {
 }
 .negative {
   color: red;
+}
+
+.ui.table tfoot
+{
+    border-top: 2px solid black;
+    
 }
 </style>

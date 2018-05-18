@@ -10,82 +10,32 @@
         </p>
       </div>
     </div>
-    <div id="app" class="ui vertical segments" >
-      <div class="ui vertical segment" >
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">Income</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <div class="table-component__table-wrapper"  >
-                    <table  class="vuetable ui blue selectable celled stackable attached table">
-                      <thead>
-                        <tr>
-                            <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
-                        </tr>
-                      </thead>
-                        <tbody>
-                        <budget-row
-                                v-for="row in tableDataIncome" :key="row.categoryId"
-                                :row="row"
-                                :columns="columns"  
-                        ></budget-row>
-                        </tbody>
-                    </table>
-                  </div>
-            </div>
-        </div>
-      </div>
-      <div class="ui vertical segment" >
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">Expenses</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <div class="table-component__table-wrapper"  >
-                      <div class="table-component__table-wrapper"  >
-                        <table  class="vuetable ui blue selectable celled stackable attached table">
-                            <tbody>
-                            <budget-row
-                                    v-for="row in tableDataExpense" :key="row.categoryId"
-                                    :row="row"
-                                    :columns="columns"  
-                            ></budget-row>
-                            </tbody>
-                        </table>
-                      </div>
-                  </div>
-            </div>
-        </div>
-      </div>
-
-      <div class="ui vertical segment" >
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">Total</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <div class="table-component__table-wrapper"  >
-                      <div class="table-component__table-wrapper"  >
-                        <table  class="vuetable ui blue selectable celled stackable attached table">
-                            <tbody>
-                            <budget-row
-                                    v-for="row in grandTotal" :key="row.categoryId"
-                                    :row="row"
-                                    :columns="columns"  
-                            ></budget-row>
-                            </tbody>
-                        </table>
-                      </div>
-                  </div>
-            </div>
-        </div>
-      </div>
-      </div>
-
+    <div id="app" class="ui vertical segments" style="overflow-x: auto;">
+      <div class="ui vertical segment"  >
+        <table  class="vuetable ui blue selectable celled stackable attached table">
+          <thead>
+            <tr>
+                <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
+            </tr>
+          </thead>
+            <tbody>
+              <budget-row
+                      v-for="row in tableDataIncome" :key="row.categoryId"
+                      :row="row"
+                      :columns="columns" 
+              ></budget-row>
+              <budget-row
+                      v-for="row in tableDataExpense" :key="row.categoryId"
+                      :row="row"
+                      :columns="columns"  
+              ></budget-row>
+              <budget-row
+                    v-for="row in grandTotal" :key="row.categoryId"
+                    :row="row"
+                    :columns="columns"
+              ></budget-row>
+            </tbody>
+        </table>
     </div>
     <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;" >
         <button class="button is-link" @click="showModal = true">Add</button>
@@ -93,9 +43,6 @@
     <modal v-if="showModal" @close="showModal = false"></modal>
   </div>
 </div>
-
-      
-    </div>
 </template>
 
 <script>
@@ -143,6 +90,8 @@ export default {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     search() {
+      console.log('search');
+      this.$forceUpdate();
       this.getAllData("budget", this.getParams());
     },
     addIfNotThereYet(newRow, table) {
@@ -225,8 +174,9 @@ export default {
           this.tableDataExpense.push(oneRow);
         }
       }
+      
       this.grandTotal = [this.allData.reduce(function (r, a) {
-        r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || {Month:a["Month"], Year:a["Year"], Budget: 0, Actuals:0};
+        r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || {Type:"Total", Month:a["Month"], Year:a["Year"], Budget: 0, Actuals:0, isTotal: true };
         r[a["Year"] + "/" + a["Month"]].Budget += a.Budget;
         r[a["Year"] + "/" + a["Month"]].Actuals += a.Actuals;
         return r;
@@ -238,4 +188,13 @@ export default {
 
 <style>
 
+
+.ui.table tfoot
+{
+    border-top: 2px solid black;
+  background-color: #F9FAFB;
+  font-weight: 700;
+  vertical-align: middle;
+  height: 44px
+}
 </style>
