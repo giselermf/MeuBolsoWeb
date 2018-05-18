@@ -2,38 +2,12 @@
 <div id="app" class="ui vertical stripe segment">
     <div style="display: inline-grid;">
       <div >
-        <p class="read-only-form-field">Id : {{ category_id }}</p>
-      </div>
-      <div >
         <p class="read-only-form-field">Description : {{ description }}</p>
       </div>
       <div>
         <p class="read-only-form-field"> Bank : {{ bank }}</p>
       </div>  
-      <div>
-        <label class="form-label">Type:</label>
-        <select class="form-field" v-model="selectedType" v-on:change="onChangeType" >
-            <option v-for="type in getTypes()" v-bind:key="type" v-bind:value="type">
-                {{ type }}
-            </option>
-        </select>
-      </div>
-      <div>
-        <label class="form-label">Category:</label>
-        <select class="form-field" v-model="selectedCategory" v-on:change="onChangeCategory">
-            <option v-for="category in getCategories()" v-bind:key="category" v-bind:value="category">
-                {{ category }}
-            </option>
-        </select>
-      </div>
-      <div>
-        <label class="form-label">SubCategory:</label>
-        <select class="form-field" v-model="selectedSubCategory">
-            <option v-for="subcategory in getSubCategories()" v-bind:key="subcategory" v-bind:value="subcategory">
-                {{ subcategory }}
-            </option>
-        </select>
-      </div> 
+      <category-select-combos ref="search_typecombos" ></category-select-combos>
       <div style="display: flex;justify-content: center;padding-top: 1em"> 
           <button type="button" @click="save()" >Save</button>
       </div>
@@ -45,12 +19,10 @@
 import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 
 export default {
-  mixins : [CategorySelectCombos],
+  components: {CategorySelectCombos},
   data() {
     return {
-      category_id: null,
-      type_data: null,
-      category_data: null,
+      transaction_id: null,
       description: null,
       bank: null
     };
@@ -60,12 +32,12 @@ export default {
   },
   methods: {
     onEdit: function(data) {
-      this.category_id = data.id;
+      this.transaction_id = data.id;
       this.bank = data.BankName;
       this.description = data.Description;
-      this.selectedType = data.Type;
-      this.selectedCategory = data.Category;
-      this.selectedSubCategory = data.SubCategory;
+      this.$refs.search_typecombos.selectedType = data.Type;
+      this.$refs.search_typecombos.selectedCategory = data.Category;
+      this.$refs.search_typecombos.selectedSubCategory = data.SubCategory;
     },
     save: function() {
       var axios = require("axios");
@@ -74,10 +46,8 @@ export default {
         .post(
           "http://127.0.0.1:5000/transactions/",
           querystring.stringify({
-            id: this.category_id,
-            category: this.selectedSubCategory,
-            SubCategory: this.selectedSubCategory,
-            Type: this.selectedType
+            transaction_id: this.transaction_id,
+            category_id: this.$refs.search_typecombos.getSelectedCategoryId()
           })
         )
         .then(response => {

@@ -61,7 +61,7 @@ def transactionsFiltered():
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
     return app.make_response(
-        update_transaction(id=request.form['id'], category=request.form['category'], sub_category=request.form['SubCategory'], type=request.form['Type']))
+        update_transaction(transaction_id=request.form['transaction_id'], category_id=request.form['category_id']))
 
 def getParams(request):
     sort_params = request.args.get('sort')

@@ -15,7 +15,6 @@ def get_budget(filter_param=None):
     return getResponse('Budget', None, None, 1, all_entries)
 
 def update_budget(id, CategoryId, Value, Month, Year):
-    print('here', id, CategoryId, Value, Month, Year)
     if id == '':
         sql_command = "insert into Budget (category_id, Amount, Month,Year ) VALUES (?,?,?,?)"
         return run_update(sql_command, (CategoryId, Value, Month, Year))

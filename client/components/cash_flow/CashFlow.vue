@@ -8,6 +8,7 @@
             <button class="button is-link" @click="search()" >Search</button>
           </p>
       </div>
+      <p>{{RunningBalance}}</p>
       <meu-bolso-bar :height="300" :chartData="chartData" title="Cash Flow" ></meu-bolso-bar>
 
 </div>
@@ -46,9 +47,10 @@ export default {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     search(filterParams) {
-      this.getData(this.allData, "cashFlow", this.getParams());
+      this.getAllData("cashFlow", this.getParams());
     },
     getRunningBalanceDataset() {
+      this.RunningBalance = 0;
       let runningValues = [];
       for (let monthIndex in this.labels) {
         this.RunningBalance += this.values[monthIndex]
@@ -75,7 +77,7 @@ export default {
             borderWidth: 1,
             beginzero: "true",
             fill: false,
-            data: this.values
+            data: this.allData.map(x => x.NetInMonth)
           }, this.getRunningBalanceDataset()
         ]
       };

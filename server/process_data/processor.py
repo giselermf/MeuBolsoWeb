@@ -54,16 +54,18 @@ class Processor(object):
                         entries_in_file += 1
                         from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date_str'], entry['Description'][:30])
                         if len(from_database) == 1:
+                            #print('update', entry)
                             self._update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
                         if len(from_database) > 1 and entry['Number'] != '...' and  entry['Number'] != None:
                             from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date_str'], entry['Description'][:30],entry['Number'])
                             if len(from_database) == 1:
+                                #print('update', entry)
                                 self._update_transaction_number(entry['Number'], from_database[0]['TransactionNumber'], from_database[0]['id'])
                             if len(from_database) > 1:
                                 print('found more than one', entry, row, from_database)
                         elif len(from_database) == 0:
-                            #print('to insert', entry['Bank Name'], entry['Amount in EUR'] )
-                            insert_transaction( entry['Category'], entry['SubCategory'], entry['Type'], entry['Description'], \
+                            print('to insert', entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
+                            insert_transaction( entry['category_id'], entry['Description'], \
                                                 entry['Number'], entry['Currency'], entry['Amount'], \
                                                 entry['Bank Name'], entry['Amount in EUR'] , \
                                                 entry['Date_str'], entry['Date'] )

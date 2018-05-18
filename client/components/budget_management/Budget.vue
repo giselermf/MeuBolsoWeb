@@ -47,11 +47,6 @@
                     <div class="table-component__table-wrapper"  >
                       <div class="table-component__table-wrapper"  >
                         <table  class="vuetable ui blue selectable celled stackable attached table">
-                            <thead>
-                              <tr>
-                                  <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
-                              </tr>
-                            </thead>
                             <tbody>
                             <budget-row
                                     v-for="row in tableDataExpense" :key="row.categoryId"
@@ -65,6 +60,32 @@
             </div>
         </div>
       </div>
+
+      <div class="ui vertical segment" >
+        <div class="field is-horizontal" >
+            <div class="field-label">
+                <label class="label">Total</label>
+            </div>
+            <div class="field-body">
+                <div class="field is-grouped">
+                    <div class="table-component__table-wrapper"  >
+                      <div class="table-component__table-wrapper"  >
+                        <table  class="vuetable ui blue selectable celled stackable attached table">
+                            <tbody>
+                            <budget-row
+                                    v-for="row in grandTotal" :key="row.categoryId"
+                                    :row="row"
+                                    :columns="columns"  
+                            ></budget-row>
+                            </tbody>
+                        </table>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>
+      </div>
+
     </div>
     <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;" >
         <button class="button is-link" @click="showModal = true">Add</button>
@@ -80,12 +101,14 @@
 <script>
 import BudgetRow from "./BudgetRow";
 import Modal from "../util/CategoryModal.vue";
-import Datepicker from "vuejs-datepicker";
 import { addFilterParam } from "../util/Utils.js";
 import DateRange from "../util/DateRange.vue";
 import moment from "moment";
+import CallServer from "../util/CallServer.js";
+
 
 export default {
+  mixins: [CallServer],
   components: {
     BudgetRow,
     Modal,
@@ -98,13 +121,19 @@ export default {
       tableFields: [],
       tableDataIncome: [],
       tableDataExpense: [],
+      grandTotal: [],
       showModal: false
     };
+  },
+  watch: {
+    allData: function(val) {
+      this.setTableData();
+    },
   },
   mounted() {
     this.$refs.cashFlow_range.setRange(0, 0);
     this.search(); 
-    this.$events.$on("search-budget", eventData => {this.$forceUpdate()});
+    this.$events.$on("search-budget", eventData => { this.search(); });
     this.$events.$on("close-category-modal", eventData =>
       this.onModalClose(eventData)
     );
@@ -114,16 +143,7 @@ export default {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     search() {
-      let axios = require("axios");
-      let querystring = require("querystring");
-      axios
-        .get("http://127.0.0.1:5000/budget/" + this.getParams())
-        .then(response => {
-          this.setTableData(response["data"]["data"]);
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+      this.getAllData("budget", this.getParams());
     },
     addIfNotThereYet(newRow, table) {
       for (let row in table) {
@@ -144,7 +164,7 @@ export default {
          this.addIfNotThereYet(newRow, this.tableDataIncome);
       } else {
          this.addIfNotThereYet(newRow, this.tableDataExpense);
-      }
+      };
     },
     getColumns() {
       // first column
@@ -171,8 +191,8 @@ export default {
         x = moment(x).add(1, "month");
       }
     },
-    setTableData(allData) {
-      if (allData == null) return;
+    setTableData() {
+      if (this.allData == null) return;
 
       //clean table
       this.tableDataIncome.splice(0, this.tableDataIncome.length);
@@ -181,7 +201,7 @@ export default {
       this.columns.splice(0, this.columns.length);
 
       this.getColumns();
-      let groupedData = allData.reduce(function(r, a) {
+      let groupedData = this.allData.reduce(function(r, a) {
         let groupName =
           a["Type"] + "/" + a["Category"] + "/" + a["SubCategory"];
         r[groupName] = r[groupName] || [];
@@ -205,6 +225,12 @@ export default {
           this.tableDataExpense.push(oneRow);
         }
       }
+      this.grandTotal = [this.allData.reduce(function (r, a) {
+        r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || {Month:a["Month"], Year:a["Year"], Budget: 0, Actuals:0};
+        r[a["Year"] + "/" + a["Month"]].Budget += a.Budget;
+        r[a["Year"] + "/" + a["Month"]].Actuals += a.Actuals;
+        return r;
+      }, Object.create(null))];
     }
   }
 };

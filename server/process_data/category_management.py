@@ -8,7 +8,7 @@ class Categories(object):
         try: 
             all_categories = get_all_categories()
             for e in all_categories:
-                category = " ".join(str(e['category'] + "#" + e['subcategory'] + "#" + e['type'] ).split())  # remove extra spaces between words
+                category =  e['id']
                 value = e['description']
                 if category in categories:
                     categories[category].append(value)
@@ -28,12 +28,12 @@ class Categories(object):
             regex = regex[:-1]
             self.categories_regex[regex] = key
     
-    def get_category(self, description, category=None):
-        key = category if category != "" and category != "Other" and category is not None else description
-        key = " ".join(key.split()).lower() # remove extra spaces between words
-        value = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), key.lower())]
-        category_and_subcategory_and_type = value[0] if len(value) > 0 and str(value[0]) != 'nan' else "Others#Others#Others"
-        return category_and_subcategory_and_type.split("#")
+    def get_category(self, description):
+        description = " ".join(description.split()).lower() # remove extra spaces between words
+        category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), description)]
+        if len(category_id) == 0:
+            category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), 'others')]
+        return category_id[0] 
 
 class Categorization(object):
 

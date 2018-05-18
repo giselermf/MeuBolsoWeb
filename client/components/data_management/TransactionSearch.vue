@@ -23,12 +23,7 @@
             </div>
             <div class="field-body">
                 <div class="field is-grouped">
-                    <p class="control is-expanded">
-                            <datepicker v-model="fromDate" placeholder="from" :minimumView="'day'" :maximumView="'day'"></datepicker>
-                    </p>
-                    <p class="control is-expanded">
-                        <datepicker v-model="toDate" placeholder="to" :minimumView="'day'" :maximumView="'day'"></datepicker>
-                    </p>
+                    <date-range ref="cashFlow_range" minimumView="day"></date-range>  
             </div></div>
         </div>
 
@@ -73,48 +68,36 @@
 </template>
 
 <script>
-import moment from "moment";
 import { addFilterParam } from "../util/Utils.js";
 import Datepicker from "vuejs-datepicker";
 import CategorySelectCombos from "../util/CategorySelectCombos.vue"
+import DateRange from "../util/DateRange.vue";
+import moment from "moment";
 
 export default { 
+    
   components: {
-    Datepicker, CategorySelectCombos
+    Datepicker, CategorySelectCombos, DateRange
   },
   data() {
     return {
-      selectedCategories: [],
-      selectedSubategories: [],
-      selectedCurrencies: [],
-      selectedTypes: [],
       selectedBank: null,
       all_filter_data: [],
       Description: null,
       SubCategory: null,
       fromAmount: null,
       toAmount: null,
-      fromDate: null,
-      toDate: null,
-      dateRangeOption: "Current Month"
     };
   },
-  created() {
+  mounted() {
     this.getCategoriesFromServer();
     this.setDateRangeDefault();
-  },
-  mounted() {
     this.search();
+    this.$events.$on("filter-reset", this.search);
   },
   methods: {
     setDateRangeDefault() {
-      this.fromDate = moment(new Date())
-        .startOf("month")
-        .subtract(2, "month")
-        .format("YYYY-MM-DD");
-      this.toDate = moment(new Date())
-        .add(2, "month")
-        .format("YYYY-MM-DD");
+        this.$refs.cashFlow_range.setRange(-2, 2);
     },
     getFilterValue: function(fieldName) {
       var values = this.all_filter_data.map(x => {
@@ -143,8 +126,8 @@ export default {
         bankName: this.selectedBank,
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
-        fromDate: this.fromDate,
-        toDate: this.toDate,
+        fromDate: moment(this.$refs.cashFlow_range.fromDate).format("YYYY-MM-DD"),
+        toDate: moment(this.$refs.cashFlow_range.toDate).format("YYYY-MM-DD"),
         Description: this.Description,
       };
       this.$events.fire("transaction-filter-set", addFilterParam(params));

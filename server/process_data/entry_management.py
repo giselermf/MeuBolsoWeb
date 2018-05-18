@@ -55,8 +55,7 @@ class GenericProcessor(object):
         if self.get_amount(row) != 0:
             entry = {}
             entry['Description'] = self.get_description(row).strip()
-            category = str(row[self.category_pos]) if self.category_pos is not None else None
-            entry['Category'], entry['SubCategory'], entry['Type'] = self.categories.get_category(entry['Description'], category )
+            entry['category_id'] = self.categories.get_category(entry['Description'])
             entry['Number'] = self.get_number(row)
             entry_date = datetime.strptime ( row[self.date_pos].strip(), self.date_format)
             entry['Date_str'] = entry_date.strftime('%d/%m/%Y')
@@ -78,7 +77,6 @@ class ProcessBankAustria(GenericProcessor):
         self.delimiter = ';'
         self.account_name_pos = None
         self.account_number_pos = None
-        self.category_pos=None
         self.number_pos=7
         self.record_data_pos=6
         self.date_pos=1
@@ -110,7 +108,6 @@ class ProcessUNFCU(GenericProcessor):
         self.delimiter = ','
         self.account_name_pos = 0
         self.account_number_pos = 1
-        self.category_pos=None
         self.number_pos=4
         self.date_pos=2
         self.date_format='%m/%d/%Y'
