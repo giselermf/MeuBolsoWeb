@@ -47,7 +47,7 @@
 
 <script>
 import BudgetRow from "./BudgetRow";
-import Modal from "../util/CategoryModal.vue";
+import Modal from "./CategoryModal.vue";
 import { addFilterParam } from "../util/Utils.js";
 import DateRange from "../util/DateRange.vue";
 import moment from "moment";

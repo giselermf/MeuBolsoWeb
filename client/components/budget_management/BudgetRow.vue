@@ -1,7 +1,7 @@
 <template>
     <tr>
         <budget-cell
-            v-for="val in columns" :key="val"
+            v-for="val in columns" :key="val.Name+row.category_id"
             :isHeader = val.isHeader
             :Month = val.Month
             :Year = val.Year
