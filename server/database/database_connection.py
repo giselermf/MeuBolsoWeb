@@ -46,5 +46,5 @@ def run_update(sql_command, *params):
             conn.commit()
             return json.dumps({"data": 'sucess'})
         except:
-            print(sql_command, 'params', *params)
+            print('on except', sql_command, 'params', *params)
             raise

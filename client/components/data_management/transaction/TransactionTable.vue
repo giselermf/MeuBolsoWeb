@@ -1,37 +1,43 @@
 <template>
-    <div>
-        <my-vuetable ref="vuetableTransaction"
-                api-url="http://127.0.0.1:5000/transactionsFiltered/"
-                :fields="fields"
-                :sort-order="sortOrder"
-                :append-params="appendParams"
-            >
-                <template slot="actions" scope="props">
-                    <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
-                </template>
-            </my-vuetable>
-    </div>
+  <div>
+    <my-vuetable ref="vuetableTransaction"
+        api-url="http://127.0.0.1:5000/transactionsFiltered/"
+        :fields="fields"
+        :sort-order="sortOrder"
+        :append-params="appendParams"
+    >
+        <template slot="actions" scope="props">
+            <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onSplit(false, props.rowData)">✏️</a>
+            <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onSplit(true, props.rowData)">✂️️</a>
+        </template>
+    </my-vuetable>
+    <transaction-edit v-if="showModal" @close="showModal = false" :split="split" :selectedTransaction="selected_transaction" ></transaction-edit>
+  </div>
 </template>
 
 <script>
-import MyVuetable from ".//MyVuetable";
+import MyVuetable from "../MyVuetable";
 import Vue from 'vue'
 import VueEvents from 'vue-events';
+import TransactionEdit from "./TransactionEditModal.vue";
 Vue.use(VueEvents);
 
 export default {
   components: {
-    MyVuetable
+    MyVuetable, TransactionEdit
   },
   mounted() {
     this.$events.$on("transaction-filter-set", eventData => this.onFilterSet(eventData));
     this.$events.$on("transaction-filter-reset", e => this.onFilterReset());
+    this.$events.$on("close-transaction-split-modal", eventData =>
+      this.onModalClose(eventData)
+    );
   },
   data() {
     return {
-      selected_id: "",
-      selected_category: "",
-      selected_description: "",
+      showModal: false,
+      split: false,
+      selected_transaction: "",
       fields: [
         {
           name: "BankName",
@@ -58,18 +64,14 @@ export default {
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
-        /*   {
-                        name: 'TransactionNumber',
-                        titleClass: 'center aligned',
-                        dataClass: 'center aligned',
-                    },*/
         {
           name: "Currency",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "Amount",
+          name: "AmountEUR",
+          title: "Amount (EUR)",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
@@ -96,6 +98,16 @@ export default {
     };
   },
   methods: {
+    onSplit(split, data) {
+      this.showModal = true;
+      this.split = split
+      this.selected_transaction = data;
+    },
+    onModalClose(eventData) {
+      this.showModal = false;
+      this.split = false;
+      this.onFilterSet();
+    },
     onEdit(data) {
       this.$events.fire("edit-record", data);
     },

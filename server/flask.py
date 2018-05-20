@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
-from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data
+from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data, split_transaction
 from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
@@ -63,7 +63,12 @@ def post_transactions():
     return app.make_response(
         update_transaction(transaction_id=request.form['transaction_id'], category_id=request.form['category_id']))
 
-def getParams(request):
+@app.route('/splitTransaction/', methods=['POST'])
+def split_transactions():
+    return app.make_response(
+        split_transaction(transactionId=request.form['transaction_id'], newCategoryId=request.form['new_category_id'], newAmountEUR=request.form['new_amount_EUR']))
+
+def getParams(request): 
     sort_params = request.args.get('sort')
     sort = None
     sort_order = 'asc'

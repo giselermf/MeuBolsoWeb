@@ -1,5 +1,5 @@
 from server.dto.base import getResponse, getLimitClause, getSortClause
-from server.database.database_connection import run_select, run_update
+from server.database.database_connection import run_select, run_update, create_connection
 import json
 
 def get_all_transactions(oder_by=None):
@@ -62,7 +62,6 @@ def insert_transaction(category_id, description, transaction_number, currency, a
     'VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
     return run_update(sql_commnad, (category_id, description, transaction_number, currency, amount, date_str, bank_name, amount_eur, date, date.year, date.month, date.day)  )
 
-
 def update_transaction(transaction_id, category_id=None, transaction_number= None, RunningBalance=None):
     if transaction_id == '' or transaction_id==None:
         return json.dumps({"data": 'fail'})
@@ -76,3 +75,20 @@ def update_transaction(transaction_id, category_id=None, transaction_number= Non
             sql_command += " RunningBalance = {0} ,".format(RunningBalance)
         sql_command = sql_command[:-1] + " where id = ? "
         return run_update(sql_command, (transaction_id,))
+
+def split_transaction(transactionId, newAmountEUR, newCategoryId):
+    sql_command1 =  "update Transactions set AmountEUR = AmountEUR - ? where id = ?;"
+    sql_command2 = "INSERT INTO Transactions ( Description,TransactionNumber, Currency, Amount, Date_str, "\
+        "BankName, AmountEUR, RunningBalance, Date, Year, Month, Day, category_id )"\
+        "SELECT Description, TransactionNumber, Currency, 0, Date_str, BankName, ?, RunningBalance, Date, Year, Month, Day, ?  FROM Transactions where id = ?;"
+    conn = create_connection()
+    with conn:
+        c = conn.cursor()
+        try:
+            c.execute(sql_command1, (int(newAmountEUR), int(transactionId)))
+            c.execute(sql_command2, (int(newAmountEUR), int(newCategoryId), int(transactionId)))
+            conn.commit()
+            return json.dumps({"data": 'sucess'})
+        except:
+            print('on except', sql_command1, sql_command2)
+            raise
