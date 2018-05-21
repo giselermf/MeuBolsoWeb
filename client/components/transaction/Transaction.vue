@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="ui  segment">
-      <transaction-table></transaction-table>
+      <transaction-table :params="appendParams" ></transaction-table>
     </div> 
   </div>
 </template>
@@ -23,7 +23,7 @@
 <script>
 import TransactionSearch from "./TransactionSearch.vue";
 import TransactionTable from "./TransactionTable.vue";
-import OverMonthWithTable from "../../data_management/OverMonthBarWithTable";
+import OverMonthWithTable from "./OverMonthBarWithTable.vue";
 
 export default {
   components: {
@@ -43,7 +43,6 @@ export default {
     this.$events.$on("transaction-filter-set", eventData =>
       this.onFilterSet(eventData)
     );
-    this.$events.$on("transaction-filter-reset", e => this.onFilterReset());
   },
   methods: {
     getData() {
@@ -70,10 +69,6 @@ export default {
       this.appendParams.filter = filterParams;
       this.getData();
     },
-    onFilterReset() {
-      delete this.appendParams.filter;
-      this.getData();
-    }
   }
 };
 </script>

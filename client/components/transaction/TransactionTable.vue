@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import MyVuetable from "../MyVuetable";
+import MyVuetable from "../util/MyVuetable.vue";
 import Vue from 'vue'
 import VueEvents from 'vue-events';
 import TransactionEdit from "./TransactionEditModal.vue";
@@ -26,9 +26,9 @@ export default {
   components: {
     MyVuetable, TransactionEdit
   },
+  props: ["params"],
   mounted() {
     this.$events.$on("transaction-filter-set", eventData => this.onFilterSet(eventData));
-    this.$events.$on("transaction-filter-reset", e => this.onFilterReset());
     this.$events.$on("close-transaction-split-modal", eventData =>
       this.onModalClose(eventData)
     );
@@ -94,7 +94,7 @@ export default {
           direction: "desc"
         }
       ],
-      appendParams: {}
+      appendParams: this.params
     };
   },
   methods: {
@@ -106,17 +106,13 @@ export default {
     onModalClose(eventData) {
       this.showModal = false;
       this.split = false;
-      this.onFilterSet();
+      Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
     },
     onEdit(data) {
       this.$events.fire("edit-record", data);
     },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;
-      Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
-    },
-    onFilterReset() {
-      delete this.appendParams.filter;
       Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
     }
   }

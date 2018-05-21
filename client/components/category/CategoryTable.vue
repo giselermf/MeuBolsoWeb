@@ -16,7 +16,7 @@
 
 
 <script>
-import MyVuetable from ".//MyVuetable";
+import MyVuetable from "../util/MyVuetable";
 import VueEvents from 'vue-events';
 import Vue from 'vue'
 Vue.use(VueEvents);

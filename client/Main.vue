@@ -41,8 +41,8 @@
 
 <script>
 import MainDashboard from "./components/main_dashboard/MainDashboard.vue";
-import Category from "./components/data_management/CategoryEdit.vue";
-import Transaction from "./components/data_management/transaction/Transaction.vue";
+import Category from "./components/category/CategoryEdit.vue";
+import Transaction from "./components/transaction/Transaction.vue";
 import ProcessData from "./components/process/ProcessData.vue";
 import Budget from "./components/budget_management/Budget.vue";
 import CashFlow from "./components/cash_flow/CashFlow.vue";

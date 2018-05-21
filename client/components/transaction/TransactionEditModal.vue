@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import CategorySelectCombos from "../../util/CategorySelectCombos.vue";
+import CategorySelectCombos from "../util/CategorySelectCombos.vue";
 
 export default {
   props : ["split", "selectedTransaction"],

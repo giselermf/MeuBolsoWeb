@@ -102,7 +102,8 @@ export default {
     },
     getProgressBarClass() {
       this.progressBarClass = "progress is-small ";
-      if (this.progressValue > 70) this.progressBarClass += "is-danger";
+      if (this.progressValue > 100 && this.getBudget() < 0) this.progressBarClass += "is-danger";
+      else if (this.progressValue > 100 && this.getBudget() > 0)  this.progressBarClass += "is-success";
       else if (this.progressValue > 50) this.progressBarClass += "is-warning";
       else this.progressBarClass += "is-success";
     }

@@ -68,10 +68,10 @@
 </template>
 
 <script>
-import { addFilterParam } from "../../util/Utils.js";
+import { addFilterParam } from "../util/Utils.js";
 import Datepicker from "vuejs-datepicker";
-import CategorySelectCombos from "../../util/CategorySelectCombos.vue"
-import DateRange from "../../util/DateRange.vue";
+import CategorySelectCombos from "../util/CategorySelectCombos.vue"
+import DateRange from "../util/DateRange.vue";
 import moment from "moment";
 
 export default { 
@@ -93,7 +93,6 @@ export default {
     this.getCategoriesFromServer();
     this.setDateRangeDefault();
     this.search();
-    this.$events.$on("filter-reset", this.search);
   },
   methods: {
     setDateRangeDefault() {
@@ -116,7 +115,7 @@ export default {
       this.toAmount = null;
       this.setDateRangeDefault();
       this.$refs.search_typecombos.resetValues();
-      this.$events.fire("transaction-filter-reset");
+      this.search();
     },
     search: function() {
       let params = {

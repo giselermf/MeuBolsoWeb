@@ -30,8 +30,8 @@
 
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
-import DrillDownWithTable from "../data_management/DrillDownPieWithTable";
-import RunningBalance from "../data_management/RunningBalance";
+import DrillDownWithTable from "../transaction/DrillDownPieWithTable.vue";
+import RunningBalance from "../transaction/RunningBalance.vue";
 import Datepicker from "vuejs-datepicker";
 
 import moment from "moment";
