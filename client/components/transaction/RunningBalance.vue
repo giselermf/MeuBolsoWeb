@@ -6,8 +6,7 @@
             {{ bank }}
         </option>
     </select>
-
-        <meu-bolso-line :height="height" :chartData="chartData" :title="title" xLabel="Date" datasetLabel="BankName"></meu-bolso-line>
+    <meu-bolso-line :height="height" :chartData="chartData" :title="title" xLabel="Date" datasetLabel="BankName"></meu-bolso-line>
  </div>
 </template>
 
@@ -23,7 +22,7 @@ export default {
   props: ["height", "allData"],
   data() {
     return {
-      selectedBank: 'All',
+      selectedBank: "All",
       allBanks: [],
       chartData: {},
       title: "Running Balance"
@@ -32,14 +31,16 @@ export default {
   watch: {
     allData: {
       handler(newData, oldData) {
-        this.allBanks = ['All']
-        this.allBanks = this.allBanks.concat(Array.from(new Set(this.allData.map(x => x.BankName))));
+        this.allBanks = ["All"];
+        this.allBanks = this.allBanks.concat(
+          Array.from(new Set(this.allData.map(x => x.BankName)))
+        );
         this.getChartData();
       }
     },
     selectedBank: {
       handler(newData, oldData) {
-        this.getChartData(); 
+        this.getChartData();
       }
     }
   },
@@ -78,17 +79,21 @@ export default {
       alabels = Array.from(new Set(alabels));
 
       let groupedData = this.allData.reduce(function(r, a) {
-        r[a["BankName"]] = r[a["BankName"]] || {};
-        let dateRunning = moment(a.Date).format("YYYY-MM-DD");
-        r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
-        return r;
+        if (a.Active == 1) { //only active accounts
+          r[a["BankName"]] = r[a["BankName"]] || {};
+          let dateRunning = moment(a.Date).format("YYYY-MM-DD");
+          r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
+        }
+         return r;
       }, Object.create(null));
 
       let runningValues = [];
       for (let bank in groupedData) {
         if (
-          (this.selectedBank != 'All' && bank.replace(/\s+/g,' ').trim() == this.selectedBank.replace(/\s+/g,' ').trim()) ||
-          this.selectedBank == 'All'
+          (this.selectedBank != "All" &&
+            bank.replace(/\s+/g, " ").trim() ==
+              this.selectedBank.replace(/\s+/g, " ").trim()) ||
+          this.selectedBank == "All"
         ) {
           datasets.push(
             this.createDataset(

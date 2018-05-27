@@ -57,16 +57,14 @@ class GenericProcessor(object):
             entry['Description'] = self.get_description(row).strip()
             entry['category_id'] = self.categories.get_category(entry['Description'])
             entry['Number'] = self.get_number(row)
-            entry_date = datetime.strptime ( row[self.date_pos].strip(), self.date_format)
-            entry['Date_str'] = entry_date.strftime('%d/%m/%Y')
-            entry['Date'] = entry_date
+            entry['Date'] = datetime.strptime ( row[self.date_pos].strip(), self.date_format)
             entry['Amount'] = self.get_amount(row)
             entry['Currency'] = self.currency
             account_name = ' - ' + row[self.account_name_pos] if self.account_name_pos is not None else " - Checking Account"
             account_number = row[self.account_number_pos] if self.account_number_pos is not None else ""
             entry['Bank Name'] = self.bank_name + account_name + account_number
             try:
-                entry['Amount in EUR' ] = self.c.convert(entry['Amount'], self.currency, 'EUR', date=entry_date)
+                entry['Amount in EUR' ] = self.c.convert(entry['Amount'], self.currency, 'EUR', date=entry['Date'])
             except Exception as e:
                 print('amount in EUR failed', e)
             return entry

@@ -1,9 +1,9 @@
 from server.dto.base import getResponse, getLimitClause, getSortClause
-from server.database.database_connection import run_select, run_update
+from server.database.database_connection import run_sql
 import json
 
 def get_all_categories():
-    return run_select("Select id, category, subcategory, type, description from vwCategories")
+    return run_sql("Select id, category, subcategory, type, description from vwCategories")
 
 def add_param(column_name, param_value):
     if param_value != None:
@@ -11,7 +11,7 @@ def add_param(column_name, param_value):
     return ""
 
 def get_filter_data():
-    all_entries = run_select("Select id, Category, SubCategory, Type from Category")
+    all_entries = run_sql("Select id, Category, SubCategory, Type from Category")
     return json.dumps(all_entries)
 
 def get_categories(sort, sort_order=None, filter_param=None, page_number=None, per_page=None):
@@ -29,18 +29,24 @@ def get_categories(sort, sort_order=None, filter_param=None, page_number=None, p
     sql_comand += getSortClause(sort, sort_order)
     sql_comand += getLimitClause(page_number, per_page)
 
-    all_entries = run_select(sql_comand)
-    total_records = run_select('select count(*) as total from vwCategories ' + where_clause)[0]['total']
+    all_entries = run_sql(sql_comand)
+    total_records = run_sql('select count(*) as total from vwCategories ' + where_clause)[0]['total']
     return getResponse('category', total_records, per_page, page_number, all_entries)
 
 def save_category(id, selectedCategoryid, description):
     if id == '':
         sql_comand = "insert into CategoryDescription(description, category_id) values (?, ?)"
-        return run_update(sql_comand, (description, selectedCategoryid))
+        return run_sql(sql_comand, (description, selectedCategoryid))
     else:
         sql_comand = "update CategoryDescription set description = ?, category_id = ? where id = ?"
-        return run_update(sql_comand, (description, selectedCategoryid, int(id)))
+        return run_sql(sql_comand, (description, selectedCategoryid, int(id)))
+
+def get_category_id(Type, Category, SubCategory):
+    sql_command = "SELECT id FROM Category where Type = ? and Category = ? and SubCategory = ?"
+    all_results = run_sql(sql_command, (Type, Category, SubCategory))
+    if len(all_results)>0:
+        return all_results[0]['id']
 
 def delete_category(id):
     sql_comand = "delete from CategoryDescription where id = ?"
-    return run_update(sql_comand, (id,))
+    return run_sql(sql_comand, (id,))

@@ -1,4 +1,4 @@
-from server.database.database_connection import run_select, run_update
+from server.database.database_connection import run_sql
 from server.dto.base import getResponse
 import json
 import datetime
@@ -11,19 +11,19 @@ def get_budget(filter_param=None):
         where_clause += " and Date <= '" + filter_param.get("toDate") + "'"
     sql_command += where_clause
     sql_command += " order by Year, Month, Type, Category, SubCategory"
-    all_entries = run_select(sql_command)
+    all_entries = run_sql(sql_command)
     return getResponse('Budget', None, None, 1, all_entries)
 
 def update_budget(id, CategoryId, Value, Month, Year):
     if id == '':
         sql_command = "insert into Budget (category_id, Amount, Month,Year ) VALUES (?,?,?,?)"
-        return run_update(sql_command, (CategoryId, Value, Month, Year))
+        return run_sql(sql_command, (CategoryId, Value, Month, Year))
     elif int(Value) == 0:
         sql_command = "delete from Budget where id = ?"
-        return run_update(sql_command, (int(id),))
+        return run_sql(sql_command, (int(id),))
     else:
         sql_command = "update Budget set Amount = ? where id = ?"
-        return run_update(sql_command, (Value, int(id)))
+        return run_sql(sql_command, (Value, int(id)))
 
 def get_cashFlow(filter_param=None):
     today = datetime.datetime.today()
@@ -45,7 +45,7 @@ def get_cashFlow(filter_param=None):
     "Month, Year, sum(Budget) as NetInMonth from vwBudget "\
     "where Month >= {2} and Year >= {3} and Month <= {4} and Year <= {5} group by Month, Year order by beginMonth"\
     .format(beginning_of_month, from_date, today.month, today.year, to_date_datetime.month, to_date_datetime.year)
-    all_entries = run_select(sql_command)
+    all_entries = run_sql(sql_command)
     return getResponse('cash_flow', None, None, 1, all_entries)
 
 def get_RunningBalance(filter_param=None):
@@ -57,6 +57,5 @@ def get_RunningBalance(filter_param=None):
     sql_command = "select sum(RunningBalance) as balance from (Select BankName, max(Date), RunningBalance"\
     " from vwTransactions where Date <= '{0}' group by BankName )".format(by_date)
 
-    print(sql_command)
-    all_entries = run_select(sql_command)
+    all_entries = run_sql(sql_command)
     return getResponse('RunningBalance', None, None, 1, all_entries)

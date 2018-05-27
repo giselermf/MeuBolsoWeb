@@ -21,30 +21,18 @@ def create_connection():
         print('error creating connection')
         raise 
 
-def run_select(sql_command, param_name=None):
+def run_sql(sql_command, *params):
     conn = create_connection()
     with conn:
         c = conn.cursor()
         try:
-            print(sql_command)
-            c.execute(sql_command)
-            if param_name is None:
-                return c.fetchall()
-            else:
-                return json.dumps({param_name: c.fetchall()})
-        except:
-            print(sql_command)
-            raise
-
-def run_update(sql_command, *params):
-    conn = create_connection()
-    with conn:
-        c = conn.cursor()
-        try:
-            print(sql_command)
+           # print(sql_command)
             c.execute(sql_command, *params)
             conn.commit()
-            return json.dumps({"data": 'sucess'})
+            if 'select' in sql_command.lower():
+                return c.fetchall()
+            else: 
+                return json.dumps({"data": 'sucess'})
         except:
             print('on except', sql_command, 'params', *params)
             raise

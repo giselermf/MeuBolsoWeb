@@ -98,7 +98,6 @@ export default {
         });
     },
     splitTransaction() {
-      console.log('spliting');
       var axios = require("axios");
       var querystring = require("querystring");
       axios

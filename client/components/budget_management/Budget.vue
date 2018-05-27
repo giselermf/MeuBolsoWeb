@@ -79,20 +79,18 @@ export default {
   },
   mounted() {
     this.$refs.cashFlow_range.setRange(0, 0);
-    this.search(); 
+    this.search();
     this.$events.$on("search-budget", eventData => { this.search(); });
     this.$events.$on("close-category-modal", eventData =>
       this.onModalClose(eventData)
     );
   },
   methods: {
+    search() {
+      this.getAllData("budget", this.getParams()); 
+    },
     getParams() {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
-    },
-    search() {
-      console.log('search');
-      this.$forceUpdate();
-      this.getAllData("budget", this.getParams());
     },
     addIfNotThereYet(newRow, table) {
       for (let row in table) {

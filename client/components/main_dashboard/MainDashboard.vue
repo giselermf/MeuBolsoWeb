@@ -3,12 +3,7 @@
       <div class="field is-horizontal-left" >
           <div class="field-body">
               <div class="field is-grouped">
-                  <p class="control">
-                          <datepicker v-model="fromDate" placeholder="from" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                  </p>
-                  <p class="control">
-                      <datepicker v-model="toDate" placeholder="to" :minimumView="'month'" :maximumView="'month'"></datepicker>
-                  </p>
+                  <date-range ref="cashFlow_range" minimumView="month"></date-range>
                   <p class="control">
                     <button class="button is-link" @click="search()" >Search</button>
                   </p>
@@ -16,15 +11,24 @@
       </div>
 
       <div id="app" class="ui horizontal segments" >
-            <div class="ui  segment">
-              <meu-bolso-bar :height="300" :chartData="barChartData" :title="title" ></meu-bolso-bar>
-              <br>
-            </div>
-            <div class="ui  segment">
-               <drill-down-with-table :allData="allData"></drill-down-with-table>
-            </div>
+        <div class="ui  segment">
+          <meu-bolso-bar :height="300" :chartData="barChartData" :title="title" ></meu-bolso-bar>
+        </div>
+        <div class="ui  segment">
+          <drill-down-with-table :allData="allData"></drill-down-with-table>
+        </div>
       </div>
-      <running-balance  :height="500" :allData="allData"></running-balance>>
+      <div id="app" class="ui horizontal segments" >
+        <div class="ui  segment">
+          <running-balance  :height="500" :allData="allData"></running-balance>
+        </div>
+        <div class="ui  segment">
+          <vuetable ref="whatIHave"
+            api-url="http://127.0.0.1:5000/estate/"
+            :fields="estate_fields">
+          </vuetable>
+        </div>
+      </div>
 </div>
 </template>
 
@@ -32,9 +36,9 @@
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../transaction/DrillDownPieWithTable.vue";
 import RunningBalance from "../transaction/RunningBalance.vue";
-import Datepicker from "vuejs-datepicker";
+import Vuetable from "vuetable-2/src/components/Vuetable.vue";
+import DateRange from "../util/DateRange.vue";
 
-import moment from "moment";
 import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar, colors
@@ -42,9 +46,9 @@ import {
 
 export default {
   components: {
-    meuBolsoBar,
+    meuBolsoBar,Vuetable,
     DrillDownWithTable,
-    RunningBalance,Datepicker
+    RunningBalance,DateRange
   },
   data() {
     return {
@@ -55,23 +59,35 @@ export default {
       incomeTitle : "Incomes", 
       expenseTitle : "Expenses",
       grouper: "Type",
-      title: "Net Over Monhts"
+      title: "Net Over Monhts",
+      estate_fields: [
+        {
+          name: "BankName",
+          title: "Bank",
+          titleClass: "center aligned",
+          dataClass: "left aligned"
+        },
+        {
+          name: "Date_str",
+          title: "Date",
+          titleClass: "center aligned",
+          dataClass: "left aligned"
+        },
+        {
+          name: "RunningBalance",
+          title: "Current Balance",
+          titleClass: "center aligned",
+          dataClass: "center aligned"
+        }]
     };
   },
   mounted() {
-    this.fromDate = moment(new Date())
-      .subtract(6, "month")
-      .startOf("month")
-      .format("YYYY-MM-DD");
-    this.toDate = moment(new Date()).format("YYYY-MM-DD");
+    this.$refs.cashFlow_range.setRange(-6, 0);
     this.getData();
   },
   methods: {
     getParams() {
-      let params = {};
-      if (this.fromDate) params["fromDate"] = this.fromDate;
-      if (this.toDate) params["toDate"] = this.toDate;
-      return "?filter=" + JSON.stringify(params);
+      return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     getData() {
       let axios = require("axios");
@@ -99,7 +115,6 @@ export default {
         groupedData[e] = result;
       }
       this.barChartData = getLabelAndDatabaseBar(groupedData, ["Red","Green"]);
-      console.log("***", this.barChartData);
 
       // net dataset is line
       for (let x in this.barChartData.datasets) {

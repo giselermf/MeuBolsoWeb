@@ -47,7 +47,6 @@ export default {
     }
   },
   created() {
-    console.log('new cell', this.Month, this.Year, this.categoryId, this.getBudget(), this.getActuals())
     this.getProgress();
   },
   methods: {

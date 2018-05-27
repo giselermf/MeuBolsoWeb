@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
-from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data, split_transaction
-from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data
+from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data, split_transaction, get_estate
+from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data, get_category_id
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
 from server.dto.budget_management import get_budget, update_budget, get_cashFlow, get_RunningBalance
-
+from server.dto.investment_management import get_investments
 import json
 
 app = Flask(__name__)
@@ -60,8 +60,19 @@ def transactionsFiltered():
 
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
+    transaction_id = request.form.get('transaction_id')
+    Description = request.form.get('Description')
+    TransactionNumber = request.form.get('TransactionNumber')
+    Currency = request.form.get('Currency')
+    Amount = request.form.get('Amount')
+    BankName = request.form.get('BankName')
+    AmountEUR = request.form.get('AmountEUR')
+    RunningBalance = request.form.get('RunningBalance')
+    Date = request.form.get('Date')
+    category_id = get_category_id(request.form.get('Type'), request.form.get('Category'), request.form.get('SubCategory'))
+
     return app.make_response(
-        update_transaction(transaction_id=request.form['transaction_id'], category_id=request.form['category_id']))
+        update_transaction(transaction_id, Description ,TransactionNumber ,Currency ,Amount , BankName ,AmountEUR , Date , category_id, RunningBalance))
 
 @app.route('/splitTransaction/', methods=['POST'])
 def split_transactions():
@@ -109,3 +120,13 @@ def getRunningBalance():
     if filter_param is not None:
         filter_param = json.loads(filter_param)
     return app.make_response(get_RunningBalance(filter_param))
+
+#INVESTMENT
+@app.route('/Investment/', methods=['GET'])
+def getInvestment():
+    return app.make_response(get_investments())
+
+#ESTATE
+@app.route('/estate/', methods=['GET'])
+def getEstate():
+    return app.make_response(get_estate())
