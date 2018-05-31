@@ -69,8 +69,10 @@ def post_transactions():
     AmountEUR = request.form.get('AmountEUR')
     RunningBalance = request.form.get('RunningBalance')
     Date = request.form.get('Date')
-    category_id = get_category_id(request.form.get('Type'), request.form.get('Category'), request.form.get('SubCategory'))
-
+    if request.form.get('category_id') is None:
+        category_id = get_category_id(request.form.get('Type'), request.form.get('Category'), request.form.get('SubCategory'))
+    else:
+        category_id = request.form.get('category_id') 
     return app.make_response(
         update_transaction(transaction_id, Description ,TransactionNumber ,Currency ,Amount , BankName ,AmountEUR , Date , category_id, RunningBalance))
 

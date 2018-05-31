@@ -3,9 +3,10 @@ from server.database.database_connection import run_sql, create_connection
 import json
 
 def get_all_transactions(oder_by=None):
-    sql_command = "Select id, category, subcategory, type, description, BankName, AmountEUR,Amount, Date, Year, Month from vwTransactions"
+    sql_command = "Select id, Category, SubCategory, Type, Description, BankName, AmountEUR,Amount, Date, Year, Month from vwTransactions"
     if oder_by is not None:
         sql_command += " order by " + oder_by
+    print(sql_command)
     return run_sql(sql_command)
 
 
@@ -79,7 +80,7 @@ Amount=None , BankName =None,AmountEUR =None, Date =None, category_id=None, Runn
         return run_sql(sql_command, (transaction_id,))
 
 def split_transaction(transactionId, newAmountEUR, newCategoryId):
-    sql_command1 =  "update Transactions set AmountEUR = AmountEUR - ? where id = ?;"
+    sql_command1 =  "update Transactions set AmountEUR = ? where id = ?;"
     sql_command2 = "INSERT INTO Transactions ( Description,TransactionNumber, Currency, Amount, "\
         "BankName, AmountEUR, RunningBalance, Date, category_id )"\
         "SELECT Description, TransactionNumber, Currency, 0, BankName, ?, RunningBalance, Date, ?  FROM Transactions where id = ?;"
@@ -87,8 +88,8 @@ def split_transaction(transactionId, newAmountEUR, newCategoryId):
     with conn:
         c = conn.cursor()
         try:
-            c.execute(sql_command1, (int(newAmountEUR), int(transactionId)))
-            c.execute(sql_command2, (int(newAmountEUR), int(newCategoryId), int(transactionId)))
+            c.execute(sql_command1, (float(newAmountEUR), int(transactionId)))
+            c.execute(sql_command2, (float(newAmountEUR), int(newCategoryId), int(transactionId)))
             conn.commit()
             return json.dumps({"data": 'sucess'})
         except:

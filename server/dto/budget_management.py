@@ -10,9 +10,21 @@ def get_budget(filter_param=None):
         where_clause = " where Date >= '" + filter_param.get("fromDate") + "'"
         where_clause += " and Date <= '" + filter_param.get("toDate") + "'"
     sql_command += where_clause
-    sql_command += " order by Year, Month, Type, Category, SubCategory"
-    all_entries = run_sql(sql_command)
-    return getResponse('Budget', None, None, 1, all_entries)
+    all_from_budget = run_sql(sql_command)
+
+    all_from_transactions = run_sql("select category_id,  Month, Year, sum(AmountEUR) as Actuals, Type, Category, SubCategory from vwTransactions  " + where_clause + " group by category_id, Month, Year, Type, Category, SubCategory")
+    
+    all_categories = set(map(lambda x: str(x['category_id'])+"-"+str(x['Month'])+"-"+str(x['Year']), all_from_budget))
+    for e in all_from_transactions:
+        e_identificator = str(str(e['category_id'])+"-"+str(int(e['Month'])) +"-"+str(e['Year']))
+        if e_identificator not in all_from_transactions:
+            new_row = {"category_id": e['category_id'], \
+            "Month": e['Month'], "Year": e['Year'], "Budget": 0, \
+            "Actuals": e['Actuals'], 
+            "Type": e['Type'], "Category": e['Category'], "SubCategory": e['SubCategory']}
+            all_from_budget.append(new_row)
+
+    return getResponse('Budget', None, None, 1, all_from_budget)
 
 def update_budget(id, CategoryId, Value, Month, Year):
     if id == '':

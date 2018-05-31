@@ -41,7 +41,7 @@ class Categorization(object):
         self.categories = Categories()
     
     def run(self):
-        for t in get_all_transactions():
-            t['Category'], t['SubCategory'], t['Type'] = self.categories.get_category(t['Description'] )
-            update_transaction(id=t['id'], category=t['Category'], sub_category=t['SubCategory'], type=t['Type'])
+        all_transactions = get_all_transactions()
 
+        for t in all_transactions:
+            update_transaction(transaction_id=t['id'], category_id=self.categories.get_category(t['Description']))

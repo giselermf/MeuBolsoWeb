@@ -4,16 +4,16 @@
       <div class="columns">
         <p  v-if="isTotal" class="column is-one-quarter total">
             <label>{{budgetValue}}</label>
-        <p v-else class="column is-one-quarter">
+        <p v-else class="column is-one-third">
           <input v-bind:class="budgetClass" v-model="budgetValue" @change="saveBudget">
         </p>
-        <p  v-if="isTotal" class="column is-one-quarter">
+        <p  v-if="isTotal" class="column is-one-third">
             <label>{{actualsValue}}</label>
-        <p v-else  class="column is-one-quarter">  
+        <p v-else  class="column is-one-third">  
             <input v-bind:class="actualsClass" type="text" v-model="actualsValue" disabled>
         </p>
-        <p  v-if="!isTotal" class="column is-one-quarter">
-          <progress :class="progressBarClass" style="width: 100px; margin-top: 10px;" :value="progressValue" :max="100"></progress>
+        <p  v-if="!isTotal" class="column is-one-third">
+          <progress :class="progressBarClass" style="margin-top: 10px;" :value="progressValue" :max="100"></progress>
         </p>
       </div>
     </td> 
