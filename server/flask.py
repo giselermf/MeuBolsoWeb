@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
 from flask import request
-from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data, split_transaction, get_estate
+from server.dto.transaction_management import update_transaction, get_transactions_filtered, get_filter_transaction_data, split_transaction, get_estate, save_transfer
 from server.dto.category_management import get_categories, save_category, delete_category, get_filter_data, get_category_id
 from server.process_data.processor import Processor
 from server.process_data.category_management import Categorization
 from server.dto.budget_management import get_budget, update_budget, get_cashFlow, get_RunningBalance
-from server.dto.investment_management import get_investments
+from server.dto.investment_management import get_investments, get_savings_accounts
 import json
 
 app = Flask(__name__)
@@ -72,7 +72,7 @@ def post_transactions():
     if request.form.get('category_id') is None:
         category_id = get_category_id(request.form.get('Type'), request.form.get('Category'), request.form.get('SubCategory'))
     else:
-        category_id = request.form.get('category_id') 
+        category_id = request.form.get('category_id')
     return app.make_response(
         update_transaction(transaction_id, Description ,TransactionNumber ,Currency ,Amount , BankName ,AmountEUR , Date , category_id, RunningBalance))
 
@@ -93,6 +93,21 @@ def getParams(request):
     page_number = request.args.get('page')
     per_page = request.args.get('per_page')
     return sort, sort_order, filter_param, page_number, per_page
+
+@app.route('/transfer/', methods=['POST'])
+def post_transfer():
+    transaction_id = request.form.get('transaction_id')
+    TransactionNumber = request.form.get('TransactionNumber')
+    Currency = request.form.get('Currency')
+    Amount = request.form.get('Amount')
+    toSelectedBank = request.form.get('toSelectedBank')
+    AmountEUR = request.form.get('AmountEUR')
+    Date = request.form.get('Date')
+    category_id = get_category_id('Transfer','Transfer','Transfer')
+    oldTransferId = request.form.get('oldTransferId')
+    return app.make_response(
+        save_transfer(transaction_id ,TransactionNumber ,Currency ,Amount , toSelectedBank ,AmountEUR , Date , category_id, oldTransferId))
+
 
 # BUDGET
 @app.route('/budget/', methods=['GET'])
@@ -127,6 +142,11 @@ def getRunningBalance():
 @app.route('/Investment/', methods=['GET'])
 def getInvestment():
     return app.make_response(get_investments())
+
+@app.route('/SavingsAccounts/', methods=['GET'])
+def getSavingsAccounts():
+    return app.make_response(get_savings_accounts())
+
 
 #ESTATE
 @app.route('/estate/', methods=['GET'])

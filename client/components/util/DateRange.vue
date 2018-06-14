@@ -3,10 +3,10 @@
         <div class="field-body">
             <div class="field is-grouped">
                 <p class="control">
-                    <datepicker v-model="fromDate" placeholder="from" :minimumView="minimumView" :maximumView="minimumView"></datepicker>
+                    <datepicker :typeable="true" v-model="fromDate" placeholder="from" :minimumView="minimumView" :maximumView="minimumView"></datepicker>
                 </p>
                 <p class="control">
-                    <datepicker v-model="toDate" placeholder="to" :minimumView="minimumView" :maximumView="minimumView"></datepicker>
+                    <datepicker :typeable="true" v-model="toDate" placeholder="to" :minimumView="minimumView" :maximumView="minimumView"></datepicker>
                 </p>
             </div>
         </div>    

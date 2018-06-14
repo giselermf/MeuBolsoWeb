@@ -5,7 +5,7 @@ from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
 from server.database.database_connection import run_sql
-from server.dto.transaction_management import get_transaction, insert_transaction, get_all_transactions, update_transaction
+from server.dto.transaction_management import get_transaction, insert_transaction, get_all_transactions, update_transaction, update_running_balance
 import traceback
 
 class Processor(object):
@@ -13,12 +13,11 @@ class Processor(object):
     def __init__(self, folder):
         self.folder = folder.replace('"', '').strip().rstrip()
         self.categories = Categories()
-        self.running_balance_perBank = {}
 
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        self._update_running_balance()
+        update_running_balance()
 
     def _process_bank(self, folder, inputProcessor):
         fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
@@ -57,17 +56,7 @@ class Processor(object):
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())
-                    print ('row ignored ' + str(row), entry)
+                    print ('row ignored ' + str(row))
         print('processed', entries_in_file, fileName)
         self._mark_file_as_processed(fileName, entries_in_file, all_passed==True)
-
-    def _update_bank_balance(self, bankName, balance):
-        self.running_balance_perBank[bankName] = balance
-
-    def _update_running_balance(self):
-        transactions = get_all_transactions(oder_by = "BankName,Date,Id")
-        for t in transactions:
-            t['RunningBalance'] = self.running_balance_perBank.get(t['BankName'], 0) + t['Amount']
-            update_transaction(transaction_id=t['id'], RunningBalance =  t['RunningBalance'] )
-            self._update_bank_balance(t['BankName'], t['RunningBalance'])
     

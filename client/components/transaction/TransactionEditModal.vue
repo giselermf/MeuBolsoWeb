@@ -46,6 +46,7 @@
             </div>
         </div>
         <category-select-combos ref="typecombos" ></category-select-combos>
+        
     </section>
     <footer class="modal-card-foot">
       <button class="button is-success" @click="SaveAndCloseModal">Save</button>
@@ -66,7 +67,7 @@ export default {
   },
   data() {
     return {
-      newAmount: this.selectedTransaction.AmountEUR
+      newAmount: this.selectedTransaction.AmountEUR,
     }
   },
   mounted() {
@@ -75,11 +76,31 @@ export default {
     this.$refs.typecombos.selectedSubCategory = this.selectedTransaction.SubCategory;
   },
   methods: {
-    onSplit(eventData) {
-      console.log('onSplit', this.selectedTransaction);
+    saveTransfer() {
+      var axios = require("axios");
+      var querystring = require("querystring");
+      axios
+        .post(
+          "http://127.0.0.1:5000/transfer/",
+          querystring.stringify({
+            transaction_id: this.selectedTransaction.id,
+            AmountEUR: this.selectedTransaction.AmountEUR,
+            Amount: this.selectedTransaction.Amount,
+            Currency: this.selectedTransaction.Currency,
+            Date: this.selectedTransaction.Date,
+            TransactionNumber: this.selectedTransaction.TransactionNumber,
+            toSelectedBank: this.$refs.typecombos.selectedBank,
+            oldTransferId: this.selectedTransaction.TransferId
+          })
+        )
+        .then(response => {
+          this.$events.fire("close-transaction-split-modal");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
     saveTransaction() {
-      console.log('saving');
       var axios = require("axios");
       var querystring = require("querystring");
       axios
@@ -87,7 +108,7 @@ export default {
           "http://127.0.0.1:5000/transactions/",
           querystring.stringify({
             transaction_id: this.selectedTransaction.id,
-            category_id: this.$refs.typecombos.getSelectedCategoryId()
+            category_id: this.$refs.typecombos.getSelectedCategoryId(),
           })
         )
         .then(response => {
@@ -120,7 +141,11 @@ export default {
       this.$events.fire("close-transaction-split-modal");
     },
     SaveAndCloseModal() {
-      if (this.split) this.splitTransaction();
+      if (this.split) { 
+        this.splitTransaction();
+      } else if (this.$refs.typecombos.selectedSubCategory == 'Transfer') {
+         this.saveTransfer();
+      }
       else this.saveTransaction();
     }
   }

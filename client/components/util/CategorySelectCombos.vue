@@ -13,7 +13,23 @@
               </select>
         </div></div>
     </div>
-    <div class="field is-horizontal" >
+    <div v-if="selectedSubCategory=='Transfer'" class="field is-horizontal" >
+      <div class="field-label">
+        <label class="label">To Account</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-grouped">
+          <p class="control is-expanded">
+            <select class="select" v-model="selectedBank">
+                <option v-for="bank in savingsAccounts" v-bind:key="bank.BankName" v-bind:value="bank.BankName">
+                    {{ bank.BankName }}
+                </option>
+            </select> 
+          </p>
+        </div>
+      </div>
+    </div>
+    <div  v-if="selectedSubCategory!='Transfer'" class="field is-horizontal" >
         <div class="field-label">
             <label class="label">Category</label>
         </div>
@@ -26,7 +42,7 @@
               </select>
         </div></div>
     </div>
-    <div class="field is-horizontal" >
+    <div v-if="selectedSubCategory!='Transfer'" class="field is-horizontal" >
         <div class="field-label">
             <label class="label">SubCategory</label>
         </div>
@@ -50,21 +66,14 @@ export default {
       category_data: null,
       selectedType: null,
       selectedCategory: null,
-      selectedSubCategory: null
+      selectedSubCategory: null,
+      savingsAccounts: null,
+      selectedBank: null,
     };
   },
   mounted() {
-    var axios = require("axios");
-    var querystring = require("querystring");
-    axios
-      .get("http://127.0.0.1:5000/getFilterData/")
-      .then(response => {
-        this.allData = response["data"];
-        this.processData();
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    this.getSavingsAccounts();
+    this.getFilterData();
   },
   methods: {
     onChangeType() {
@@ -107,6 +116,22 @@ export default {
     getSelectedSubCategory() {
       return this.selectedSubCategory;
     },
+    getFilterData() {
+      var axios = require("axios");
+      var querystring = require("querystring");
+      axios
+      .get("http://127.0.0.1:5000/getFilterData/")
+      .then(response => {
+        this.allData = response["data"];
+        this.processData();
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    },
+    getSelectedTransferBank() {
+      retr=y
+    },
     getSelectedCategoryId() {
       if (
         this.selectedType != null &&
@@ -122,6 +147,18 @@ export default {
             return this.allData[e].id;
         }
       }
+    },
+    getSavingsAccounts: function() {
+      var axios = require("axios");
+      var querystring = require("querystring");
+      axios
+        .get("http://127.0.0.1:5000/SavingsAccounts/")
+        .then(response => {
+          this.savingsAccounts = response['data'];
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
     processData() {
       this.type_data = this.allData.reduce(function(r, a) {

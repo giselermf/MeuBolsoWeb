@@ -58,9 +58,9 @@ export default {
             AmountEUR: this.amount - this.getRunningBalance() ,
             RunningBalance: this.amount,
             Date: moment().format("YYYY-MM-DD"),
-            Type: "Investment",
-            Category: "Investment",
-            SubCategory: "Investment"
+            Type: "Transfer",
+            Category: "Transfer",
+            SubCategory: "Transfer"
           })
         )
         .then(response => {

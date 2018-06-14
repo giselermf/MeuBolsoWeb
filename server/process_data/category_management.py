@@ -41,7 +41,7 @@ class Categorization(object):
         self.categories = Categories()
     
     def run(self):
-        all_transactions = get_all_transactions()
+        all_transactions = get_all_transactions(MinDate = '1900-01-01')
 
         for t in all_transactions:
             update_transaction(transaction_id=t['id'], category_id=self.categories.get_category(t['Description']))
