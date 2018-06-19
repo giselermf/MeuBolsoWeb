@@ -3,7 +3,7 @@ from server.database.database_connection import run_sql, create_connection
 import json
 
 def get_all_transactions(MinDate, BankName=None, oder_by=None):
-    sql_command = "Select id, Category, SubCategory, Type, Description, BankName, AmountEUR,Amount, Date, Year, Month from vwTransactions where Date >= ? "
+    sql_command = "Select id, Category, SubCategory, Type, Description, BankName, AmountEUR,Amount, Date, Year, Month from vwTransactions where date(Date) >= ? "
     params = (MinDate,)
     if BankName is not None:
         params = params + (BankName,)
@@ -45,8 +45,8 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
             where_clause += add_param('AmountEUR', '>=', float(filter_param.get('fromAmount')))
         if filter_param.get('toAmount') is not None:
             where_clause += add_param('AmountEUR', '<=', float(filter_param.get('toAmount') ))
-        where_clause += add_param('Date', '>=',filter_param.get('fromDate') )
-        where_clause += add_param('Date', '<=',filter_param.get('toDate') )
+        where_clause += add_param('date(Date)', '>=',filter_param.get('fromDate') )
+        where_clause += add_param('date(Date)', '<=',filter_param.get('toDate') )
         where_clause += add_param('Currency', 'in',filter_param.get('Currencies') )
         k = where_clause.rfind("and")
         where_clause = where_clause[:k]
@@ -59,11 +59,12 @@ def get_transactions_filtered(sort, sort_order, filter_param, page_number, per_p
     return getResponse('transactions', total_records, per_page, page_number, all_entries)
 
 def get_transaction(currency, bank_name, amount, date, description, transaction_number=None):
-    sql_command = "SELECt * FROM vwTransactions where Currency='{0}' and bankname='{1}' and Amount={2} and Date='{3}'"\
+    sql_command = "SELECt * FROM vwTransactions where Currency='{0}' and bankname='{1}' and Amount={2} and date(Date)=date('{3}')"\
                     " and Description like '{4}%' "\
                     .format(currency, bank_name, amount, date, description)
     if transaction_number is not None:
         sql_command = sql_command + " and TransactionNumber = '{0}'  ".format(transaction_number)
+   # print('get Transaction', sql_command)
     return run_sql(sql_command)
 
 def insert_transaction(Description, TransactionNumber, Currency, Amount, BankName, AmountEUR, Date, category_id, RunningBalance=None):
@@ -85,7 +86,6 @@ Amount=None , BankName =None,AmountEUR =None, Date =None, category_id=None, Runn
         if RunningBalance is not None:
             sql_command += " RunningBalance = {0} ,".format(RunningBalance)
         sql_command = sql_command[:-1] + " where id = ? "
-        print('update', sql_command, transaction_id)
         return run_sql(sql_command, (transaction_id,))
 
 def split_transaction(transactionId, newAmountEUR, newCategoryId):
@@ -136,7 +136,6 @@ def update_running_balance(BankName=None):
     running_balance_perBank = {}
     transactions = get_all_transactions(MinDate = '1900-01-01', BankName=BankName, oder_by = " order by Date")
     for t in transactions:
-        print('t', t['Date'], t['Amount'])
         t['RunningBalance'] = running_balance_perBank.get(t['BankName'], 0) + t['Amount']
         update_transaction(transaction_id=t['id'], RunningBalance =  t['RunningBalance'] )
         running_balance_perBank[t['BankName']] = t['RunningBalance']

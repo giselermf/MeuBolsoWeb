@@ -17,7 +17,7 @@ class Processor(object):
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        update_running_balance()
+       # update_running_balance()
 
     def _process_bank(self, folder, inputProcessor):
         fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
@@ -53,6 +53,8 @@ class Processor(object):
                             insert_transaction( category_id=entry['category_id'], Description=entry['Description'], \
                                                 TransactionNumber=entry['Number'], Currency=entry['Currency'], Amount=entry['Amount'], \
                                                 BankName=entry['Bank Name'], AmountEUR=entry['Amount in EUR'] , Date=entry['Date'] )
+                        #elif len(from_database) == 1:
+                        #    print('already in database',entry['Date'], entry['Amount in EUR'],from_database )
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())

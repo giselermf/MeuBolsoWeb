@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="ui horizontal segments">
+  <div id="app" class="columns is-multiline">
     <investment-card v-for="data in allData" :key="data.BankName" :investment="data"  ></investment-card>
   </div>
 </template>

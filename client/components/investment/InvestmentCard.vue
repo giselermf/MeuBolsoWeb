@@ -1,26 +1,27 @@
 <template>
-<article class="message" style="width: 400px; padding: 20px;">
-  <div class="message-header" style = "height: 70px;" >
-    <p>{{investment.BankName}}</p>
-    <button class="delete" aria-label="delete"></button>
-  </div>
-  <div class="message-body">
-      <div><label>Balance: {{investment.RunningBalance}}</label></div>
-      <div><label>Date: {{investment.Date}}</label></div>
-    
-      <div class="field has-addons" style="padding-top: 8px;" >
-        <div class="control">
-            <input v-model="amount"  class="input" type="text" placeholder="Balance">
-        </div>
-        <div class="control" @click="updateRunningBalance">
-            <a class="button is-link">
-            Update
-            </a>
-        </div>
-        </div>
-  </div>
-</article>
-
+<div  class="column is-one-third">
+  <article class="message" style="width: 400px; padding: 20px;">
+    <div class="message-header" style = "height: 70px;" >
+      <p>{{investment.BankName}}</p>
+      <button class="delete" aria-label="delete"></button>
+    </div>
+    <div class="message-body">
+        <div><label>Balance: {{investment.RunningBalance}}</label></div>
+        <div><label>Date: {{investment.Date}}</label></div>
+      
+        <div class="field has-addons" style="padding-top: 8px;" >
+          <div class="control">
+              <input v-model="amount"  class="input" type="text" placeholder="Balance">
+          </div>
+          <div class="control" @click="updateRunningBalance">
+              <a class="button is-link">
+              Update
+              </a>
+          </div>
+          </div>
+    </div>
+  </article>
+</div>
 </template>
 
 <script>

@@ -1,4 +1,5 @@
 import json
+import math
 
 def getSortClause(sort, sort_order):
     if sort is not None and sort != '':
@@ -24,7 +25,7 @@ def getResponse(url, total_records, per_page, page_number, all_entries):
     response = {}
     response['per_page'] = per_page
     response['current_page'] = page_number
-    response['last_page'] = int(total_records/per_page)
+    response['last_page'] = math.ceil(total_records/per_page)
     response['total'] = total_records
     response['next_page_url'] = "%s?page=%s" % (url, page_number+1)
     response['prev_page_url'] = "%s?page=%s" % (url, page_number-1)

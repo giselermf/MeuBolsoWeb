@@ -39,13 +39,13 @@ def update_budget(id, CategoryId, Value, Month, Year):
 
 def get_cashFlow(filter_param=None):
     today = datetime.datetime.today()
-    beginning_of_month = datetime.datetime(today.year, today.month, 1).strftime('%Y-%m-%d')
+    beginning_of_current_month = datetime.datetime(today.year, today.month, 1).strftime('%Y-%m-%d')
 
     if  filter_param != None and filter_param != {} :
         from_date = filter_param.get("fromDate")
         to_date = filter_param.get("toDate")
     else:
-        from_date = beginning_of_month
+        from_date = beginning_of_current_month
         to_date = datetime.datetime(today.year, 12, 31).strftime('%Y-%m-%d')
 
     to_date_datetime = datetime.datetime.strptime(to_date, "%Y-%m-%d")
@@ -56,7 +56,7 @@ def get_cashFlow(filter_param=None):
     "Month union select 'Budget' as Type,  date(Year || '-' || substr('0' || Month, -2)  || '-01') as beginMonth, "\
     "Month, Year, sum(Budget) as NetInMonth from vwBudget "\
     "where Month >= {2} and Year >= {3} and Month <= {4} and Year <= {5} group by Month, Year order by beginMonth"\
-    .format(beginning_of_month, from_date, today.month, today.year, to_date_datetime.month, to_date_datetime.year)
+    .format(beginning_of_current_month, from_date, today.month, today.year, to_date_datetime.month, to_date_datetime.year)
     all_entries = run_sql(sql_command)
     return getResponse('cash_flow', None, None, 1, all_entries)
 
@@ -67,7 +67,7 @@ def get_RunningBalance(filter_param=None):
         by_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     sql_command = "select sum(RunningBalance) as balance from (Select BankName, max(Date), RunningBalance"\
-    " from vwTransactions where Date <= '{0}' group by BankName )".format(by_date)
+    " from vwTransactions where date(Date) <= '{0}' and Active = 1 and AccountType != 'Savings' group by BankName )".format(by_date)
 
     all_entries = run_sql(sql_command)
     return getResponse('RunningBalance', None, None, 1, all_entries)

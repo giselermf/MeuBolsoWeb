@@ -189,7 +189,7 @@ export default {
 
 .ui.table tfoot
 {
-    border-top: 2px solid black;
+  border-top: 2px solid black;
   background-color: #F9FAFB;
   font-weight: 700;
   vertical-align: middle;

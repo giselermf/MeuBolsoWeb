@@ -7,8 +7,8 @@
         :append-params="appendParams"
     >
         <template slot="actions" scope="props">
-            <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onSplit(false, props.rowData)">✏️</a>
-            <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onSplit(true, props.rowData)">✂️️</a>
+            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(false, props.rowData)">✏️</a>
+            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(true, props.rowData)">✂️️</a>
         </template>
     </my-vuetable>
     <transaction-edit v-if="showModal" @close="showModal = false" :split="split" :selectedTransaction="selected_transaction" ></transaction-edit>
@@ -118,11 +118,5 @@ export default {
   }
 };
 </script>
-
-<style>
-.ui.table td {
-  padding: 1px;
-}
-</style>
 
 

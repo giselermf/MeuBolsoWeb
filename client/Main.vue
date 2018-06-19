@@ -71,7 +71,17 @@ export default {
 <style lang="sass" src="bulma"></style>
 
 <style>
-.ui.table td {
-  padding: 1px;
+.ui.segment, .ui.segments .segment {
+    font-size: 0.8em;
 }
+.ui.table td {
+  padding: 0.5px;
+}
+.control {
+    font-size: 0.9em;
+}
+.input {
+  font-size: 0.9em;
+}
+</style>
 </style>

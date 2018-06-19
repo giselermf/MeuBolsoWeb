@@ -7,8 +7,8 @@
           :append-params="appendParams"
         >
             <template slot="actions" scope="props">
-                <a style="font-size: 20px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">&#10000;</a>
-                <a style="cursor:pointer" @click="onDelete(props.rowData)"> &#10060;</a>
+                <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
+                <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onDelete(props.rowData)"> &#10060;</a>
             </template>
         </my-vuetable>
   </div>

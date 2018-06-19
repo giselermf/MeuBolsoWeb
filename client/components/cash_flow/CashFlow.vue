@@ -8,7 +8,6 @@
             <button class="button is-link" @click="search()" >Search</button>
           </p>
       </div>
-      <p>{{RunningBalance}}</p>
       <meu-bolso-bar :height="300" :chartData="chartData" title="Cash Flow" ></meu-bolso-bar>
 
 </div>
@@ -50,7 +49,6 @@ export default {
       this.getAllData("cashFlow", this.getParams());
     },
     getRunningBalanceDataset() {
-      this.RunningBalance = 0;
       let runningValues = [];
       for (let monthIndex in this.labels) {
         this.RunningBalance += this.values[monthIndex]
