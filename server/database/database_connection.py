@@ -26,7 +26,7 @@ def run_sql(sql_command, *params):
     with conn:
         c = conn.cursor()
         try:
-           # print(sql_command)
+            print("***", sql_command, *params)
             c.execute(sql_command, *params)
             conn.commit()
             if 'select' in sql_command.lower():

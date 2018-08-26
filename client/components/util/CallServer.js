@@ -22,18 +22,6 @@ export default {
                 .catch(function (error) {
                     console.log(error);
                 });
-        },
-        getRunningBalance(fromDate) {
-            let params = {};
-            if (fromDate) params["byDate"] = fromDate;
-            this.axios
-                .get(this.apiUrl + "RunningBalance/" + "?filter=" + JSON.stringify(params))
-                .then(response => {
-                    this.RunningBalance = response["data"]["data"][0]['balance'];
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
         }
     }
 }

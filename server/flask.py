@@ -121,7 +121,7 @@ def getBudget():
 def post_budget():
     return app.make_response(
         update_budget(id=request.form['id'], CategoryId=request.form['CategoryId'], \
-        Value=request.form['Value'], Month=request.form['Month'], Year=request.form['Year']))
+        Value=request.form['Value'], Day=request.form['Day'], Month=request.form['Month'], Year=request.form['Year']))
 
 # CASH_FLOW
 @app.route('/cashFlow/', methods=['GET'])

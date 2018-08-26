@@ -58,6 +58,7 @@ class GenericProcessor(object):
             entry['category_id'] = self.categories.get_category(entry['Description'])
             entry['Number'] = self.get_number(row)
             entry['Date'] = datetime.strptime ( row[self.date_pos].strip(), self.date_format)
+            entry['PaymentDate'] = entry['Date']
             entry['Amount'] = self.get_amount(row)
             entry['Currency'] = self.currency
             account_name = ' - ' + row[self.account_name_pos] if self.account_name_pos is not None else " - Checking Account"

@@ -8,75 +8,90 @@
             <button class="button is-link" @click="search()" >Search</button>
           </p>
       </div>
-      <meu-bolso-bar :height="300" :chartData="chartData" title="Cash Flow" ></meu-bolso-bar>
-
+      <meu-bolso-line :height="300" :chartData="chartData" title="Cash Flow" ></meu-bolso-line>
 </div>
 </template>
 
 <script>
 import DateRange from "../util/DateRange.vue";
 import CallServer from "../util/CallServer.js";
-import meuBolsoBar from "../charts/meuBolsoBar.js";
+import meuBolsoLine from "../charts/meuBolsoLine.js";
+import moment from "moment";
 
 export default {
   mixins: [CallServer],
   components: {
     DateRange,
-    meuBolsoBar
+    meuBolsoLine
   },
   data() {
     return {
       chartData: null,
       labels: null,
-      values: null,
+      values: null
     };
   },
+
   mounted() {
-    this.$refs.cashFlow_range.setRange(-1,6);
+    this.$refs.cashFlow_range.setRange(0, 6);
+    this.$refs.cashFlow_range.fromDate = new Date();
     this.getAllData("cashFlow", this.getParams());
     this.getRunningBalance(this.$refs.cashFlow_range.fromDate);
   },
   watch: {
-    allData: function(val) {
-      this.setBarChartData();
-    },
+    allData: {
+      handler(newData, oldData) {
+        this.getChartData();
+      }
+    }
   },
   methods: {
+    search(filterParams) {
+      this.getAllData("cashFlow", this.getParams());
+      this.getRunningBalance(this.$refs.cashFlow_range.fromDate);
+    },
     getParams() {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
-    search(filterParams) {
-      this.getAllData("cashFlow", this.getParams());
+    getRunningBalance(fromDate) {
+      let params = {};
+      if (fromDate) params["byDate"] = fromDate;
+      this.axios
+        .get(
+          this.apiUrl + "RunningBalance/" + "?filter=" + JSON.stringify(params)
+        )
+        .then(response => {
+          this.RunningBalance = response["data"]["data"][0]["balance"];
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
-    getRunningBalanceDataset() {
-      let runningValues = [];
-      for (let monthIndex in this.labels) {
-        this.RunningBalance += this.values[monthIndex]
-        runningValues.push(this.RunningBalance )
-      }
-      let dataset = {}
-      dataset["borderColor"] = "black";
-      dataset["pointBorderWidth"] = 10;
-      dataset["type"] = "line";
-      dataset["label"] = "Running Balance";
-      dataset['data'] = runningValues
-      return dataset;
-    },
+    getChartData() {
+      let alabels = this.allData.map(x => moment(x.Date));
+      let aValues = this.allData.map(x => x.Amount);
 
-    setBarChartData() {
-      if (this.allData == undefined) return;
-      this.labels = this.allData.map(x => x.Month + "/" + x.Year);
-      this.values = this.allData.map(x => x.NetInMonth);
+      alabels = alabels.map(function(m) {
+        return m.format("YYYY-MM-DD");
+      });
+
+      for (let index in aValues) {
+        if (index > 0) {
+          aValues[index] += aValues[index - 1];
+        } else {
+          aValues[index] += this.RunningBalance;
+        }
+      }
+
       this.chartData = {
-        labels: this.labels,
+        labels: alabels,
         datasets: [
           {
             label: "Cash Flow",
-            borderWidth: 1,
-            beginzero: "true",
-            fill: false,
-            data: this.allData.map(x => x.NetInMonth)
-          }, this.getRunningBalanceDataset()
+            fill: true,
+            data: aValues,
+            showLine: true
+          }
         ]
       };
     }

@@ -3,7 +3,7 @@
     <div id="app" class="ui vertical segments" >
       <div class="field is-grouped">
         <p class="control">
-          <date-range ref="cashFlow_range" minimumView="month"></date-range>            
+          <date-range ref="cashFlow_range" minimumView="day"></date-range>            
         </p>
         <p class="control">
           <button class="button is-link" @click="search()" >Search</button>

@@ -67,11 +67,11 @@ def get_transaction(currency, bank_name, amount, date, description, transaction_
    # print('get Transaction', sql_command)
     return run_sql(sql_command)
 
-def insert_transaction(Description, TransactionNumber, Currency, Amount, BankName, AmountEUR, Date, category_id, RunningBalance=None):
+def insert_transaction(Description, TransactionNumber, Currency, Amount, BankName, AmountEUR, Date, PaymentDate, category_id, RunningBalance=None):
     sql_commnad = 'INSERT INTO Transactions '\
-    '(category_id,Description,TransactionNumber,Currency,Amount,BankName,AmountEUR,Date, RunningBalance)'\
-    'VALUES (?,?,?,?,?,?,?,?,?)'
-    return run_sql(sql_commnad, (category_id, Description, TransactionNumber, Currency, Amount, BankName, AmountEUR, Date, RunningBalance)  )
+    '(category_id,Description,TransactionNumber,Currency,Amount,BankName,AmountEUR,Date,PaymentDate, RunningBalance)'\
+    'VALUES (?,?,?,?,?,?,?,?,?,?)'
+    return run_sql(sql_commnad, (category_id, Description, TransactionNumber, Currency, Amount, BankName, AmountEUR, Date, PaymentDate,RunningBalance)  )
 
 def update_transaction(transaction_id=None, Description=None ,TransactionNumber=None ,Currency=None ,\
 Amount=None , BankName =None,AmountEUR =None, Date =None, category_id=None, RunningBalance=None):

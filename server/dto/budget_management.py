@@ -9,7 +9,7 @@ def get_budget(filter_param=None):
     if  filter_param != None and filter_param != {} :
         where_clause = " where Date >= '" + filter_param.get("fromDate") + "'"
         where_clause += " and Date <= '" + filter_param.get("toDate") + "'"
-    sql_command += where_clause
+    sql_command += where_clause + " order by Date"
     all_from_budget = run_sql(sql_command)
 
     all_from_transactions = run_sql("select category_id,  Month, Year, sum(AmountEUR) as Actuals, Type, Category, SubCategory from vwTransactions  " + where_clause + " group by category_id, Month, Year, Type, Category, SubCategory")
@@ -26,16 +26,16 @@ def get_budget(filter_param=None):
 
     return getResponse('Budget', None, None, 1, all_from_budget)
 
-def update_budget(id, CategoryId, Value, Month, Year):
+def update_budget(id, CategoryId, Value, Day, Month, Year):
     if id == '':
-        sql_command = "insert into Budget (category_id, Amount, Month,Year ) VALUES (?,?,?,?)"
-        return run_sql(sql_command, (CategoryId, Value, Month, Year))
+        sql_command = "insert into Budget (category_id, Amount, Day,Month,Year ) VALUES (?,?,?,?,?)"
+        return run_sql(sql_command, (int(CategoryId), float(Value), int(Day), int(Month), int(Year)))
     elif int(Value) == 0:
         sql_command = "delete from Budget where id = ?"
         return run_sql(sql_command, (int(id),))
     else:
-        sql_command = "update Budget set Amount = ? where id = ?"
-        return run_sql(sql_command, (Value, int(id)))
+        sql_command = "update Budget set Amount = ? , Day = ? where id = ?"
+        return run_sql(sql_command, (float(Value), int(Day), int(id)))
 
 def get_cashFlow(filter_param=None):
     today = datetime.datetime.today()
@@ -50,13 +50,8 @@ def get_cashFlow(filter_param=None):
 
     to_date_datetime = datetime.datetime.strptime(to_date, "%Y-%m-%d")
 
-    sql_command = "select 'Real' as Type, date(Year || '-' || substr('0' || Month, -2)  || '-01') as beginMonth, "\
-    "Month, Year, sum(AmountEUR) as NetInMonth from "\
-    "vwTransactions where Date < '{0}' and Date > '{1}' group by Year, "\
-    "Month union select 'Budget' as Type,  date(Year || '-' || substr('0' || Month, -2)  || '-01') as beginMonth, "\
-    "Month, Year, sum(Budget) as NetInMonth from vwBudget "\
-    "where Month >= {2} and Year >= {3} and Month <= {4} and Year <= {5} group by Month, Year order by beginMonth"\
-    .format(beginning_of_current_month, from_date, today.month, today.year, to_date_datetime.month, to_date_datetime.year)
+    sql_command = "select * from vwCashFlow where Date >= '{0}' and Date <= '{1}'"\
+    .format(from_date, to_date)
     all_entries = run_sql(sql_command)
     return getResponse('cash_flow', None, None, 1, all_entries)
 
