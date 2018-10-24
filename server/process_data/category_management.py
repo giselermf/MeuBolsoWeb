@@ -9,7 +9,7 @@ class Categories(object):
             all_categories = get_all_categories()
             for e in all_categories:
                 category =  e['id']
-                value = e['description']
+                value = e['Description']
                 if category in categories:
                     categories[category].append(value)
                 else:
