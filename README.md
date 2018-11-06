@@ -25,3 +25,6 @@ to start the application:
   
 2) in client folder:
   npm run dev
+
+to run unit tests:
+python3 -m server.process_data.test.entry_management_test -v
