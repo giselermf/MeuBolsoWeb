@@ -32,7 +32,7 @@ class Category(db.Model):
     Category = db.Column(db.String(50), nullable=False)
     SubCategory = db.Column(db.String(50), nullable=False)
 
-class Transactions(db.Model):
+class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Description = db.Column(db.String(100), nullable=False)
     TransactionNumber = db.Column(db.String(10))
@@ -81,7 +81,7 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
     currency=None, amount=None, amountEUR=None, running_balance=None, date=None, payment_date=None, 
     category_id=None, bank_name=None):
     if transaction_id == '' or transaction_id == None: # ADD
-        new = Transactions( id = None,
+        new = Transaction( id = None,
                             Description = description,
                             TransactionNumber = transaction_number,
                             Currency= currency,
@@ -99,12 +99,12 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
         db.session.commit()
         return new.id
     elif amountEUR != None and float(amountEUR) == 0.0: #DELETE
-        to_be_deleted = Transactions.query.filter_by(id=transaction_id ).first()
+        to_be_deleted = Transaction.query.filter_by(id=transaction_id ).first()
         db.session.delete(to_be_deleted)
         db.session.commit()
         return None
     else: # UPDATE
-        to_update = Transactions.query.filter_by(id=transaction_id ).first()
+        to_update = Transaction.query.filter_by(id=transaction_id ).first()
         if category_id != None: to_update.category_id = category_id
         if transaction_number != None: to_update.TransactionNumber = transaction_number
         if running_balance != None: to_update.RunningBalance = running_balance

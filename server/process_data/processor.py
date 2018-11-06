@@ -5,7 +5,7 @@ from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
 from server.database.database_connection import run_sql
-from server.dto.models import Transactions, update_insert_transaction
+from server.dto.models import Transaction, update_insert_transaction
 import traceback
 
 class Processor(object):
@@ -17,7 +17,7 @@ class Processor(object):
 
     def update_running_balance(self):
         running_balance_perBank = {}
-        transactions = Transactions.query.filter(Transactions.Date >= self.startDate).filter(Transactions.BankName != 'Budget').order_by(Transactions.Date).all()
+        transactions = Transaction.query.filter(Transaction.Date >= self.startDate).filter(Transaction.BankName != 'Budget').order_by(Transaction.Date).all()
         for t in transactions:
             t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.Amount
             update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
@@ -58,11 +58,11 @@ class Processor(object):
                     entry = inputProcessor.process(row)
                     if entry:
                         entries_in_file += 1
-                        from_database = Transactions.query.filter(Transactions.Currency == entry['Currency']).\
-                            filter(Transactions.BankName == entry['Bank Name']).\
-                            filter(Transactions.Amount == entry['Amount']).\
-                            filter(Transactions.Date == entry['Date'].strftime ('%Y-%m-%d') ).\
-                            filter(Transactions.Description.like("%"+entry['Description'][:30]+"%")).all()
+                        from_database = Transaction.query.filter(Transaction.Currency == entry['Currency']).\
+                            filter(Transaction.BankName == entry['Bank Name']).\
+                            filter(Transaction.Amount == entry['Amount']).\
+                            filter(Transaction.Date == entry['Date'].strftime ('%Y-%m-%d') ).\
+                            filter(Transaction.Description.like("%"+entry['Description'][:30]+"%")).all()
                         if len(from_database) > 1:
                             print('found more than one', entry, row, from_database)
                         elif len(from_database) == 0:

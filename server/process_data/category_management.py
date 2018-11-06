@@ -33,14 +33,3 @@ class Categories(object):
         if len(category_id) == 0:
             category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), 'others')]
         return category_id[0] 
-
-# class Categorization(object):
-
-#     def __init__(self):
-#         self.categories = Categories()
-    
-#     def run(self):
-#         all_transactions = get_all_transactions(MinDate = '1900-01-01')
-
-#         for t in all_transactions:
-#             update_insert_transaction(transaction_id=t['id'], category_id=self.categories.get_category(t['Description']))

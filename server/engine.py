@@ -1,4 +1,4 @@
-from server.dto.models import db, app, Category, Transactions, Categorydescription, Account, update_insert_transaction
+from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction
 from flask import Flask, request
 from flask_marshmallow import Marshmallow, fields
 from marshmallow.fields import Int, String, Float
@@ -25,7 +25,7 @@ class AccountSchema(ma.ModelSchema):
 
 class TransactionsSchema(ma.ModelSchema):
     class Meta:
-        model = Transactions
+        model = Transaction
     Month = Int(dump_only=True)
     Year = Int(dump_only=True)
     Day = Int(dump_only=True)
@@ -108,7 +108,7 @@ def getResponse(url, total_records, per_page, page_number, all_entries):
 
 @app.route('/getFilterTransactionData/', methods=['GET'])
 def getFilterTransactionData():
-    results = Transactions.query.join(Category).join(Account).filter(Account.Active==1).\
+    results = Transaction.query.join(Category).join(Account).filter(Account.Active==1).\
         with_entities(Account.BankName, Category.Type, Category.Category, Category.SubCategory).distinct()
     return getResponse('data', None, None, None, TransactionsFilterSchema(many=True).dump(results).data)
 
@@ -117,24 +117,24 @@ def get_transaction_query(sort, sort_order,
                                     bankName=None, fromDate=None, toDate=None, 
                                     fromAmount=None, toAmount=None, description=None, 
                                     exclude_budget=True):
-    query = Transactions.query.join(Category).join(Account)
+    query = Transaction.query.join(Category).join(Account)
     query = getSortClause(query, sort, sort_order)
     query = getFilterByCategory(query, category_type, category, subcategory)
     
     if bankName:
-        query = query.filter( Transactions.BankName == bankName)
+        query = query.filter( Transaction.BankName == bankName)
     elif exclude_budget:
-        query = query.filter( Transactions.BankName != "Budget")
+        query = query.filter( Transaction.BankName != "Budget")
     if fromDate:
-        query = query.filter( Transactions.Date >= fromDate)
+        query = query.filter( Transaction.Date >= fromDate)
     if toDate:
-        query = query.filter( Transactions.Date <= toDate)
+        query = query.filter( Transaction.Date <= toDate)
     if fromAmount:
-        query = query.filter( Transactions.AmountEUR >= float(fromAmount))
+        query = query.filter( Transaction.AmountEUR >= float(fromAmount))
     if toAmount:
-        query = query.filter( Transactions.AmountEUR <= float(toAmount ))
+        query = query.filter( Transaction.AmountEUR <= float(toAmount ))
     if description:
-        query = query.filter( Transactions.Description.like("%"+description+"%") )
+        query = query.filter( Transaction.Description.like("%"+description+"%") )
     return query
 
 
@@ -184,9 +184,9 @@ def split_transactions():
     new_amount_eur =request.form['new_amount_EUR']
     print(original_transaction_id, new_category_id, new_amount_eur )
 
-    existing = Transactions.query.filter_by(id=original_transaction_id ).first()
+    existing = Transaction.query.filter_by(id=original_transaction_id ).first()
     existing.AmountEUR = float(existing.AmountEUR) - float(new_amount_eur)
-    new = Transactions(
+    new = Transaction(
         Description=existing.Description, TransactionNumber=existing.TransactionNumber, Currency=existing.Currency, \
         Amount=0, AmountEUR=float(new_amount_eur), RunningBalance=float(existing.RunningBalance), Date=existing.Date, \
         category_id=new_category_id, account = existing.account, PaymentDate=existing.PaymentDate)
@@ -253,24 +253,24 @@ def categories():
 @app.route('/estate/', methods=['GET'])
 def getEstate():
     subq = db.session.query(
-        Transactions.BankName,
-        func.max(Transactions.Date).label('maxdate')).join(Account).filter(Account.Active==1).\
-        group_by(Transactions.BankName).subquery('t1')
+        Transaction.BankName,
+        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).\
+        group_by(Transaction.BankName).subquery('t1')
 
-    subq2 = db.session.query(Transactions).join(
+    subq2 = db.session.query(Transaction).join(
         subq,
         and_(
-            Transactions.BankName == subq.c.BankName,
-            Transactions.Date == subq.c.maxdate
+            Transaction.BankName == subq.c.BankName,
+            Transaction.Date == subq.c.maxdate
         )
     ).subquery('t2')
 
-    query = db.session.query(Transactions).join(
+    query = db.session.query(Transaction).join(
         subq2,
         and_(
-            Transactions.BankName == subq2.c.BankName,
-            Transactions.Date == subq2.c.Date
-        )).group_by(Transactions.BankName).with_entities(Transactions.BankName, Transactions.Date, Transactions.RunningBalance)
+            Transaction.BankName == subq2.c.BankName,
+            Transaction.Date == subq2.c.Date
+        )).group_by(Transaction.BankName).with_entities(Transaction.BankName, Transaction.Date, Transaction.RunningBalance)
 
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('estate', None, None, None, output)
@@ -288,21 +288,21 @@ def getBudget():
             fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'))
 
     q2 = actuals_query.with_entities(
-        extract('month', Transactions.Date).label('Month'), extract('year', Transactions.Date).label('Year'), 
-        Category.id.label('category_id'), Category.Type, Category.Category, Category.SubCategory, func.sum(Transactions.AmountEUR).label('Actuals')).\
-        group_by(extract('month', Transactions.Date), extract('year', Transactions.Date), Category.id, Category.Type, Category.Category, Category.SubCategory).\
+        extract('month', Transaction.Date).label('Month'), extract('year', Transaction.Date).label('Year'), 
+        Category.id.label('category_id'), Category.Type, Category.Category, Category.SubCategory, func.sum(Transaction.AmountEUR).label('Actuals')).\
+        group_by(extract('month', Transaction.Date), extract('year', Transaction.Date), Category.id, Category.Type, Category.Category, Category.SubCategory).\
         subquery('actuals')
         
     final_query = budget_query.outerjoin(
             q2,
             and_(
-                extract('month', Transactions.Date) == q2.c.Month,
-                extract('year', Transactions.Date)== q2.c.Year,
-                Transactions.category_id == q2.c.category_id
+                extract('month', Transaction.Date) == q2.c.Month,
+                extract('year', Transaction.Date)== q2.c.Year,
+                Transaction.category_id == q2.c.category_id
             )).with_entities(
-        Transactions.id,
-        extract('day', Transactions.Date).label('Day'), extract('month', Transactions.Date).label('Month'), extract('year', Transactions.Date).label('Year'),
-        Transactions.AmountEUR.label('Amount'), Category.id.label('category_id'), 
+        Transaction.id,
+        extract('day', Transaction.Date).label('Day'), extract('month', Transaction.Date).label('Month'), extract('year', Transaction.Date).label('Year'),
+        Transaction.AmountEUR.label('Amount'), Category.id.label('category_id'), 
         Category.Type.label('Type'), Category.Category.label('Category'), Category.SubCategory.label('SubCategory'), q2.c.Actuals.label('Actuals')
     )
     
@@ -328,10 +328,10 @@ def post_budget():
 @app.route('/Investment/', methods=['GET'])
 def getInvestment():
     query = db.session.query(
-        Transactions.BankName,
-        func.max(Transactions.id).label('max_transaction_id')
-    ).group_by(Transactions.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type=='Savings').\
-    with_entities(Transactions.Date, Transactions.RunningBalance, Transactions.BankName)
+        Transaction.BankName,
+        func.max(Transaction.id).label('max_transaction_id')
+    ).group_by(Transaction.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type=='Savings').\
+    with_entities(Transaction.Date, Transaction.RunningBalance, Transaction.BankName)
 
     total = len(query.all())
     output =  TransactionsSchema(many=True).dump(query.all()).data
@@ -352,7 +352,7 @@ def getCashFlow():
         from_date = beginning_of_current_month
         to_date = datetime(today.year, 12, 31).strftime('%Y-%m-%d')
 
-    query = Transactions.query.filter(Transactions.Date >= from_date).filter(Transactions.Date <= to_date).order_by(Transactions.Date)
+    query = Transaction.query.filter(Transaction.Date >= from_date).filter(Transaction.Date <= to_date).order_by(Transaction.Date)
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('cash_flow', None, None, 1, output)
     
@@ -366,10 +366,10 @@ def getRunningBalance():
         by_date = datetime.today().strftime('%Y-%m-%d')
 
     query = db.session.query(
-        Transactions.BankName,
-        func.max(Transactions.id).label('max_transaction_id')
-    ).group_by(Transactions.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type!='Savings').\
-    with_entities(Transactions.Date, Transactions.RunningBalance, Transactions.BankName)
+        Transaction.BankName,
+        func.max(Transaction.id).label('max_transaction_id')
+    ).group_by(Transaction.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type!='Savings').\
+    with_entities(Transaction.Date, Transaction.RunningBalance, Transaction.BankName)
 
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('RunningBalance',  None, None, 1, output)
@@ -383,7 +383,7 @@ def process_data():
 @app.route('/updateRunningBalance/', methods=['GET'])
 def udpate_runnning_balance():
     running_balance_perBank = {}
-    transactions = Transactions.query.filter().filter(Transactions.BankName != 'Budget').order_by(Transactions.Date).all()
+    transactions = Transaction.query.filter().filter(Transaction.BankName != 'Budget').order_by(Transaction.Date).all()
     for t in transactions:
         t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.AmountEUR
         update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
