@@ -1,10 +1,16 @@
 <template>
+    
     <td  style="width: 250px;" v-if="isHeader">{{element}}</td>
     <td v-else >
       <div class="columns">
-        <p v-if="!isTotal" class="column is-one-forth">
+
+        <p  v-if="isTotal" class="column is-one-forth">
+            
+        </p>
+        <p v-else class="column is-one-forth">
           <input class="input budget-cell" v-model="day" @change="saveBudget">
         </p>
+       
         <p  v-if="isTotal" class="column is-one-forth total">
             {{budgetValue}}
         </p>
@@ -12,10 +18,14 @@
           <input v-bind:class="budgetClass" v-model="budgetValue" @change="saveBudget">
         </p> 
 
-        <p class="column is-one-forth">
+        <p  v-if="isTotal" class="column is-one-forth total">
+            {{actualsValue}}
+        </p>
+        <p v-else class="column is-one-forth">
             <input v-bind:class="actualsClass" v-model="actualsValue" disabled>
         </p>
-        <p  v-if="!isTotal" class="column is-one-forth">
+
+        <p  class="column is-one-forth">
           <progress :class="progressBarClass" style="margin-top: 10px;" :value="progressValue" :max="100"></progress>
         </p>
       </div>
@@ -88,8 +98,8 @@ export default {
       return false;
     },
     getBudget() {
-      if (this.element != undefined && this.element.Budget != "") {
-        return parseInt(this.element.Budget);
+      if (!isNaN(this.element.Amount) && this.element.Amount != "") {
+        return parseInt(this.element.Amount);
       }
       return 0;
     },
@@ -104,7 +114,7 @@ export default {
       return 1;
     },
     getActuals() {
-      if (this.element != undefined && this.element.Actuals != "")
+      if (this.element != undefined && this.element.Actuals != undefined)
         return parseInt(this.element.Actuals);
       return 0;
     },
@@ -144,6 +154,9 @@ export default {
 .ui.table tfoot
 {
     border-top: 2px solid black;
-    
+}
+.total
+{
+  font-weight: bold;
 }
 </style>

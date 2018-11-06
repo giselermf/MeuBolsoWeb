@@ -1,15 +1,14 @@
-from server.dto.category_management import get_all_categories
-from server.dto.transaction_management import get_all_transactions, update_transaction
+from server.dto.models import Categorydescription
 import re
 
 class Categories(object): 
     def __init__(self):
         categories = {}
         try: 
-            all_categories = get_all_categories()
+            all_categories = Categorydescription.query.all()
             for e in all_categories:
-                category =  e['id']
-                value = e['Description']
+                category =  e.category_id
+                value = e.Description
                 if category in categories:
                     categories[category].append(value)
                 else:
@@ -35,13 +34,13 @@ class Categories(object):
             category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), 'others')]
         return category_id[0] 
 
-class Categorization(object):
+# class Categorization(object):
 
-    def __init__(self):
-        self.categories = Categories()
+#     def __init__(self):
+#         self.categories = Categories()
     
-    def run(self):
-        all_transactions = get_all_transactions(MinDate = '1900-01-01')
+#     def run(self):
+#         all_transactions = get_all_transactions(MinDate = '1900-01-01')
 
-        for t in all_transactions:
-            update_transaction(transaction_id=t['id'], category_id=self.categories.get_category(t['Description']))
+#         for t in all_transactions:
+#             update_insert_transaction(transaction_id=t['id'], category_id=self.categories.get_category(t['Description']))

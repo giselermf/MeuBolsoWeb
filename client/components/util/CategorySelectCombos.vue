@@ -69,6 +69,7 @@ export default {
       selectedSubCategory: null,
       savingsAccounts: null,
       selectedBank: null,
+      allData: null
     };
   },
   mounted() {
@@ -103,6 +104,7 @@ export default {
       this.selectedSubCategory = null;
     },
     setValues(type, category, subcategory) {
+      console.log('set values in combo', type, category, subcategory)
       this.selectedType = type;
       this.selectedCategory = category;
       this.selectedSubCategory = subcategory;
@@ -122,7 +124,7 @@ export default {
       axios
       .get("http://127.0.0.1:5000/getFilterData/")
       .then(response => {
-        this.allData = response["data"];
+        this.allData = response["data"].data;
         this.processData();
       })
       .catch(function(error) {
@@ -152,7 +154,10 @@ export default {
       var axios = require("axios");
       var querystring = require("querystring");
       axios
-        .get("http://127.0.0.1:5000/SavingsAccounts/")
+      axios({
+            method:'get',
+            url:"http://127.0.0.1:5000/SavingsAccounts/"
+            })
         .then(response => {
           this.savingsAccounts = response['data'];
         })

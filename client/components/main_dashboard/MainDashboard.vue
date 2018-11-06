@@ -68,7 +68,7 @@ export default {
           dataClass: "left aligned"
         },
         {
-          name: "Date_str",
+          name: "Date",
           title: "Date",
           titleClass: "center aligned",
           dataClass: "left aligned"
@@ -77,7 +77,8 @@ export default {
           name: "RunningBalance",
           title: "Current Balance",
           titleClass: "center aligned",
-          dataClass: "center aligned"
+          dataClass: "center aligned",
+          //callback: "formatFloat"
         }]
     };
   },

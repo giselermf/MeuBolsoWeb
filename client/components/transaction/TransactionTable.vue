@@ -40,7 +40,8 @@ export default {
       selected_transaction: "",
       fields: [
         {
-          name: "BankName",
+          name: "account",
+          title: "Bank Name",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
@@ -73,10 +74,11 @@ export default {
           name: "AmountEUR",
           title: "Amount (EUR)",
           titleClass: "center aligned",
-          dataClass: "center aligned"
+          dataClass: "center aligned",
+          callback: "formatFloat"
         },
         {
-          name: "Date_str",
+          name: "Date",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },

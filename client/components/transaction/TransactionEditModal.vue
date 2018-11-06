@@ -16,7 +16,7 @@
             <div class="field-body">
               <div class="field is-grouped">
                 <p class="control is-expanded">
-                  {{ selectedTransaction.BankName }}
+                  {{ selectedTransaction.account }}
                 </p>
               </div>
             </div>

@@ -1,11 +1,11 @@
 import csv
-from datetime import date
+from datetime import datetime
 from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
 from server.database.database_connection import run_sql
-from server.dto.transaction_management import get_transaction, insert_transaction, get_all_transactions, update_transaction, update_running_balance
+from server.dto.models import Transactions, update_insert_transaction
 import traceback
 
 class Processor(object):
@@ -13,11 +13,24 @@ class Processor(object):
     def __init__(self, folder):
         self.folder = folder.replace('"', '').strip().rstrip()
         self.categories = Categories()
+        self.startDate = datetime.now()
+
+    def update_running_balance(self):
+        running_balance_perBank = {}
+        transactions = Transactions.query.filter(Transactions.Date >= self.startDate).filter(Transactions.BankName != 'Budget').order_by(Transactions.Date).all()
+        for t in transactions:
+            t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.Amount
+            update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
+            running_balance_perBank[t.BankName] = t.RunningBalance
 
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        update_running_balance()
+        self.update_running_balance()
+
+    def _update_start_date(self, date):
+        if date < self.startDate:
+            self.startDate = date
 
     def _process_bank(self, folder, inputProcessor):
         fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
@@ -45,16 +58,22 @@ class Processor(object):
                     entry = inputProcessor.process(row)
                     if entry:
                         entries_in_file += 1
-                        from_database = get_transaction(entry['Currency'], entry['Bank Name'], entry['Amount'], entry['Date'], entry['Description'][:30])
+                        from_database = Transactions.query.filter(Transactions.Currency == entry['Currency']).\
+                            filter(Transactions.BankName == entry['Bank Name']).\
+                            filter(Transactions.Amount == entry['Amount']).\
+                            filter(Transactions.Date == entry['Date'].strftime ('%Y-%m-%d') ).\
+                            filter(Transactions.Description.like("%"+entry['Description'][:30]+"%")).all()
                         if len(from_database) > 1:
                             print('found more than one', entry, row, from_database)
                         elif len(from_database) == 0:
-                            print('to insert', entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
-                            insert_transaction( category_id=entry['category_id'], Description=entry['Description'], \
-                                                TransactionNumber=entry['Number'], Currency=entry['Currency'], Amount=entry['Amount'], \
-                                                BankName=entry['Bank Name'], AmountEUR=entry['Amount in EUR'] , Date=entry['Date'], PaymentDate=entry['PaymentDate'] )
-                        #elif len(from_database) == 1:
-                        #    print('already in database',entry['Date'], entry['Amount in EUR'],from_database )
+                            self._update_start_date(entry['Date'])
+                            transaction_id = update_insert_transaction(transaction_id=None, description=entry['Description'], transaction_number=entry['Number'], \
+                                    currency=entry['Currency'], amount=entry['Amount'], amountEUR=entry['Amount in EUR'], running_balance=0, \
+                                    date=entry['Date'], category_id=entry['category_id'], bank_name=entry['Bank Name'], payment_date=entry['PaymentDate'])
+                            print('to insert', transaction_id, entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
+
+                        elif len(from_database) == 1:
+                            print('already in database',entry['Date'], entry['Amount in EUR'],from_database )
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())

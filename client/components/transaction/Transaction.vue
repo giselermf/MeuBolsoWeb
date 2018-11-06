@@ -49,16 +49,16 @@ export default {
       let axios = require("axios");
       let querystring = require("querystring");
       if (this.getFilterParam() != "") { //don't call without filter
-      axios
-        .get(
-          "http://127.0.0.1:5000/transactionsFiltered/" + this.getFilterParam()
-        )
-        .then(response => {
-          this.allData = response["data"]["data"];
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+          axios({
+            method:'get',
+            url:"http://127.0.0.1:5000/transactionsFiltered/"  + this.getFilterParam()
+            })
+            .then(response => {
+              this.allData = response["data"]["data"];
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
         }
     },
     getFilterParam() {

@@ -61,7 +61,7 @@ export default {
           this.apiUrl + "RunningBalance/" + "?filter=" + JSON.stringify(params)
         )
         .then(response => {
-          this.RunningBalance = response["data"]["data"][0]["balance"];
+          this.RunningBalance = response["data"]["data"][0]["RunningBalance"];
         })
         .catch(function(error) {
           console.log(error);

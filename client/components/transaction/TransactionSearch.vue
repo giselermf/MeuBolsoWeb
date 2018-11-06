@@ -119,9 +119,9 @@ export default {
     },
     search: function() {
       let params = {
-        Category: this.$refs.search_typecombos.getSelectedCategory(),
-        SubCategory: this.$refs.search_typecombos.getSelectedSubCategory(),
-        Type: this.$refs.search_typecombos.getSelectedType(),
+        category: this.$refs.search_typecombos.getSelectedCategory(),
+        subcategory: this.$refs.search_typecombos.getSelectedSubCategory(),
+        type: this.$refs.search_typecombos.getSelectedType(),
         bankName: this.selectedBank,
         fromAmount: this.fromAmount,
         toAmount: this.toAmount,
@@ -134,10 +134,12 @@ export default {
     getCategoriesFromServer: function() {
       var axios = require("axios");
       var querystring = require("querystring");
-      axios
-        .get("http://127.0.0.1:5000/getFilterTransactionData/")
+      axios({
+        method:'get',
+        url:"http://127.0.0.1:5000/getFilterTransactionData/"
+        })
         .then(response => {
-          this.all_filter_data = response["data"];
+          this.all_filter_data = response["data"].data;
         })
         .catch(function(error) {
           console.log(error);

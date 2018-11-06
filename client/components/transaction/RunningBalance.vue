@@ -32,9 +32,7 @@ export default {
     allData: {
       handler(newData, oldData) {
         this.allBanks = ["All"];
-        this.allBanks = this.allBanks.concat(
-          Array.from(new Set(this.allData.map(x => x.BankName)))
-        );
+        this.allBanks = this.allBanks.concat(Array.from(new Set(this.allData.filter(x => x.Active === "True").map(x => x.BankName))))
         this.getChartData();
       }
     },
@@ -69,6 +67,7 @@ export default {
     getChartData() {
       let datasets = [];
       let alabels = this.allData.map(x => moment(x.Date));
+    
       alabels = alabels.sort(function(a, b) {
         return a - b;
       });
@@ -79,7 +78,7 @@ export default {
       alabels = Array.from(new Set(alabels));
 
       let groupedData = this.allData.reduce(function(r, a) {
-        if (a.Active == 1) { //only active accounts
+        if (a.Active === "True") { //only active accounts
           r[a["BankName"]] = r[a["BankName"]] || {};
           let dateRunning = moment(a.Date).format("YYYY-MM-DD");
           r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);

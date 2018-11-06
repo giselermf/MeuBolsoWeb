@@ -64,7 +64,6 @@ export default {
       if (this.allData == null) return;
       let rows = {};
       let groupedData = getGroupByMonthAnd(this.allData, this.grouper);
-
       //clean table data
       this.tableData.splice(0, this.tableData.length);
       //this.tableFields.splice(0, this.tableFields.length);

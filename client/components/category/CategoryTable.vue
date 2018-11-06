@@ -44,17 +44,20 @@ export default {
       selected_description: "",
       fields: [
         {
-          name: "Type",
+          name: "category.Type",
+          title: 'Type',
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "Category",
+          name: "category.Category",
+          title: 'Category',
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
         {
-          name: "SubCategory",
+          name: "category.SubCategory",
+          title: "SubCategory",
           titleClass: "center aligned",
           dataClass: "center aligned"
         },
@@ -73,8 +76,8 @@ export default {
       ],
       sortOrder: [
         {
-          field: "category",
-          sortField: "category",
+          field: "Category",
+          sortField: "Category",
           direction: "asc"
         }
       ],

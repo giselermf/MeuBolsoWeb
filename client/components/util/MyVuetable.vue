@@ -96,6 +96,11 @@ export default {
         return value.substring(0,20)
       return value
     },
+    formatFloat (value) {
+      if (value != null)
+        return value.toFixed(2)
+      return value
+    },
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData)
       this.$refs.paginationInfo.setPaginationData(paginationData)

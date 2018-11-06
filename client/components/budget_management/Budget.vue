@@ -156,6 +156,7 @@ export default {
         return r;
       }, Object.create(null));
 
+
       this.tableDataIncome = [];
       this.tableDataExpense = [];
       for (let e in groupedData) {
@@ -172,11 +173,11 @@ export default {
           this.tableDataExpense.push(oneRow);
         }
       }
-      
       this.grandTotal = [this.allData.reduce(function (r, a) {
-        r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || {Type:"Total", Month:a["Month"], Year:a["Year"], Budget: 0, Actuals:0, isTotal: true };
-        r[a["Year"] + "/" + a["Month"]].Budget += a.Budget;
+        r[a["Year"] + "/" + a["Month"]] = r[a["Year"] + "/" + a["Month"]] || {Type:"Total", Month:a["Month"], Year:a["Year"], Amount: 0, Actuals:0, isTotal: true };
+        r[a["Year"] + "/" + a["Month"]].Amount += a.Amount;
         r[a["Year"] + "/" + a["Month"]].Actuals += a.Actuals;
+        r["Category & SubCategory"] = "Total";
         return r;
       }, Object.create(null))];
     }

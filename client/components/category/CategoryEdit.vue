@@ -76,7 +76,7 @@ export default {
     onEdit: function(data) {
       this.description = data.Description;
       this.category_id = data.id;
-      this.$refs.typecombos.setValues(data.Type, data.Category, data.SubCategory);
+      this.$refs.typecombos.setValues(data.category.Type, data.category.Category, data.category.SubCategory);
     },
     onDelete: function(data) {
       var axios = require("axios");
@@ -114,6 +114,7 @@ export default {
         });
     },
     add: function() {
+      console.log('on add', this.description, this.$refs.typecombos.getSelectedCategoryId());
       if (this.$refs.typecombos.getSelectedCategoryId() == null) return;
       var axios = require("axios");
       var querystring = require("querystring");
