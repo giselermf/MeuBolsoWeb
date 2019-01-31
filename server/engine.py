@@ -365,13 +365,22 @@ def getRunningBalance():
     else:
         by_date = datetime.today().strftime('%Y-%m-%d')
 
-    query = db.session.query(
+    q1 = db.session.query(
         Transaction.BankName,
-        func.max(Transaction.id).label('max_transaction_id')
-    ).group_by(Transaction.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type!='Savings').\
-    with_entities(Transaction.Date, Transaction.RunningBalance, Transaction.BankName)
+        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Account.Type!='Savings').\
+        group_by(Transaction.BankName).subquery('t1')
 
-    output =  TransactionsSchema(many=True).dump(query.all()).data
+    q2 = db.session.query(
+        Transaction.BankName,
+        func.max(Transaction.id).label('maxid')).\
+        join(q1, and_( q1.c.BankName == Transaction.BankName, q1.c.maxdate == Transaction.Date) ).\
+        group_by(Transaction.BankName).subquery('t2')
+
+    q3 = db.session.query(
+        Transaction.BankName, Transaction.id, Transaction.RunningBalance).\
+        join(q2, and_( q2.c.BankName == Transaction.BankName, q2.c.maxid == Transaction.id) )
+
+    output =  TransactionsSchema(many=True).dump(q3.all()).data
     return getResponse('RunningBalance',  None, None, 1, output)
 
 @app.route('/processData/', methods=['GET'])
@@ -384,9 +393,11 @@ def process_data():
 def udpate_runnning_balance():
     running_balance_perBank = {}
     transactions = Transaction.query.filter().filter(Transaction.BankName != 'Budget').order_by(Transaction.Date).all()
+    i=0
+    num_transactions = len(transactions)
     for t in transactions:
-        t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.AmountEUR
+        t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.Amount
         update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
         running_balance_perBank[t.BankName] = t.RunningBalance
-        print('@@', t.Date, t.BankName, t.RunningBalance)
+        i=i+1
     return getResponse('updateRunningBalance', None, None, 1, 'ok')

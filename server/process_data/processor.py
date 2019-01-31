@@ -70,7 +70,7 @@ class Processor(object):
                             transaction_id = update_insert_transaction(transaction_id=None, description=entry['Description'], transaction_number=entry['Number'], \
                                     currency=entry['Currency'], amount=entry['Amount'], amountEUR=entry['Amount in EUR'], running_balance=0, \
                                     date=entry['Date'], category_id=entry['category_id'], bank_name=entry['Bank Name'], payment_date=entry['PaymentDate'])
-                            print('to insert', transaction_id, entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
+                         #   print('to insert', transaction_id, entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
 
                         elif len(from_database) == 1:
                             print('already in database',entry['Date'], entry['Amount in EUR'],from_database )
