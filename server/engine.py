@@ -1,4 +1,4 @@
-from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction
+from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction, update_running_balance
 from flask import Flask, request
 from flask_marshmallow import Marshmallow, fields
 from marshmallow.fields import Int, String, Float
@@ -7,6 +7,7 @@ from sqlalchemy import desc,  func, and_, extract
 from datetime import datetime
 from server.process_data.processor import Processor
 import math
+import pandas as pd
 
 ma = Marshmallow(app)
 
@@ -112,6 +113,12 @@ def getFilterTransactionData():
         with_entities(Account.BankName, Category.Type, Category.Category, Category.SubCategory).distinct()
     return getResponse('data', None, None, None, TransactionsFilterSchema(many=True).dump(results).data)
 
+@app.route('/getAllAccounts/', methods=['GET'])
+def getAllAccounts():
+    results = Account.query.all()
+    return getResponse('data', None, None, None, AccountSchema(many=True).dump(results).data)
+
+
 def get_transaction_query(sort, sort_order, 
                                     category_type=None, category=None, subcategory=None,
                                     bankName=None, fromDate=None, toDate=None, 
@@ -182,14 +189,13 @@ def split_transactions():
     original_transaction_id = request.form['transaction_id']
     new_category_id = request.form['new_category_id']
     new_amount_eur =request.form['new_amount_EUR']
-    print(original_transaction_id, new_category_id, new_amount_eur )
-
     existing = Transaction.query.filter_by(id=original_transaction_id ).first()
     existing.AmountEUR = float(existing.AmountEUR) - float(new_amount_eur)
+    existing.RunningBalance = float(existing.RunningBalance) - float(new_amount_eur)
     new = Transaction(
-        Description=existing.Description, TransactionNumber=existing.TransactionNumber, Currency=existing.Currency, \
-        Amount=0, AmountEUR=float(new_amount_eur), RunningBalance=float(existing.RunningBalance), Date=existing.Date, \
-        category_id=new_category_id, account = existing.account, PaymentDate=existing.PaymentDate)
+        Description="Split", TransactionNumber=existing.TransactionNumber, Currency=existing.Currency, \
+        Amount=0, AmountEUR=float(new_amount_eur), RunningBalance=float(existing.RunningBalance) + float(new_amount_eur), \
+        Date=existing.Date, category_id=new_category_id, account = existing.account, PaymentDate=existing.PaymentDate)
     try:
         db.session.add(new)
         db.session.commit()
@@ -200,10 +206,40 @@ def split_transactions():
     finally:
         db.session.close()
 
-@app.route('/SavingsAccounts/', methods=['GET']) 
-def getSavingsAccounts():
-    query = Account.query.filter(Account.Active==1).filter(Account.Type=='Savings').distinct()
-    return getResponse('data', None, None, None, AccountSchema(many=True).dump(query).data)
+        
+@app.route('/addFutureTransactions/', methods=['POST'])
+def add_future_transactions():
+    try:
+        date = pd.to_datetime(request.form['fromDate']).date()
+        for x in range(0, int(request.form['numberOccurrencies'])):
+            new = Transaction(  Description = request.form['description'],
+                                TransactionNumber = 'Future',
+                                Currency= request.form['Currency'],
+                                Amount= float(request.form['AmountEUR']),
+                                AmountEUR= float(request.form['AmountEUR']),
+                                Date= date, 
+                                PaymentDate= date,
+                                category_id = request.form['category_id'],
+                                BankName = request.form['Account'])
+            db.session.add(new)
+            if request.form['frequency'] == "Monthly":
+                date = date + pd.to_timedelta(1, unit='M')
+            elif request.form['frequency'] == "Weekly":
+                date = date + pd.to_timedelta(1, unit='W')
+            elif request.form['frequency'] == "Quartely":
+                date = date + pd.to_timedelta(3, unit='W')
+            elif request.form['frequency'] == "Yearly":
+                date = date + pd.to_timedelta(1, unit='Y')
+        db.session.commit()
+        update_running_balance(request.form['Account'])
+        return getResponse('splitTransaction', None, None, None, 'sucess')
+    except:
+        db.session.rollback()
+        raise
+    finally:
+        db.session.close()
+
+
 
 @app.route('/getFilterData/', methods=['GET'])
 def filter_data():
@@ -391,13 +427,13 @@ def process_data():
 
 @app.route('/updateRunningBalance/', methods=['GET'])
 def udpate_runnning_balance():
-    running_balance_perBank = {}
-    transactions = Transaction.query.filter().filter(Transaction.BankName != 'Budget').order_by(Transaction.Date).all()
-    i=0
-    num_transactions = len(transactions)
-    for t in transactions:
-        t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.Amount
-        update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
-        running_balance_perBank[t.BankName] = t.RunningBalance
-        i=i+1
-    return getResponse('updateRunningBalance', None, None, 1, 'ok')
+    try:
+        accounts = Account.query.all()
+        for a in accounts:
+            update_running_balance(a.BankName)
+        return getResponse('updateRunningBalance', None, None, 1, 'ok')
+    except:
+        db.session.rollback()
+        raise
+    finally:
+        db.session.close()

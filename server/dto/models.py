@@ -19,6 +19,7 @@ class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
     Active = db.Column(db.Boolean)
     Type = db.Column(db.String(15))
+    Currency= db.Column(db.String(6))
 
 class Categorydescription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,13 +82,15 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
     currency=None, amount=None, amountEUR=None, running_balance=None, date=None, payment_date=None, 
     category_id=None, bank_name=None):
     if transaction_id == '' or transaction_id == None: # ADD
+        if (running_balance):
+            running_balance = float(running_balance)
         new = Transaction( id = None,
                             Description = description,
                             TransactionNumber = transaction_number,
                             Currency= currency,
                             Amount= float(amount),
                             AmountEUR= float(amountEUR),
-                            RunningBalance= float(running_balance),
+                            RunningBalance= running_balance,
                             Date= date, 
                             TransferTo= None,
                             TransferId= None,
@@ -112,4 +115,12 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
         if amountEUR != None: to_update.AmountEUR = amountEUR
         db.session.commit()
         return transaction_id
+
+def update_running_balance(bank_name):
+    running_balance = 0
+    transactions = Transaction.query.filter().filter(Transaction.BankName == bank_name).order_by(Transaction.Date).all()
+    for t in transactions:
+        running_balance = running_balance + t.Amount
+        t.RunningBalance = running_balance
+    db.session.commit()
 
