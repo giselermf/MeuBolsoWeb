@@ -13,7 +13,7 @@
                 <label class="label">Bank</label>
               </div>
               <div class="field is-grouped field-body">
-                {{ transaction.account }}
+                {{ transaction.BankName }}
               </div>
           </div>
           <div  v-else>
@@ -103,10 +103,16 @@ export default {
     }
   },
   mounted() {
-    this.$refs.typecombos.selectedType = this.transaction.Type;
-    this.$refs.typecombos.selectedCategory = this.transaction.Category;
-    this.$refs.typecombos.selectedSubCategory = this.transaction.SubCategory;
-  },
+    this.$nextTick(()=>{
+      this.$refs.typecombos.selectedType = this.transaction.Type;
+      this.$refs.typecombos.selectedCategory = this.transaction.Category;
+      this.$refs.typecombos.selectedSubCategory = this.transaction.SubCategory;
+      this.$refs.account_combo.setSelectedAccount(this.transaction.BankName);
+    });
+    if (this.transaction.Date) {
+        this.fromDate = moment(this.transaction.Date).add(1, 'M').format("YYYY-MM-DD");
+    }
+   },
   methods: {
     saveTransfer() {
       var axios = require("axios");

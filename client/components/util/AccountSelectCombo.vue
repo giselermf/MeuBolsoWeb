@@ -17,7 +17,6 @@
 import moment from "moment";
 
 export default {
- // props: ["fromDate", "toDate", "includeAll"],
   props: {
       fromDate: String,
       toDate: String,
@@ -30,9 +29,11 @@ export default {
     return {
       selectedAccount: {},
       allActiveAccounts: [],
+      toBeSelected: null
     };
   },
   mounted() {
+    this.toBeSelected = null;
     this.getFilterData();
   },
   watch: {
@@ -45,6 +46,14 @@ export default {
       handler(newData, oldData) {
         this.getFilterData();
       }
+    },
+    allActiveAccounts: {
+      handler(newData, oldData) {
+        if (this.toBeSelected) {
+            this.selectedAccount = this.allActiveAccounts.find(
+            element => element.BankName == this.toBeSelected);
+        }
+      }
     }
   },
   methods: {
@@ -54,6 +63,9 @@ export default {
       } else {
         this.selectedAccount = {};
       }
+    },
+    setSelectedAccount(BankName) {      
+      this.toBeSelected =  BankName;
     },
     getSelectedAccount() {
       if (this.selectedAccount)

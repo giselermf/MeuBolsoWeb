@@ -14,6 +14,7 @@
         <template slot="actions" scope="props">
             <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
             <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
+            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onAddRecurrence(props.rowData)">+</a>
         </template>
     </my-vuetable>
     <transaction-edit v-if="showModal" @close="showModal = false" :action="action" :transaction="selected_transaction" ></transaction-edit>
@@ -108,6 +109,11 @@ export default {
     onSplit(data) {
       this.showModal = true;
       this.action= "split";
+      this.selected_transaction = data;
+    },
+    onAddRecurrence(data) {
+      this.showModal = true;
+      this.action= "add";
       this.selected_transaction = data;
     },
     onAdd() {

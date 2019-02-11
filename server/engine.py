@@ -160,16 +160,18 @@ def get_transaction_query(sort, sort_order,
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
     sort, sort_order, filter_param, page_number, per_page = getParams(request)
+    total = 0
+    output = []
     if filter_param is not None:
         filter_param = json.loads(filter_param)
-    query = get_transaction_query( sort=sort, sort_order=sort_order, 
+        query = get_transaction_query( sort=sort, sort_order=sort_order, 
             category_type=filter_param.get('type'), category=filter_param.get('category'), subcategory=filter_param.get('subcategory'),
             bankName=filter_param.get('bankName'), fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'), 
             fromAmount=filter_param.get('fromAmount'), toAmount=filter_param.get('toAmount'), description=filter_param.get('Description'), 
             exclude_budget=True)
-    total = len(query.all())
-    query = getLimitClause(query, page_number, per_page)
-    output =  TransactionsSchema(many=True).dump(query.all()).data
+        total = len(query.all())
+        query = getLimitClause(query, page_number, per_page)
+        output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('transactions', total, per_page, page_number, output)
 
 
