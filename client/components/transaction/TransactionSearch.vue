@@ -1,22 +1,6 @@
 <template>
     <div >
-        <div class="field is-horizontal" >
-            <div class="field-label">
-                <label class="label">Bank</label>
-            </div>
-            <div class="field-body">
-                <div class="field is-grouped">
-                    <p class="control is-expanded">
-                        <select class="select" v-model="selectedBank" @change="search()">
-                            <option v-for="bank in getFilterValue('BankName')" v-bind:key="bank.value" v-bind:value="bank.value">
-                                {{ bank.value }}
-                            </option>
-                        </select> 
-                    </p>
-                </div>
-            </div>
-        </div>
-
+        <account-select-combo :fromDate="fromDate" :toDate="toDate" :includeAll=false ref="account_combo" ></account-select-combo>
         <div class="field is-horizontal" >
             <div class="field-label">
                 <label class="label">Date</label>
@@ -71,28 +55,30 @@
 import { addFilterParam } from "../util/Utils.js";
 import Datepicker from "vuejs-datepicker";
 import CategorySelectCombos from "../util/CategorySelectCombos.vue"
+import AccountSelectCombo from "../util/AccountSelectCombo.vue"
 import DateRange from "../util/DateRange.vue";
 import moment from "moment";
 
 export default { 
     
   components: {
-    Datepicker, CategorySelectCombos, DateRange
+    Datepicker, CategorySelectCombos, DateRange, AccountSelectCombo
   },
   data() {
     return {
-      selectedBank: null,
-      all_filter_data: [],
       Description: null,
       SubCategory: null,
       fromAmount: null,
       toAmount: null,
+      fromDate: null,
+      toDate: null,
     };
   },
   mounted() {
-    this.getCategoriesFromServer();
     this.setDateRangeDefault();
     this.search();
+    this.fromDate = moment(this.$refs.cashFlow_range.fromDate).format("YYYY-MM-DD");
+    this.toDate = moment(this.$refs.cashFlow_range.toDate).format("YYYY-MM-DD");
   },
   methods: {
     setDateRangeDefault() {
@@ -108,7 +94,7 @@ export default {
       });
     },
     reset: function() {
-      this.selectedBank = null;
+      this.$refs.account_combo.resetValues();
       this.Description = null;
       this.SubCategory = null;
       this.fromAmount = null;
@@ -118,33 +104,21 @@ export default {
       this.search();
     },
     search: function() {
-      let params = {
-        category: this.$refs.search_typecombos.getSelectedCategory(),
-        subcategory: this.$refs.search_typecombos.getSelectedSubCategory(),
-        type: this.$refs.search_typecombos.getSelectedType(),
-        bankName: this.selectedBank,
-        fromAmount: this.fromAmount,
-        toAmount: this.toAmount,
-        fromDate: moment(this.$refs.cashFlow_range.fromDate).format("YYYY-MM-DD"),
-        toDate: moment(this.$refs.cashFlow_range.toDate).format("YYYY-MM-DD"),
-        Description: this.Description,
+        this.fromDate = moment(this.$refs.cashFlow_range.fromDate).format("YYYY-MM-DD");
+        this.toDate = moment(this.$refs.cashFlow_range.toDate).format("YYYY-MM-DD");
+        let params = {
+            category: this.$refs.search_typecombos.getSelectedCategory(),
+            subcategory: this.$refs.search_typecombos.getSelectedSubCategory(),
+            type: this.$refs.search_typecombos.getSelectedType(),
+            bankName: this.$refs.account_combo.getSelectedAccount(),
+            fromAmount: this.fromAmount,
+            toAmount: this.toAmount,
+            fromDate: this.fromDate,
+            toDate: this.toDate,
+            Description: this.Description,
       };
       this.$events.fire("transaction-filter-set", addFilterParam(params));
     },
-    getCategoriesFromServer: function() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios({
-        method:'get',
-        url:"http://127.0.0.1:5000/getFilterTransactionData/"
-        })
-        .then(response => {
-          this.all_filter_data = response["data"].data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    }
   }
 };
 </script>

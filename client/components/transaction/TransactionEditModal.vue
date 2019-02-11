@@ -1,50 +1,76 @@
-
-
 <template>
    <transition name="modal">
   <div class="modal modal-mask ">
   <div class="modal-background"></div>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Edit Transaction</p>
+      <p class="modal-card-title">{{action}} transaction</p>
     </header>
     <section class="modal-card-body">
-        <div class="field is-horizontal" >
-            <div class="field-label">
-              <label class="label">Bank</label>
-            </div>
-            <div class="field-body">
-              <div class="field is-grouped">
-                <p class="control is-expanded">
-                  {{ selectedTransaction.account }}
-                </p>
+      <div class="field " >
+          <div v-if="action != 'add'" class="field is-horizontal">
+              <div class="field-label">
+                <label class="label">Bank</label>
               </div>
-            </div>
+              <div class="field is-grouped field-body">
+                {{ transaction.account }}
+              </div>
+          </div>
+          <div  v-else>
+              <account-select-combo ref="account_combo" ></account-select-combo>
+          </div>
         </div>
         <div class="field is-horizontal" >
+              <div class="field-label">
+                <label class="label">Description</label>
+              </div>  
+              <div class="field is-grouped field-body">
+                <div  v-if="action != 'add'" class="field-body">
+                    {{ transaction.Description }}
+                </div>
+                <div  v-else class="field-body">
+                  <input class=" field control input" placeholder="value" v-model="transaction.Description "/>
+                </div>
+                <div class="field-label">
+                  <label class="label" style="margin-left: 20px;" >Amount</label>
+                </div>
+                <div class="field-body">
+                  <div class="field is-grouped" v-if="action != 'edit'">
+                    <input class="field control input" type="decimal" placeholder="value" v-model="newAmount"/>
+                  </div>
+                  <div v-else>
+                    {{ transaction.Amount }}
+                  </div>
+                </div>
+              </div>
+        </div>
+        <div v-if="action == 'add'" class="field is-horizontal" >
             <div class="field-label">
-              <label class="label">Description</label>
+              <label class="label">Frequency</label>
             </div>
             <div class="field-body">
               <div class="field is-grouped">
-                <p class="control is-expanded">
-                  {{ selectedTransaction.Description }}
-                </p>
+                <input class=" field control input" style="width: 100px;" type="number" value="1" v-model="numberOccurrencies"/>
+                <select class="select" v-model="frequency">
+                      <option v-for="frequency in getFrequency()" v-bind:key="frequency" v-bind:value="frequency">
+                          {{ frequency }}
+                      </option>
+                  </select>
               </div>
             </div>
         </div>
-        <div v-if="split" class="field is-horizontal" >
+        <div v-if="action == 'add'" class="field is-horizontal" >
             <div class="field-label">
-              <label class="label">Amount</label>
+              <label class="label">Starting at</label>
             </div>
             <div class="field-body">
               <div class="field is-grouped">
-                <p class="control is-expanded">
-                  <input class=" field control input" placeholder="value" v-model="newAmount"/>
-                </p>
+                  <datepicker :typeable="true" v-model="fromDate" placeholder="from"></datepicker>
+
               </div>
             </div>
         </div>
+
         <category-select-combos ref="typecombos" ></category-select-combos>
         
     </section>
@@ -59,21 +85,27 @@
 
 <script>
 import CategorySelectCombos from "../util/CategorySelectCombos.vue";
+import AccountSelectCombo from "../util/AccountSelectCombo.vue"
+import Datepicker from "vuejs-datepicker";
+import moment from "moment";
 
 export default {
-  props : ["split", "selectedTransaction"],
+  props : ["action", "transaction"],
   components: {
-    CategorySelectCombos
+    CategorySelectCombos, AccountSelectCombo, Datepicker
   },
   data() {
     return {
-      newAmount: this.selectedTransaction.AmountEUR,
+      newAmount: this.transaction.AmountEUR,
+      frequency: "Monthly",
+      numberOccurrencies: 1,
+      fromDate: moment(new Date()).format("YYYY-MM-DD")
     }
   },
   mounted() {
-    this.$refs.typecombos.selectedType = this.selectedTransaction.Type;
-    this.$refs.typecombos.selectedCategory = this.selectedTransaction.Category;
-    this.$refs.typecombos.selectedSubCategory = this.selectedTransaction.SubCategory;
+    this.$refs.typecombos.selectedType = this.transaction.Type;
+    this.$refs.typecombos.selectedCategory = this.transaction.Category;
+    this.$refs.typecombos.selectedSubCategory = this.transaction.SubCategory;
   },
   methods: {
     saveTransfer() {
@@ -83,14 +115,14 @@ export default {
         .post(
           "http://127.0.0.1:5000/transfer/",
           querystring.stringify({
-            transaction_id: this.selectedTransaction.id,
-            AmountEUR: this.selectedTransaction.AmountEUR,
-            Amount: this.selectedTransaction.Amount,
-            Currency: this.selectedTransaction.Currency,
-            Date: this.selectedTransaction.Date,
-            TransactionNumber: this.selectedTransaction.TransactionNumber,
-            toSelectedBank: this.$refs.typecombos.selectedBank,
-            oldTransferId: this.selectedTransaction.TransferId
+            transaction_id: this.transaction.id,
+            AmountEUR: this.transaction.AmountEUR,
+            Amount: this.transaction.Amount,
+            Currency: this.transaction.Currency,
+            Date: this.transaction.Date,
+            TransactionNumber: this.transaction.TransactionNumber,
+            toSelectedBank: this.$refs.typecombos.getSelectedTransferAccount(),
+            oldTransferId: this.transaction.TransferId
           })
         )
         .then(response => {
@@ -107,7 +139,7 @@ export default {
         .post(
           "http://127.0.0.1:5000/transactions/",
           querystring.stringify({
-            transaction_id: this.selectedTransaction.id,
+            transaction_id: this.transaction.id,
             category_id: this.$refs.typecombos.getSelectedCategoryId(),
           })
         )
@@ -125,9 +157,36 @@ export default {
         .post(
           "http://127.0.0.1:5000/splitTransaction/",
           querystring.stringify({
-            transaction_id: this.selectedTransaction.id,
+            transaction_id: this.transaction.id,
             new_amount_EUR: this.newAmount,
             new_category_id: this.$refs.typecombos.getSelectedCategoryId()
+          })
+        )
+        .then(response => {
+          this.$events.fire("close-transaction-split-modal");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    getFrequency() {
+      return ["Weekly", "Monthly", "Quartely", "Yearly"];
+    },
+    addTransaction() {
+      var axios = require("axios");
+      var querystring = require("querystring");
+      axios
+        .post(
+          "http://127.0.0.1:5000/addFutureTransactions/",
+          querystring.stringify({
+            Account: this.$refs.account_combo.getSelectedAccount(),
+            Currency: this.$refs.account_combo.getCurrency(),
+            AmountEUR: this.newAmount,
+            numberOccurrencies: this.numberOccurrencies, 
+            frequency: this.frequency,
+            fromDate: moment(this.fromDate).format("YYYY-MM-DD"),
+            description: this.transaction.Description,
+            category_id: this.$refs.typecombos.getSelectedCategoryId(),
           })
         )
         .then(response => {
@@ -141,12 +200,16 @@ export default {
       this.$events.fire("close-transaction-split-modal");
     },
     SaveAndCloseModal() {
-      if (this.split) { 
+      if (this.action == 'split') { 
         this.splitTransaction();
-      } else if (this.$refs.typecombos.selectedSubCategory == 'Transfer') {
-         this.saveTransfer();
+      } else if (this.action == 'edit') {
+          if (this.$refs.typecombos.selctedSubCategory == 'Transfer') {
+            this.saveTransfer();
+          } 
+          else this.saveTransaction();
+      } else if (this.action == 'add') {
+          this.addTransaction();
       }
-      else this.saveTransaction();
     }
   }
 };

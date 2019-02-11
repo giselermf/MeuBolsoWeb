@@ -115,8 +115,20 @@ def getFilterTransactionData():
 
 @app.route('/getAllAccounts/', methods=['GET'])
 def getAllAccounts():
-    results = Account.query.all()
-    return getResponse('data', None, None, None, AccountSchema(many=True).dump(results).data)
+    filter_param = request.args.get('filter')
+    if filter_param is not None:
+        filter_param = json.loads(filter_param)
+    fromDate=filter_param.get('fromDate')
+    toDate=filter_param.get('toDate')
+
+    query = Transaction.query.distinct(Transaction.BankName, Transaction.Currency).\
+        with_entities(Transaction.BankName, Transaction.Currency).filter(Transaction.BankName != "Budget")
+    if fromDate:
+        query = query.filter( Transaction.Date >= fromDate)
+    if toDate:
+        query = query.filter( Transaction.Date <= toDate)
+    output =  TransactionsSchema(many=True).dump(query.all()).data
+    return getResponse('data', None, None, None, output)
 
 
 def get_transaction_query(sort, sort_order, 
@@ -290,7 +302,7 @@ def categories():
 def getEstate():
     subq = db.session.query(
         Transaction.BankName,
-        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).\
+        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Transaction.Date <= datetime.now()).\
         group_by(Transaction.BankName).subquery('t1')
 
     subq2 = db.session.query(Transaction).join(
@@ -372,53 +384,7 @@ def getInvestment():
     total = len(query.all())
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('investments', total, 100, 0, output)
-
-# CASH_FLOW
-@app.route('/cashFlow/', methods=['GET'])
-def getCashFlow():
-    filter_param = request.args.get('filter')
-    today = datetime.today()
-    beginning_of_current_month = datetime(today.year, today.month, 1).strftime('%Y-%m-%d')
-
-    if filter_param is not None:
-        filter_param = json.loads(filter_param)
-        from_date = filter_param.get("fromDate")
-        to_date = filter_param.get("toDate")
-    else:
-        from_date = beginning_of_current_month
-        to_date = datetime(today.year, 12, 31).strftime('%Y-%m-%d')
-
-    query = Transaction.query.filter(Transaction.Date >= from_date).filter(Transaction.Date <= to_date).order_by(Transaction.Date)
-    output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('cash_flow', None, None, 1, output)
     
-@app.route('/RunningBalance/', methods=['GET'])
-def getRunningBalance():
-    filter_param = request.args.get('filter')
-    if filter_param is not None:
-        filter_param = json.loads(filter_param)
-        by_date = filter_param.get("byDate")
-    else:
-        by_date = datetime.today().strftime('%Y-%m-%d')
-
-    q1 = db.session.query(
-        Transaction.BankName,
-        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Account.Type!='Savings').\
-        group_by(Transaction.BankName).subquery('t1')
-
-    q2 = db.session.query(
-        Transaction.BankName,
-        func.max(Transaction.id).label('maxid')).\
-        join(q1, and_( q1.c.BankName == Transaction.BankName, q1.c.maxdate == Transaction.Date) ).\
-        group_by(Transaction.BankName).subquery('t2')
-
-    q3 = db.session.query(
-        Transaction.BankName, Transaction.id, Transaction.RunningBalance).\
-        join(q2, and_( q2.c.BankName == Transaction.BankName, q2.c.maxid == Transaction.id) )
-
-    output =  TransactionsSchema(many=True).dump(q3.all()).data
-    return getResponse('RunningBalance',  None, None, 1, output)
-
 @app.route('/processData/', methods=['GET'])
 def process_data():
     folder = request.args.get('folder')

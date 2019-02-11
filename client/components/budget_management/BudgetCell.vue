@@ -7,9 +7,6 @@
         <p  v-if="isTotal" class="column is-one-forth">
             
         </p>
-        <p v-else class="column is-one-forth">
-          <input class="input budget-cell" v-model="day" @change="saveBudget">
-        </p>
        
         <p  v-if="isTotal" class="column is-one-forth total">
             {{budgetValue}}
@@ -41,7 +38,6 @@ export default {
       budgetValue: this.getBudget(),
       actualsValue: this.getActuals(),
       isTotal: this.getIsTotal(),
-      day: this.getDay(),
       progressValue: null,
       progressBarClass: null
     };
@@ -72,7 +68,7 @@ export default {
           "http://127.0.0.1:5000/budget/",
           querystring.stringify({
             id: this.getId(),
-            Day: this.day,
+            Day: 1,
             Value: this.budgetValue,
             Month: this.Month,
             Year: this.Year,
@@ -102,16 +98,6 @@ export default {
         return parseInt(this.element.Amount);
       }
       return 0;
-    },
-    getDay() {
-      if (
-        this.element != undefined &&
-        this.element.Day != undefined &&
-        this.element.Day != ""
-      ) {
-        return parseInt(this.element.Day);
-      }
-      return 1;
     },
     getActuals() {
       if (this.element != undefined && this.element.Actuals != undefined)

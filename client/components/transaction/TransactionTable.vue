@@ -1,5 +1,10 @@
 <template>
   <div>
+     <div class="field is-grouped is-grouped-right" style="padding-top: 10px;">
+    <p class="control">
+        <button class="button is-link" @click="onAdd()" >Add</button>
+    </p>
+    </div>
     <my-vuetable ref="vuetableTransaction"
         api-url="http://127.0.0.1:5000/transactionsFiltered/"
         :fields="fields"
@@ -7,11 +12,11 @@
         :append-params="appendParams"
     >
         <template slot="actions" scope="props">
-            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(false, props.rowData)">✏️</a>
-            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(true, props.rowData)">✂️️</a>
+            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
+            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
         </template>
     </my-vuetable>
-    <transaction-edit v-if="showModal" @close="showModal = false" :split="split" :selectedTransaction="selected_transaction" ></transaction-edit>
+    <transaction-edit v-if="showModal" @close="showModal = false" :action="action" :transaction="selected_transaction" ></transaction-edit>
   </div>
 </template>
 
@@ -36,8 +41,8 @@ export default {
   data() {
     return {
       showModal: false,
-      split: false,
       selected_transaction: "",
+      action: null,
       fields: [
         {
           name: "account",
@@ -100,22 +105,32 @@ export default {
     };
   },
   methods: {
-    onSplit(split, data) {
+    onSplit(data) {
       this.showModal = true;
-      this.split = split
+      this.action= "split";
       this.selected_transaction = data;
+    },
+    onAdd() {
+      this.showModal = true;
+      this.action= "add";
+      this.selected_transaction = {};
     },
     onModalClose(eventData) {
       this.showModal = false;
-      this.split = false;
-      Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
+      this.action= null;
+      if (this.$refs.vuetableTransaction)
+        Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
     },
     onEdit(data) {
+      this.showModal = true;
+      this.action= "edit";
+      this.selected_transaction = data;
       this.$events.fire("edit-record", data);
     },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;
-      Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
+      if (this.$refs.vuetableTransaction)
+        Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
     }
   }
 };

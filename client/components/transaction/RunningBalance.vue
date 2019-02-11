@@ -14,6 +14,7 @@
 import meuBolsoLine from "../charts/meuBolsoLine.js";
 import moment from "moment";
 import { colors } from "../util/Utils.js";
+import { addFilterParam } from "../util/Utils.js";
 
 export default {
   components: {
@@ -39,6 +40,12 @@ export default {
     selectedBank: {
       handler(newData, oldData) {
         this.getChartData();
+        if (this.selectedBank != "All") {
+          this.$events.fire("transaction-filter-set", addFilterParam({bankName: this.selectedBank}));
+        }
+        else {
+          this.$events.fire("transaction-filter-set", {});
+        }
       }
     }
   },

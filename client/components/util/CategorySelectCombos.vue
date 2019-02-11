@@ -13,22 +13,13 @@
               </select>
         </div></div>
     </div>
-    <div v-if="selectedSubCategory=='Transfer'" class="field is-horizontal" >
-      <div class="field-label">
-        <label class="label">To Account</label>
-      </div>
-      <div class="field-body">
-        <div class="field is-grouped">
-          <p class="control is-expanded">
-            <select class="select" v-model="selectedBank">
-                <option v-for="bank in savingsAccounts" v-bind:key="bank.BankName" v-bind:value="bank.BankName">
-                    {{ bank.BankName }}
-                </option>
-            </select> 
-          </p>
-        </div>
+    
+    <div>
+      <div v-if="selectedSubCategory=='Transfer'" >
+        <account-select-combo ref="account_combo" ></account-select-combo>
       </div>
     </div>
+    
     <div  v-if="selectedSubCategory!='Transfer'" class="field is-horizontal" >
         <div class="field-label">
             <label class="label">Category</label>
@@ -57,9 +48,13 @@
     </div>
   </div>  
 </template>
-
 <script>
-export default {
+import AccountSelectCombo from "../util/AccountSelectCombo.vue"
+
+export default { 
+  components: {
+      AccountSelectCombo
+  },
   data() {
     return {
       type_data: null,
@@ -67,13 +62,10 @@ export default {
       selectedType: null,
       selectedCategory: null,
       selectedSubCategory: null,
-      savingsAccounts: null,
-      selectedBank: null,
       allData: null
     };
   },
   mounted() {
-    this.getSavingsAccounts();
     this.getFilterData();
   },
   methods: {
@@ -118,6 +110,9 @@ export default {
     getSelectedSubCategory() {
       return this.selectedSubCategory;
     },
+    getSelectedTransferAccount() {
+      return this.$refs.account_combo.getSelectedAccount();
+    },
     getFilterData() {
       var axios = require("axios");
       var querystring = require("querystring");
@@ -149,21 +144,6 @@ export default {
             return this.allData[e].id;
         }
       }
-    },
-    getSavingsAccounts: function() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-      axios({
-            method:'get',
-            url:"http://127.0.0.1:5000/SavingsAccounts/"
-            })
-        .then(response => {
-          this.savingsAccounts = response['data'];
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
     },
     processData() {
       this.type_data = this.allData.reduce(function(r, a) {

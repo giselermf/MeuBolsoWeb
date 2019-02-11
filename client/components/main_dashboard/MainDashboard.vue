@@ -20,9 +20,6 @@
       </div>
       <div id="app" class="ui horizontal segments" >
         <div class="ui  segment">
-          <running-balance  :height="500" :allData="allData"></running-balance>
-        </div>
-        <div class="ui  segment">
           <vuetable ref="whatIHave"
             api-url="http://127.0.0.1:5000/estate/"
             :fields="estate_fields">
@@ -35,7 +32,6 @@
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../transaction/DrillDownPieWithTable.vue";
-import RunningBalance from "../transaction/RunningBalance.vue";
 import Vuetable from "vuetable-2/src/components/Vuetable.vue";
 import DateRange from "../util/DateRange.vue";
 
@@ -47,8 +43,7 @@ import {
 export default {
   components: {
     meuBolsoBar,Vuetable,
-    DrillDownWithTable,
-    RunningBalance,DateRange
+    DrillDownWithTable,DateRange
   },
   data() {
     return {

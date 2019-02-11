@@ -5,7 +5,7 @@ from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
 from server.database.database_connection import run_sql
-from server.dto.models import Transaction, update_insert_transaction
+from server.dto.models import Transaction, update_insert_transaction, update_running_balance
 import traceback
 
 class Processor(object):
@@ -14,19 +14,14 @@ class Processor(object):
         self.folder = folder.replace('"', '').strip().rstrip()
         self.categories = Categories()
         self.startDate = datetime.now()
-
-    def update_running_balance(self):
-        running_balance_perBank = {}
-        transactions = Transaction.query.filter(Transaction.Date >= self.startDate).filter(Transaction.BankName != 'Budget').order_by(Transaction.Date).all()
-        for t in transactions:
-            t.RunningBalance = running_balance_perBank.get(t.BankName, 0) + t.Amount
-            update_insert_transaction(transaction_id=t.id, running_balance=t.RunningBalance)
-            running_balance_perBank[t.BankName] = t.RunningBalance
+        self.Accounts = set()
 
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        self.update_running_balance()
+        for a in self.Accounts:
+            print('update running balance ', a)
+            update_running_balance(a)
 
     def _update_start_date(self, date):
         if date < self.startDate:
@@ -57,6 +52,7 @@ class Processor(object):
                 try:
                     entry = inputProcessor.process(row)
                     if entry:
+                        self.Accounts.add(entry['Amount'])
                         entries_in_file += 1
                         from_database = Transaction.query.filter(Transaction.Currency == entry['Currency']).\
                             filter(Transaction.BankName == entry['Bank Name']).\
@@ -73,7 +69,11 @@ class Processor(object):
                          #   print('to insert', transaction_id, entry['category_id'], entry['Bank Name'], entry['Amount in EUR'] )
 
                         elif len(from_database) == 1:
-                            print('already in database',entry['Date'], entry['Amount in EUR'],from_database )
+                            if (from_database.TransactionNumber == 'Future'):
+                                transaction_id = update_insert_transaction(transaction_id=from_database.id, \
+                                    description=entry['Description'], \
+                                    transaction_number=entry['Number'])
+                            print('reconciliation',entry['Date'], entry['Description'], entry['Amount in EUR'],from_database )
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())
