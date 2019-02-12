@@ -96,7 +96,6 @@ export default {
       this.selectedSubCategory = null;
     },
     setValues(type, category, subcategory) {
-      console.log('set values in combo', type, category, subcategory)
       this.selectedType = type;
       this.selectedCategory = category;
       this.selectedSubCategory = subcategory;

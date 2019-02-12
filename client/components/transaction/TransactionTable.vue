@@ -10,11 +10,14 @@
         :fields="fields"
         :sort-order="sortOrder"
         :append-params="appendParams"
+        :row-class="onRowClass"
     >
         <template slot="actions" scope="props">
-            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
-            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
-            <a style="font-size: 13px; padding-right: 11px;cursor:pointer" @click="onAddRecurrence(props.rowData)">+</a>
+            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
+            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
+            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onAddRecurrence(props.rowData)">➕</a>
+            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onDelete(props.rowData)">❌</a>
+            
         </template>
     </my-vuetable>
     <transaction-edit v-if="showModal" @close="showModal = false" :action="action" :transaction="selected_transaction" ></transaction-edit>
@@ -133,13 +136,43 @@ export default {
       this.selected_transaction = data;
       this.$events.fire("edit-record", data);
     },
+    onDelete(data) {
+      var axios = require("axios");
+      var querystring = require("querystring");
+      axios
+        .delete(
+          "http://127.0.0.1:5000/deleteTransaction/" + data.id,
+          querystring.stringify()
+        )
+        .then(response => {
+          this.onModalClose();
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;
       if (this.$refs.vuetableTransaction)
         Vue.nextTick(() => this.$refs.vuetableTransaction.$refs.vuetable.refresh());
+    },
+    onRowClass(dataItem, index) {
+      return (dataItem.TransactionNumber === "Future") ? 'future-transaction' : null;
     }
   }
 };
 </script>
-
-
+<style>
+.vuetable th#_Description {
+     width: 400px;
+}
+.vuetable th#_AmountEUR {
+     width: 100px;
+}
+.vuetable th#_Date {
+     width: 100px;
+}
+.future-transaction {
+ color: grey;
+}
+</style>

@@ -33,6 +33,9 @@ export default {
     },
     detailRowComponent: {
       type: String
+    },
+    rowClass: {
+      type: Function
     }
   },
   data () {
@@ -66,6 +69,7 @@ export default {
             sortOrder: this.sortOrder,
             appendParams: this.appendParams,
             detailRowComponent: this.detailRowComponent,
+            rowClass: this.rowClass
             
           },
           on: {

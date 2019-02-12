@@ -174,6 +174,12 @@ def transactionsFiltered():
         output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('transactions', total, per_page, page_number, output)
 
+@app.route('/deleteTransaction/<int:transaction_id>', methods=['DELETE'])
+def delete_transaction(transaction_id):
+    to_be_deleted = Transaction.query.filter(Transaction.id == transaction_id).first()
+    db.session.delete(to_be_deleted)
+    db.session.commit()
+    return getResponse('transaction deleted', None, None, None, transaction_id)
 
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
@@ -253,8 +259,6 @@ def add_future_transactions():
     finally:
         db.session.close()
 
-
-
 @app.route('/getFilterData/', methods=['GET'])
 def filter_data():
     query = Category.query.all()
@@ -278,7 +282,6 @@ def post_categories():
 
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
-    title = request.form.get("title")
     to_be_deleted = Categorydescription.query.filter_by(id=id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()

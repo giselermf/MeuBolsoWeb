@@ -44,8 +44,6 @@ export default {
         .add(toDelta, this.minimumView)
         .endOf("month")
         .format("YYYY-MM-DD");
-      console.log('set range', fromDelta, toDelta,this.fromDate, this.toDate)
-
     },
     resetValues() {
       this.fromDate = null;
