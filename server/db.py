@@ -3,17 +3,19 @@ import os
 from flask import Flask
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_marshmallow import Marshmallow, fields
+from marshmallow.fields import Int, String, Float
 app = Flask(__name__)
 app.config["SQLALCHEMY_ECHO"] = False
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-database_name = os.path.join(BASE_DIR, 'database/dbMeuBolso.db')
+database_name = os.path.join(BASE_DIR, 'server/database/dbMeuBolso.db')
 
 print('###database_name', database_name)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+database_name
 db = SQLAlchemy(app)
 
+ma = Marshmallow(app)
 
 class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
@@ -86,6 +88,56 @@ class PendingReconciliation(db.Model):
     transaction_id2 = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
     transaction1 = db.relationship('Transaction', foreign_keys=[transaction_id1])
     transaction2 = db.relationship('Transaction', foreign_keys=[transaction_id2])
+
+
+class CategorySchema(ma.ModelSchema):
+    class Meta:
+        model = Category
+
+class CategorydescriptionSchema(ma.ModelSchema):
+    class Meta:
+        model = Categorydescription
+    category = ma.Nested(CategorySchema)
+
+class AccountSchema(ma.ModelSchema):
+    class Meta:
+        model = Account     
+
+class TransactionsSchema(ma.ModelSchema):
+    class Meta:
+        model = Transaction
+    Month = Int(dump_only=True)
+    Year = Int(dump_only=True)
+    Day = Int(dump_only=True)
+    Type = String(dump_only=True)
+    Category = String(dump_only=True)
+    SubCategory = String(dump_only=True)
+    BankName = String(dump_only=True)
+    Active = String(dump_only=True)
+
+class PendingReconciliationSchema(ma.ModelSchema):
+    class Meta:
+        model = PendingReconciliation
+    transaction1 = ma.Nested(TransactionsSchema)
+    transaction2 = ma.Nested(TransactionsSchema)
+
+class BudgetSchema(ma.ModelSchema):
+    id = Int(dump_only=True)
+    Month = Int(dump_only=True)
+    Year = Int(dump_only=True)
+    Day = Int(dump_only=True)
+    Type = String(dump_only=True)
+    Category = String(dump_only=True)
+    SubCategory = String(dump_only=True)
+    category_id = Int(dump_only=True)
+    transactions_id = Int(dump_only=True)
+    Actuals= Float(dump_only=True)
+    Amount= Float(dump_only=True)
+
+class TransactionsFilterSchema(ma.Schema):
+    class Meta:
+        fields = ('BankName', 'Type', 'Category', 'SubCategory')
+
 
 def get_similar_transaction(transaction_number, currency, bankName, amount, date, description):
     return Transaction.query.\

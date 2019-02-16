@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
-from server.dto.models import Transaction, update_insert_transaction, update_running_balance
+from server.db import Transaction, update_insert_transaction, update_running_balance
 import traceback
 
 class Processor(object):

@@ -1,4 +1,4 @@
-from server.dto.models import Categorydescription
+from server.db import Categorydescription
 import re
 
 class Categories(object): 

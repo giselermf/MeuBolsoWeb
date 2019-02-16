@@ -1,4 +1,6 @@
-from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction, update_running_balance, PendingReconciliation
+from server.db import db, app, Category, Transaction, Categorydescription, Account, \
+    update_insert_transaction, update_running_balance, PendingReconciliation, \
+    TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
 from flask import make_response, Flask, request
 from flask_marshmallow import Marshmallow, fields
 from marshmallow.fields import Int, String, Float
@@ -10,55 +12,6 @@ import math
 import pandas as pd
 from distutils.util import strtobool
 
-ma = Marshmallow(app)
-
-class CategorySchema(ma.ModelSchema):
-    class Meta:
-        model = Category
-
-class CategorydescriptionSchema(ma.ModelSchema):
-    class Meta:
-        model = Categorydescription
-    category = ma.Nested(CategorySchema)
-
-class AccountSchema(ma.ModelSchema):
-    class Meta:
-        model = Account     
-
-class TransactionsSchema(ma.ModelSchema):
-    class Meta:
-        model = Transaction
-    Month = Int(dump_only=True)
-    Year = Int(dump_only=True)
-    Day = Int(dump_only=True)
-    Type = String(dump_only=True)
-    Category = String(dump_only=True)
-    SubCategory = String(dump_only=True)
-    BankName = String(dump_only=True)
-    Active = String(dump_only=True)
-
-class PendingReconciliationSchema(ma.ModelSchema):
-    class Meta:
-        model = PendingReconciliation
-    transaction1 = ma.Nested(TransactionsSchema)
-    transaction2 = ma.Nested(TransactionsSchema)
-
-class BudgetSchema(ma.ModelSchema):
-    id = Int(dump_only=True)
-    Month = Int(dump_only=True)
-    Year = Int(dump_only=True)
-    Day = Int(dump_only=True)
-    Type = String(dump_only=True)
-    Category = String(dump_only=True)
-    SubCategory = String(dump_only=True)
-    category_id = Int(dump_only=True)
-    transactions_id = Int(dump_only=True)
-    Actuals= Float(dump_only=True)
-    Amount= Float(dump_only=True)
-
-class TransactionsFilterSchema(ma.Schema):
-    class Meta:
-        fields = ('BankName', 'Type', 'Category', 'SubCategory')
 
 def getLimitClause(query, page_number, per_page):
     if page_number is not None and per_page is not None:
