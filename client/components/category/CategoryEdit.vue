@@ -60,6 +60,7 @@ import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 import { addFilterParam } from "../util/Utils.js";
 import VueEvents from "vue-events";
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
   components: { CategoryTable, CategorySelectCombos},

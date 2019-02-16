@@ -4,7 +4,6 @@ from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
-from server.database.database_connection import run_sql
 from server.dto.models import Transaction, update_insert_transaction, update_running_balance
 import traceback
 
@@ -30,16 +29,7 @@ class Processor(object):
     def _process_bank(self, folder, inputProcessor):
         fileNames = [folder + "/" + f for f in listdir(folder) if '.csv' in f and isfile(join(folder, f))]
         for fileName in fileNames:
-            if fileName not in self._get_processed_files():
-                self._process_file( fileName, inputProcessor)
-
-    def _get_processed_files(self):
-        sql_comand = "select distinct fileName from ProcessedFiles where completed='True'"
-        return [f['fileName'] for f in run_sql(sql_comand )]
-
-    def _mark_file_as_processed(self, fileName,numEntries, status):
-        fileName = fileName.replace(self.folder, '')
-        print(fileName, numEntries, status)
+            self._process_file( fileName, inputProcessor)
 
     def _process_file(self, fileName, inputProcessor):
         all_passed = True
@@ -63,5 +53,4 @@ class Processor(object):
                     print(traceback.print_exc())
                     print ('row ignored ' + str(row))
         print('processed', entries_in_file, fileName)
-        self._mark_file_as_processed(fileName, entries_in_file, all_passed==True)
     
