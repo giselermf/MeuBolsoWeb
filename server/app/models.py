@@ -1,19 +1,11 @@
-from flask import Flask
-import os
-from flask import Flask
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow, fields
+from flask_migrate import Migrate
+
 from marshmallow.fields import Int, String, Float
-app = Flask(__name__)
-app.config["SQLALCHEMY_ECHO"] = False
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-database_name = os.path.join(BASE_DIR, 'server/database/dbMeuBolso.db')
-
-print('###database_name', database_name)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+database_name
-db = SQLAlchemy(app)
+from server.flasky import app
+from server.app import db
 
 ma = Marshmallow(app)
 
@@ -206,8 +198,3 @@ def update_running_balance(bank_name):
         running_balance = running_balance + t.Amount
         t.RunningBalance = running_balance
     db.session.commit()
-
-def insert_pending_reconciliation(transaction_id1, transaction_id2):
-    
-    db.session.commit()
-                            

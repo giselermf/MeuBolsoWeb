@@ -1,9 +1,9 @@
-from server.db import db, app, Category, Transaction, Categorydescription, Account, \
+from server.flasky import app
+from server.app import  db
+from server.app.models import Category, Transaction, Categorydescription, Account, \
     update_insert_transaction, update_running_balance, PendingReconciliation, \
     TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
 from flask import make_response, Flask, request
-from flask_marshmallow import Marshmallow, fields
-from marshmallow.fields import Int, String, Float
 import json
 from sqlalchemy import desc,  func, and_, extract
 from datetime import datetime
@@ -13,7 +13,7 @@ import pandas as pd
 from distutils.util import strtobool
 
 
-def getLimitClause(query, page_number, per_page):
+def _getLimitClause(query, page_number, per_page):
     if page_number is not None and per_page is not None:
         page_number = int(page_number)
         per_page = int(per_page)
@@ -21,7 +21,7 @@ def getLimitClause(query, page_number, per_page):
         return query.slice(start, start+per_page)
     return query
 
-def getSortClause(query, sort, sort_order):
+def _getSortClause(query, sort, sort_order):
     if sort is not None and sort != '':
         if sort_order == "desc":
             return query.order_by(desc(sort))
@@ -29,7 +29,7 @@ def getSortClause(query, sort, sort_order):
             return query.order_by(sort)
     return query
 
-def getFilterByCategory(query, category_type=None, category=None, subcategory=None,):
+def _getFilterByCategory(query, category_type=None, category=None, subcategory=None,):
     if category_type:
         query = query.filter( Category.Type == category_type )
     if category:
@@ -38,7 +38,7 @@ def getFilterByCategory(query, category_type=None, category=None, subcategory=No
         query = query.filter( Category.SubCategory == subcategory )
     return query
 
-def getParams(request): 
+def _getParams(request): 
     sort_params = request.args.get('sort')
     sort = None
     sort_order = 'asc'
@@ -51,7 +51,7 @@ def getParams(request):
     per_page = request.args.get('per_page')
     return sort, sort_order, filter_param, page_number, per_page
 
-def getResponse(url, total_records, per_page, page_number, all_entries, toprint=False): 
+def _getResponse(url, total_records, per_page, page_number, all_entries): 
     total_records = 0 if total_records is None else int(total_records)
     per_page = 1 if per_page is None else int(per_page)
     page_number = 0 if page_number is None else int(page_number)
@@ -67,15 +67,13 @@ def getResponse(url, total_records, per_page, page_number, all_entries, toprint=
     response['data'] = all_entries
     resp = make_response(json.dumps(response))
     resp.headers['Access-Control-Allow-Origin'] = '*'
-    if toprint:
-        print('resp', resp.__dict__)
     return resp
 
 @app.route('/getFilterTransactionData/', methods=['GET'])
 def getFilterTransactionData():
     results = Transaction.query.join(Category).join(Account).filter(Account.Active==1).\
         with_entities(Account.BankName, Category.Type, Category.Category, Category.SubCategory).distinct()
-    return getResponse('data', None, None, None, TransactionsFilterSchema(many=True).dump(results).data)
+    return _getResponse('data', None, None, None, TransactionsFilterSchema(many=True).dump(results).data)
 
 @app.route('/getAllAccounts/', methods=['GET'])
 def getAllAccounts():
@@ -94,7 +92,7 @@ def getAllAccounts():
     if toDate:
         query = query.filter( Transaction.Date <= toDate)
     output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('data', None, None, None, output, True)
+    return _getResponse('data', None, None, None, output)
 
 
 def get_transaction_query(sort, sort_order, 
@@ -103,8 +101,8 @@ def get_transaction_query(sort, sort_order,
                                     fromAmount=None, toAmount=None, description=None, 
                                     exclude_budget=True):
     query = Transaction.query.join(Category).join(Account)
-    query = getSortClause(query, sort, sort_order)
-    query = getFilterByCategory(query, category_type, category, subcategory)
+    query = _getSortClause(query, sort, sort_order)
+    query = _getFilterByCategory(query, category_type, category, subcategory)
     
     if bankName:
         query = query.filter( Transaction.BankName == bankName)
@@ -125,7 +123,7 @@ def get_transaction_query(sort, sort_order,
 
 @app.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
-    sort, sort_order, filter_param, page_number, per_page = getParams(request)
+    sort, sort_order, filter_param, page_number, per_page = _getParams(request)
     total = 0
     output = []
     if filter_param is not None:
@@ -136,16 +134,16 @@ def transactionsFiltered():
             fromAmount=filter_param.get('fromAmount'), toAmount=filter_param.get('toAmount'), description=filter_param.get('Description'), 
             exclude_budget=True)
         total = len(query.all())
-        query = getLimitClause(query, page_number, per_page)
+        query = _getLimitClause(query, page_number, per_page)
         output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('transactions', total, per_page, page_number, output)
+    return _getResponse('transactions', total, per_page, page_number, output)
 
 @app.route('/deleteTransaction/<int:transaction_id>', methods=['DELETE'])
 def delete_transaction(transaction_id):
     to_be_deleted = Transaction.query.filter(Transaction.id == transaction_id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
-    return getResponse('transaction deleted', None, None, None, transaction_id)
+    return _getResponse('transaction deleted', None, None, None, transaction_id)
 
 @app.route('/transactions/', methods=['POST'])
 def post_transactions():
@@ -168,7 +166,7 @@ def post_transactions():
     transaction_id = update_insert_transaction(transaction_id=transaction_id, description=description, transaction_number=transaction_number, \
         currency=currency, amount=amount, amountEUR=amountEUR, running_balance=running_balance, date=date, payment_date=date, category_id=category_id, \
         bank_name=bank_name)
-    return getResponse('insert transaction', None, None, None, transaction_id)
+    return _getResponse('insert transaction', None, None, None, transaction_id)
 
 @app.route('/splitTransaction/', methods=['POST'])
 def split_transactions():
@@ -185,7 +183,7 @@ def split_transactions():
     try:
         db.session.add(new)
         db.session.commit()
-        return getResponse('splitTransaction', None, None, None, 'sucess')
+        return _getResponse('splitTransaction', None, None, None, 'sucess')
     except:
         db.session.rollback()
         raise
@@ -216,7 +214,7 @@ def add_future_transactions():
                 date = date + pd.to_timedelta(1, unit='Y')
         db.session.commit()
         update_running_balance(request.form['Account'])
-        return getResponse('splitTransaction', None, None, None, 'sucess')
+        return _getResponse('splitTransaction', None, None, None, 'sucess')
     except:
         db.session.rollback()
         raise
@@ -224,7 +222,7 @@ def add_future_transactions():
 @app.route('/getFilterData/', methods=['GET'])
 def filter_data():
     query = Category.query.all()
-    return getResponse('data', None, None, None, CategorySchema(many=True).dump(query).data)
+    return _getResponse('data', None, None, None, CategorySchema(many=True).dump(query).data)
 
 @app.route('/categories/', methods=['POST'])
 def post_categories():
@@ -235,34 +233,34 @@ def post_categories():
         new = Categorydescription(Description=category_description, category_id=category_id)
         db.session.add(new)
         db.session.commit()
-        return getResponse('category new', None, None, None, new.id)
+        return _getResponse('category new', None, None, None, new.id)
     else:
         to_update = Categorydescription.query.filter_by(id=category_description_id).first()
         to_update.Description = category_description
         db.session.commit()
-        return getResponse('category updated', None, None, None, category_id)
+        return _getResponse('category updated', None, None, None, category_id)
 
 @app.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
     to_be_deleted = Categorydescription.query.filter_by(id=id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
-    return getResponse('category deleted', None, None, None, id)
+    return _getResponse('category deleted', None, None, None, id)
 
 @app.route('/categories/', methods=['GET'])
 def categories():
-    sort, sort_order, filter_param, page_number, per_page = getParams(request)
+    sort, sort_order, filter_param, page_number, per_page = _getParams(request)
     query = Categorydescription.query.join(Category)
     total = len(query.all())
-    query = getSortClause(query, sort, sort_order)
+    query = _getSortClause(query, sort, sort_order)
     if filter_param is not None:
         filter_param = json.loads(filter_param)
-        query = getFilterByCategory(query, filter_param.get('type'), filter_param.get('category'), filter_param.get('subcategory'))
+        query = _getFilterByCategory(query, filter_param.get('type'), filter_param.get('category'), filter_param.get('subcategory'))
         if filter_param.get('description'):
             query = query.filter( Categorydescription.Description.like("%"+filter_param.get('description')+"%") )
-    query = getLimitClause(query, page_number, per_page)
+    query = _getLimitClause(query, page_number, per_page)
     output =  CategorydescriptionSchema(many=True).dump(query.all()).data
-    return getResponse('category', total, per_page, page_number, output)
+    return _getResponse('category', total, per_page, page_number, output)
 
 #ESTATE
 @app.route('/estate/', methods=['GET'])
@@ -288,7 +286,7 @@ def getEstate():
         )).group_by(Transaction.BankName).with_entities(Transaction.BankName, Transaction.Date, Transaction.RunningBalance)
 
     output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('estate', None, None, None, output)
+    return _getResponse('estate', None, None, None, output)
 
 # BUDGET
 @app.route('/budget/', methods=['GET'])
@@ -322,7 +320,7 @@ def getBudget():
     )
     
     output =  BudgetSchema(many=True).dump(final_query.all()).data
-    return getResponse('Budget', None, None, 1, output)
+    return _getResponse('Budget', None, None, 1, output)
 
 @app.route('/budget/', methods=['POST'])
 def post_budget():
@@ -336,7 +334,7 @@ def post_budget():
     update_insert_transaction(transaction_id=transaction_id, description='Budget entry', currency='EUR', \
         amount=value, amountEUR=value, running_balance=0, date=date, payment_date=date, category_id=category_id, \
         bank_name='Budget')
-    return getResponse('post budget', None, None, None, 'sucess')
+    return _getResponse('post budget', None, None, None, 'sucess')
 
 
 #INVESTMENT
@@ -350,7 +348,7 @@ def getInvestment():
 
     total = len(query.all())
     output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('investments', total, 100, 0, output)
+    return _getResponse('investments', total, 100, 0, output)
     
 @app.route('/processData/', methods=['POST'])
 def process_data():
@@ -365,7 +363,7 @@ def udpate_runnning_balance():
         accounts = Account.query.all()
         for a in accounts:
             update_running_balance(a.BankName)
-        return getResponse('updateRunningBalance', None, None, 1, 'ok')
+        return _getResponse('updateRunningBalance', None, None, 1, 'ok')
     except:
         db.session.rollback()
         raise
@@ -384,7 +382,7 @@ def pending_reconciliation():
 
     total = len(query.all())
     output = PendingReconciliationSchema(many=True).dump(query.all()).data
-    return getResponse('pendingReconciliation', total, 100, 0, output)
+    return _getResponse('pendingReconciliation', total, 100, 0, output)
 
 @app.route('/ProcessReconciliation/', methods=['POST'])
 def process_reconciliation():
@@ -403,7 +401,7 @@ def process_reconciliation():
         db.session.delete(PendingReconciliation.query.get(reconciliation_id))
 
         db.session.commit()
-        return getResponse('ProcessReconciliation', None, None, None, reconciliation_id)
+        return _getResponse('ProcessReconciliation', None, None, None, reconciliation_id)
     except:
         db.session.rollback()
         raise
