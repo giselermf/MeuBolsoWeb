@@ -87,8 +87,10 @@ class PendingReconciliation(db.Model):
     transaction1 = db.relationship('Transaction', foreign_keys=[transaction_id1])
     transaction2 = db.relationship('Transaction', foreign_keys=[transaction_id2])
 
-def get_similar_transaction(currency, bankName, amount, date, description):
-    return Transaction.query.filter(Transaction.Currency == currency).\
+def get_similar_transaction(transaction_number, currency, bankName, amount, date, description):
+    return Transaction.query.\
+            filter(Transaction.TransactionNumber == transaction_number).\
+            filter(Transaction.Currency == currency).\
             filter(Transaction.BankName == bankName).\
             filter(Transaction.Amount == amount).\
             filter(Transaction.Date == date.strftime ('%Y-%m-%d') ).\
@@ -102,7 +104,7 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
         if (running_balance):
             running_balance = float(running_balance)
         try:
-            new_transaction = Transaction( id = None,
+            new_transaction = Transaction( 
                                 Description = description,
                                 TransactionNumber = transaction_number,
                                 Currency= currency,
@@ -117,13 +119,12 @@ def update_insert_transaction(transaction_id=None, description=None, transaction
                                 BankName = bank_name)
         
             db.session.add(new_transaction)
-            transactions_in_db = get_similar_transaction(currency, bank_name, amount, date, description)
+            transactions_in_db = get_similar_transaction(transaction_number, currency, bank_name, amount, date, description)
             if len(transactions_in_db) > 1: # has similars, not only the recent entry
                 for t in transactions_in_db:
                     if t.id != new_transaction.id:
                         new_pending_reconciliation  = PendingReconciliation(transaction_id1 = t.id, transaction_id2 = new_transaction.id )
                         db.session.add(new_pending_reconciliation)
-                        #db.session.commit()
             db.session.commit()
             return new_transaction.id
         except Exception as e:

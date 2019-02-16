@@ -35,6 +35,7 @@
 <script>
 import PendingReconciliation from "./PendingReconciliation.vue";
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
   components: {
@@ -53,7 +54,6 @@ export default {
     },
     methods: {
         removeFromData(e) {
-            console.log('remove', e.data.data);
             this.allData = this.allData.filter(
                 element =>
                     element.id != e.data.data
@@ -70,12 +70,13 @@ export default {
             });
         },
         processData() {
-            HTTP.get("processData?folder= \"" +this.folder + "\"", {
-                   headers: {'Access-Control-Allow-Origin': '*',}}
-                ).then((response) => {
-                    console.log('got pending reconciliations');
+            HTTP.post(
+                "processData/",
+                querystring.stringify({folder: this.folder}))
+                .then(response => {
+                    this.allData = response["data"]["data"];
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                     console.log(error);
                 });
             

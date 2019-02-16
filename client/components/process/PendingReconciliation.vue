@@ -3,9 +3,6 @@
         <td>
             <div class="field is-horizontal-left" >
                 <div class="field is-grouped">
-                    <div class="control">
-                        <input type="checkbox" id="keep2" value="keep2" v-model="keep2">
-                    </div>
                     <div class="field is-vertical-left">
                         {{row.transaction2.TransactionNumber}}
                         <p></p>
@@ -23,9 +20,6 @@
         <td>
             <div class="field is-horizontal-left" >
                 <div class="field is-grouped">
-                    <div class="control">
-                        <input type="checkbox" id="keep1" value="keep1" v-model="keep1">
-                    </div>
                     <div class="field is-vertical-left">
                         {{row.transaction1.TransactionNumber}}
                         <p></p>
@@ -41,8 +35,12 @@
             </div>
         </td>
         <td>
-            <div>
-                <button class="button is-link" @click="onProcess()">Process</button>
+            <div class="field is-vertical-left">
+                <a class="field is-horizontal" v-on:click="onProcess(true, false)">Keep old</a>
+                <p></p>
+                <a class="field is-horizontal" v-on:click="onProcess(false, true)">Keep new</a>
+                <p></p>
+                <a class="field is-horizontal" v-on:click="onProcess(true, true)">Keep both</a>
             </div>
         </td>
     </tr>
@@ -50,26 +48,24 @@
 
 <script>
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
     props: ["row"],
     data: function () {
             return {
-                keep1: false,
-                keep2: false
             }
         },
     methods: {
-        onProcess() {
+        onProcess(oldT, newT) {
             HTTP.post(
                 "ProcessReconciliation/",
                 querystring.stringify({
                     reconciliation_id: this.row.id,
                     transaction1_id: this.row.transaction1.id,
-                    transaction1_keep: this.keep1,
+                    transaction1_keep: oldT,
                     transaction2_id: this.row.transaction2.id,
-                    transaction2_keep: this.keep2})
-                )
+                    transaction2_keep: newT}))
                 .then(response => {
                     this.$events.fire("reconcilitions-refresh", response);
                 })

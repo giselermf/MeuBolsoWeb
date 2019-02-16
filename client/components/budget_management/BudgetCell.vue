@@ -31,6 +31,7 @@
 
 <script>
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
   

@@ -27,6 +27,7 @@
 <script>
 import moment from "moment";
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
   props: ["investment"],

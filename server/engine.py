@@ -8,6 +8,7 @@ from datetime import datetime
 from server.process_data.processor import Processor
 import math
 import pandas as pd
+from distutils.util import strtobool
 
 ma = Marshmallow(app)
 
@@ -235,8 +236,6 @@ def split_transactions():
     except:
         db.session.rollback()
         raise
-    finally:
-        db.session.close()
 
         
 @app.route('/addFutureTransactions/', methods=['POST'])
@@ -268,8 +267,6 @@ def add_future_transactions():
     except:
         db.session.rollback()
         raise
-    finally:
-        db.session.close()
 
 @app.route('/getFilterData/', methods=['GET'])
 def filter_data():
@@ -402,9 +399,10 @@ def getInvestment():
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return getResponse('investments', total, 100, 0, output)
     
-@app.route('/processData/', methods=['GET'])
+@app.route('/processData/', methods=['POST'])
 def process_data():
-    folder = request.args.get('folder')
+    print('here', request.form.__dict__)
+    folder = request.form['folder']
     Processor(folder).process()
     return pending_reconciliation()
 
@@ -437,16 +435,17 @@ def pending_reconciliation():
 
 @app.route('/ProcessReconciliation/', methods=['POST'])
 def process_reconciliation():
-    reconciliation_id = request.form['reconciliation_id']
-    transaction1_id = request.form['transaction1_id']
-    transaction1_keep = request.form['transaction1_keep']
-    transaction2_id = request.form['transaction2_id']
-    transaction2_keep = request.form['transaction2_keep']
+    reconciliation_id = int(request.form['reconciliation_id'])
+    transaction1_id = int(request.form['transaction1_id'])
+    transaction1_keep = strtobool(request.form['transaction1_keep'])
+    transaction2_id = int(request.form['transaction2_id'])
+    transaction2_keep = strtobool(request.form['transaction2_keep'])
+    print('ProcessReconciliation', reconciliation_id, transaction1_id, transaction1_keep, transaction2_id, transaction2_keep)
     try:
         if not transaction1_keep:
-            db.session.delete(Transaction.query.get(transaction1_id).first())
+            db.session.delete(Transaction.query.get(transaction1_id))
         if not transaction2_keep:
-            db.session.delete(Transaction.query.get(transaction2_id).first())
+            db.session.delete(Transaction.query.get(transaction2_id))
 
         db.session.delete(PendingReconciliation.query.get(reconciliation_id))
 
@@ -455,6 +454,4 @@ def process_reconciliation():
     except:
         db.session.rollback()
         raise
-    finally:
-        db.session.close()
 
