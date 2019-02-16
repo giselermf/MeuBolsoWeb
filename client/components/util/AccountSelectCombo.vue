@@ -15,6 +15,7 @@
 
 <script>
 import moment from "moment";
+import {HTTP} from './http-common';
 
 export default {
   props: {
@@ -65,7 +66,7 @@ export default {
       }
     },
     setSelectedAccount(BankName) {      
-      this.toBeSelected =  BankName;
+      this.toBeSelected = BankName;
     },
     getSelectedAccount() {
       if (this.selectedAccount)
@@ -82,18 +83,15 @@ export default {
       return "?filter=" + JSON.stringify(params);
     },
     getFilterData() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-      .get("http://127.0.0.1:5000/getAllAccounts" + this.getParams())
+      HTTP.get("getAllAccounts/" + this.getParams())
       .then(response => {
-          if (this.includeAll) {
-            this.selectedAccount = {BankName : "All"},
-            this.allActiveAccounts = [{BankName: "All"}];
-          } else {
-            this.allActiveAccounts = [];
-          }
-          Array.prototype.push.apply(this.allActiveAccounts, response["data"].data);
+        if (this.includeAll) {
+              this.selectedAccount = {BankName : "All"},
+              this.allActiveAccounts = [{BankName: "All"}];
+            } else {
+              this.allActiveAccounts = [];
+            }
+            Array.prototype.push.apply(this.allActiveAccounts, response["data"].data);
       })
       .catch(function(error) {
         console.log(error);

@@ -33,6 +33,7 @@ class Category(db.Model):
     Category = db.Column(db.String(50), nullable=False)
     SubCategory = db.Column(db.String(50), nullable=False)
 
+
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Description = db.Column(db.String(100), nullable=False)
@@ -78,29 +79,58 @@ class Transaction(db.Model):
     def Active(self):
         return self.account.Active
 
+class PendingReconciliation(db.Model):
+    __tablename__ = 'PendingReconciliation'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id1 = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
+    transaction_id2 = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
+    transaction1 = db.relationship('Transaction', foreign_keys=[transaction_id1])
+    transaction2 = db.relationship('Transaction', foreign_keys=[transaction_id2])
+
+def get_similar_transaction(currency, bankName, amount, date, description):
+    return Transaction.query.filter(Transaction.Currency == currency).\
+            filter(Transaction.BankName == bankName).\
+            filter(Transaction.Amount == amount).\
+            filter(Transaction.Date == date.strftime ('%Y-%m-%d') ).\
+            filter(Transaction.Description.like("%"+description[:30]+"%")).all()
+
 def update_insert_transaction(transaction_id=None, description=None, transaction_number=None, 
     currency=None, amount=None, amountEUR=None, running_balance=None, date=None, payment_date=None, 
     category_id=None, bank_name=None):
+    
     if transaction_id == '' or transaction_id == None: # ADD
         if (running_balance):
             running_balance = float(running_balance)
-        new = Transaction( id = None,
-                            Description = description,
-                            TransactionNumber = transaction_number,
-                            Currency= currency,
-                            Amount= float(amount),
-                            AmountEUR= float(amountEUR),
-                            RunningBalance= running_balance,
-                            Date= date, 
-                            TransferTo= None,
-                            TransferId= None,
-                            PaymentDate= date,
-                            category_id = category_id,
-                            BankName = bank_name)
+        try:
+            new_transaction = Transaction( id = None,
+                                Description = description,
+                                TransactionNumber = transaction_number,
+                                Currency= currency,
+                                Amount= float(amount),
+                                AmountEUR= float(amountEUR),
+                                RunningBalance= running_balance,
+                                Date= date, 
+                                TransferTo= None,
+                                TransferId= None,
+                                PaymentDate= date,
+                                category_id = category_id,
+                                BankName = bank_name)
         
-        db.session.add(new)
-        db.session.commit()
-        return new.id
+            db.session.add(new_transaction)
+            transactions_in_db = get_similar_transaction(currency, bank_name, amount, date, description)
+            if len(transactions_in_db) > 1: # has similars, not only the recent entry
+                for t in transactions_in_db:
+                    if t.id != new_transaction.id:
+                        new_pending_reconciliation  = PendingReconciliation(transaction_id1 = t.id, transaction_id2 = new_transaction.id )
+                        db.session.add(new_pending_reconciliation)
+                        #db.session.commit()
+            db.session.commit()
+            return new_transaction.id
+        except Exception as e:
+            db.session.rollback()
+            print('raise', e)
+            raise
+       
     elif amountEUR != None and float(amountEUR) == 0.0: #DELETE
         to_be_deleted = Transaction.query.filter_by(id=transaction_id ).first()
         db.session.delete(to_be_deleted)
@@ -124,3 +154,7 @@ def update_running_balance(bank_name):
         t.RunningBalance = running_balance
     db.session.commit()
 
+def insert_pending_reconciliation(transaction_id1, transaction_id2):
+    
+    db.session.commit()
+                            

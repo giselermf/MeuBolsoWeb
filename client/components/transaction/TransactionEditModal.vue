@@ -88,6 +88,7 @@ import CategorySelectCombos from "../util/CategorySelectCombos.vue";
 import AccountSelectCombo from "../util/AccountSelectCombo.vue"
 import Datepicker from "vuejs-datepicker";
 import moment from "moment";
+import {HTTP} from '../util/http-common';
 
 export default {
   props : ["action", "transaction"],
@@ -107,7 +108,8 @@ export default {
       this.$refs.typecombos.selectedType = this.transaction.Type;
       this.$refs.typecombos.selectedCategory = this.transaction.Category;
       this.$refs.typecombos.selectedSubCategory = this.transaction.SubCategory;
-      this.$refs.account_combo.setSelectedAccount(this.transaction.BankName);
+      if (this.$refs.account_combo)
+        this.$refs.account_combo.setSelectedAccount(this.transaction.BankName);
     });
     if (this.transaction.Date) {
         this.fromDate = moment(this.transaction.Date).add(1, 'M').format("YYYY-MM-DD");
@@ -115,11 +117,9 @@ export default {
    },
   methods: {
     saveTransfer() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/transfer/",
+          "transfer/",
           querystring.stringify({
             transaction_id: this.transaction.id,
             AmountEUR: this.transaction.AmountEUR,
@@ -139,11 +139,9 @@ export default {
         });
     },
     saveTransaction() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/transactions/",
+          "transactions/",
           querystring.stringify({
             transaction_id: this.transaction.id,
             category_id: this.$refs.typecombos.getSelectedCategoryId(),
@@ -157,11 +155,9 @@ export default {
         });
     },
     splitTransaction() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/splitTransaction/",
+          "splitTransaction/",
           querystring.stringify({
             transaction_id: this.transaction.id,
             new_amount_EUR: this.newAmount,
@@ -179,11 +175,9 @@ export default {
       return ["Weekly", "Monthly", "Quartely", "Yearly"];
     },
     addTransaction() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/addFutureTransactions/",
+          "addFutureTransactions/",
           querystring.stringify({
             Account: this.$refs.account_combo.getSelectedAccount(),
             Currency: this.$refs.account_combo.getCurrency(),

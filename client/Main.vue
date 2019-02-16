@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      tab_value: "home"
+      tab_value: "home",
     };
   }
 };

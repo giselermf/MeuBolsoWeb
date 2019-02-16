@@ -30,7 +30,10 @@
 </template>
 
 <script>
+import {HTTP} from '../util/http-common';
+
 export default {
+  
   props: ["element", "isHeader", "categoryId", "Month", "Year"],
   components: {},
   data() {
@@ -61,11 +64,8 @@ export default {
   },
   methods: {
     saveBudget() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-        .post(
-          "http://127.0.0.1:5000/budget/",
+      HTTP.post(
+          "budget/",
           querystring.stringify({
             id: this.getId(),
             Day: 1,

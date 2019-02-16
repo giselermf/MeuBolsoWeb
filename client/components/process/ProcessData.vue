@@ -11,28 +11,69 @@
                   </p>
           </div></div>
       </div>
+      <div id="app" class="ui vertical segments" style="overflow-x: auto;">
+        <div class="ui vertical segment"  >
+            <table  class="vuetable ui blue selectable celled stackable attached table">
+            <thead>
+                <tr>
+                    <th v-for="col in columns" :key="col" >{{col}}</th>
+                </tr>
+            </thead>
+                <tbody>
+                    <pending-reconciliation
+                            v-for="row in allData" :key="row.id"
+                            :row="row"
+                            :columns="columns" 
+                    ></pending-reconciliation>
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 </template>
 
 <script>
-export default {
-    components: {
+import PendingReconciliation from "./PendingReconciliation.vue";
+import {HTTP} from '../util/http-common';
 
-    },
-    data: function () {
+export default {
+  components: {
+    PendingReconciliation
+  },
+  data: function () {
         return {
-            url: "http://127.0.0.1:5000/processData/",
-            folder: "/Users/gisele/Documents/bankFiles/"
+            columns: ["Old Transaction", "New Transaction", "Actions"],
+            folder: "/Users/gisele/Documents/bankFiles/",
+            allData: null
         }
     },
+    mounted() {
+        this.search();
+        this.$events.$on("reconcilitions-refresh", e => this.removeFromData(e));
+    },
     methods: {
+        removeFromData(e) {
+            console.log('remove', e.data.data);
+            this.allData = this.allData.filter(
+                element =>
+                    element.id != e.data.data
+                );
+        },
+        search() {
+            HTTP
+            .get("PendingReconciliationTransactions/")
+            .then(response => {
+                this.allData = response["data"]["data"];
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+        },
         processData() {
-            console.log('processing');
-            var axios = require('axios');
-            var querystring = require('querystring');
-            axios.get(this.url+"?folder= \"" +this.folder + "\"", querystring.stringify())
-                .then((response) => {
-                    console.log(response.data);
+            HTTP.get("processData?folder= \"" +this.folder + "\"", {
+                   headers: {'Access-Control-Allow-Origin': '*',}}
+                ).then((response) => {
+                    console.log('got pending reconciliations');
                 })
                 .catch(function (error) {
                     console.log(error);

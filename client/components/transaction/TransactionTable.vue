@@ -30,6 +30,7 @@ import Vue from 'vue'
 import VueEvents from 'vue-events';
 import TransactionEdit from "./TransactionEditModal.vue";
 Vue.use(VueEvents);
+import {HTTP} from '../util/http-common';
 
 export default {
   components: {
@@ -137,11 +138,9 @@ export default {
       this.$events.fire("edit-record", data);
     },
     onDelete(data) {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .delete(
-          "http://127.0.0.1:5000/deleteTransaction/" + data.id,
+          "deleteTransaction/" + data.id,
           querystring.stringify()
         )
         .then(response => {
@@ -163,14 +162,20 @@ export default {
 };
 </script>
 <style>
+.vuetable th#_account {
+     width: 230px;
+}
 .vuetable th#_Description {
-     width: 400px;
+     width: 380px;
 }
 .vuetable th#_AmountEUR {
-     width: 100px;
+     width: 90px;
 }
 .vuetable th#_Date {
      width: 100px;
+}
+.vuetable th#_Currency {
+     width: 60px;
 }
 .future-transaction {
  color: grey;

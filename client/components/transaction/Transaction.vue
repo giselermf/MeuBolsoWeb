@@ -24,6 +24,7 @@
 import TransactionSearch from "./TransactionSearch.vue";
 import TransactionTable from "./TransactionTable.vue";
 import OverMonthWithTable from "./OverMonthBarWithTable.vue";
+import {HTTP} from '../util/http-common';
 
 export default {
   components: {
@@ -46,12 +47,10 @@ export default {
   },
   methods: {
     getData() {
-      let axios = require("axios");
-      let querystring = require("querystring");
       if (this.getFilterParam() != "") { //don't call without filter
-          axios({
+          HTTP({
             method:'get',
-            url:"http://127.0.0.1:5000/transactionsFiltered/"  + this.getFilterParam()
+            url:"transactionsFiltered/"  + this.getFilterParam()
             })
             .then(response => {
               this.allData = response["data"]["data"];

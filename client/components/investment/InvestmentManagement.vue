@@ -7,29 +7,25 @@
 <script>
 
 import InvestmentCard from "./InvestmentCard.vue"
-import CallServer from "../util/CallServer.js";
+import {HTTP} from '../util/http-common';
 
 export default {
-  mixins: [CallServer],
   components: { InvestmentCard },
   data() {
     return {
-      invest: null,
-      description: null,
+      allData: null
     };
   },
-  watch: {
-    allData: function(val) {
-      this.setData();
-    },
-  },
   mounted() {
-    this.getAllData("Investment", ''); 
+    HTTP
+      .get("Investment/")
+      .then(response => {
+        this.allData = response["data"]["data"];
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   },
-  methods: {
-    setData: function() {
-      console.log('investments', this.allData)
-    }
-  }
+
 };
 </script>

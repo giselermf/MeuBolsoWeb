@@ -31,15 +31,14 @@
 
 <script>
 import DateRange from "../util/DateRange.vue";
-import CallServer from "../util/CallServer.js";
 import moment from "moment";
 import TransactionTable from "../transaction/TransactionTable.vue";
 import meuBolsoLine from "../charts/meuBolsoLine.js";
 import { colors } from "../util/Utils.js";
 import AccountSelectCombo from "../util/AccountSelectCombo.vue"
+import {HTTP} from '../util/http-common';
 
 export default {
-  mixins: [CallServer],
   components: {
     DateRange,AccountSelectCombo,
     TransactionTable,
@@ -52,7 +51,8 @@ export default {
       height: 300,
       fromDate: null,
       toDate: null,
-      appendParams: {}
+      appendParams: {},
+      allData: null
     };
   },
   mounted() {
@@ -82,7 +82,14 @@ export default {
     search() {
       this.fromDate = moment(this.$refs.cashFlow_range.fromDate).format("YYYY-MM-DD");
       this.toDate = moment(this.$refs.cashFlow_range.toDate).format("YYYY-MM-DD");
-      this.getAllData("transactionsFiltered",  "?filter=" + JSON.stringify(this.getParams()));
+      HTTP
+        .get("transactionsFiltered/?filter=" + JSON.stringify(this.getParams()))
+        .then(response => {
+          this.allData = response["data"]["data"];
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
       this.$events.fire("transaction-filter-set", this.getParams());
     },
     createDataset(alabels, bank, allBankSerie, datasetsLength) {

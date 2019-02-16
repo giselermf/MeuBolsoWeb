@@ -34,6 +34,7 @@ import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../transaction/DrillDownPieWithTable.vue";
 import Vuetable from "vuetable-2/src/components/Vuetable.vue";
 import DateRange from "../util/DateRange.vue";
+import {HTTP} from '../util/http-common';
 
 import {
   getGroupByMonthAnd,
@@ -55,6 +56,9 @@ export default {
       expenseTitle : "Expenses",
       grouper: "Type",
       title: "Net Over Monhts",
+      httpOptions: {
+
+      },
       estate_fields: [
         {
           name: "BankName",
@@ -86,10 +90,8 @@ export default {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();
     },
     getData() {
-      let axios = require("axios");
-      let querystring = require("querystring");
-      axios
-        .get("http://127.0.0.1:5000/transactionsFiltered/" + this.getParams())
+      HTTP
+        .get("transactionsFiltered/" + this.getParams())
         .then(response => {
           this.allData = response["data"]["data"];
           this.setBarChartData();

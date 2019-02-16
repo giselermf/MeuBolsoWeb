@@ -51,11 +51,9 @@ import Modal from "./CategoryModal.vue";
 import { addFilterParam } from "../util/Utils.js";
 import DateRange from "../util/DateRange.vue";
 import moment from "moment";
-import CallServer from "../util/CallServer.js";
-
+import {HTTP} from '../util/http-common';
 
 export default {
-  mixins: [CallServer],
   components: {
     BudgetRow,
     Modal,
@@ -69,7 +67,8 @@ export default {
       tableDataIncome: [],
       tableDataExpense: [],
       grandTotal: [],
-      showModal: false
+      showModal: false,
+      allData: null
     };
   },
   watch: {
@@ -87,7 +86,13 @@ export default {
   },
   methods: {
     search() {
-      this.getAllData("budget", this.getParams()); 
+      HTTP.get("budget/" + this.getParams())
+        .then(response => {
+          this.allData = response["data"]["data"];
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
     getParams() {
       return "?filter=" + this.$refs.cashFlow_range.getDateParams();

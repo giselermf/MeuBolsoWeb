@@ -26,6 +26,7 @@
 
 <script>
 import moment from "moment";
+import {HTTP} from '../util/http-common';
 
 export default {
   props: ["investment"],
@@ -45,11 +46,8 @@ export default {
     },
     updateRunningBalance() {
       if (this.amount == null || this.amount == 0) return;
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-        .post(
-          "http://127.0.0.1:5000/transactions/",
+      HTTP.post(
+          "transactions/",
           querystring.stringify({
             Description : "Balance Adjustment",
             TransactionNumber: "...",

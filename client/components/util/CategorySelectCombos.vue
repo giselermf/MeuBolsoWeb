@@ -50,6 +50,7 @@
 </template>
 <script>
 import AccountSelectCombo from "../util/AccountSelectCombo.vue"
+import {HTTP} from './http-common';
 
 export default { 
   components: {
@@ -113,10 +114,8 @@ export default {
       return this.$refs.account_combo.getSelectedAccount();
     },
     getFilterData() {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-      .get("http://127.0.0.1:5000/getFilterData/")
+      HTTP
+      .get("getFilterData/")
       .then(response => {
         this.allData = response["data"].data;
         this.processData();

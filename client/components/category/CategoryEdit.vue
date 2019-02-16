@@ -59,6 +59,7 @@ import CategoryTable from "./CategoryTable.vue";
 import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 import { addFilterParam } from "../util/Utils.js";
 import VueEvents from "vue-events";
+import {HTTP} from '../util/http-common';
 
 export default {
   components: { CategoryTable, CategorySelectCombos},
@@ -79,11 +80,8 @@ export default {
       this.$refs.typecombos.setValues(data.category.Type, data.category.Category, data.category.SubCategory);
     },
     onDelete: function(data) {
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
-        .delete(
-          "http://127.0.0.1:5000/categories/" + data.id,
+      HTTP.delete(
+          "categories/" + data.id,
           querystring.stringify()
         )
         .then(response => {
@@ -95,11 +93,9 @@ export default {
     },
     save: function() {
       if (this.$refs.typecombos.getSelectedCategoryId() == null) return;
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/categories/",
+          "categories/",
           querystring.stringify({
             id : this.category_id,
             selectedCategoryid : this.$refs.typecombos.getSelectedCategoryId(),
@@ -116,11 +112,9 @@ export default {
     add: function() {
       console.log('on add', this.description, this.$refs.typecombos.getSelectedCategoryId());
       if (this.$refs.typecombos.getSelectedCategoryId() == null) return;
-      var axios = require("axios");
-      var querystring = require("querystring");
-      axios
+      HTTP
         .post(
-          "http://127.0.0.1:5000/categories/",
+          "categories/",
           querystring.stringify({
             id: null,
             selectedCategoryid : this.$refs.typecombos.getSelectedCategoryId(),

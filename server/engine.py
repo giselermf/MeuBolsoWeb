@@ -1,5 +1,5 @@
-from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction, update_running_balance
-from flask import Flask, request
+from server.dto.models import db, app, Category, Transaction, Categorydescription, Account, update_insert_transaction, update_running_balance, PendingReconciliation
+from flask import make_response, Flask, request
 from flask_marshmallow import Marshmallow, fields
 from marshmallow.fields import Int, String, Float
 import json
@@ -35,6 +35,12 @@ class TransactionsSchema(ma.ModelSchema):
     SubCategory = String(dump_only=True)
     BankName = String(dump_only=True)
     Active = String(dump_only=True)
+
+class PendingReconciliationSchema(ma.ModelSchema):
+    class Meta:
+        model = PendingReconciliation
+    transaction1 = ma.Nested(TransactionsSchema)
+    transaction2 = ma.Nested(TransactionsSchema)
 
 class BudgetSchema(ma.ModelSchema):
     id = Int(dump_only=True)
@@ -91,7 +97,7 @@ def getParams(request):
     per_page = request.args.get('per_page')
     return sort, sort_order, filter_param, page_number, per_page
 
-def getResponse(url, total_records, per_page, page_number, all_entries): 
+def getResponse(url, total_records, per_page, page_number, all_entries, toprint=False): 
     total_records = 0 if total_records is None else int(total_records)
     per_page = 1 if per_page is None else int(per_page)
     page_number = 0 if page_number is None else int(page_number)
@@ -105,7 +111,11 @@ def getResponse(url, total_records, per_page, page_number, all_entries):
     response['from'] = int ((page_number -1) * per_page + 1) 
     response['to'] = response['from'] + per_page
     response['data'] = all_entries
-    return json.dumps(response)
+    resp = make_response(json.dumps(response))
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    if toprint:
+        print('resp', resp.__dict__)
+    return resp
 
 @app.route('/getFilterTransactionData/', methods=['GET'])
 def getFilterTransactionData():
@@ -116,10 +126,12 @@ def getFilterTransactionData():
 @app.route('/getAllAccounts/', methods=['GET'])
 def getAllAccounts():
     filter_param = request.args.get('filter')
+    fromDate=None
+    toDate=None
     if filter_param is not None:
         filter_param = json.loads(filter_param)
-    fromDate=filter_param.get('fromDate')
-    toDate=filter_param.get('toDate')
+        fromDate=filter_param.get('fromDate')
+        toDate=filter_param.get('toDate')
 
     query = Transaction.query.distinct(Transaction.BankName, Transaction.Currency).\
         with_entities(Transaction.BankName, Transaction.Currency).filter(Transaction.BankName != "Budget")
@@ -128,7 +140,7 @@ def getAllAccounts():
     if toDate:
         query = query.filter( Transaction.Date <= toDate)
     output =  TransactionsSchema(many=True).dump(query.all()).data
-    return getResponse('data', None, None, None, output)
+    return getResponse('data', None, None, None, output, True)
 
 
 def get_transaction_query(sort, sort_order, 
@@ -394,7 +406,7 @@ def getInvestment():
 def process_data():
     folder = request.args.get('folder')
     Processor(folder).process()
-    return getResponse('processData', None, None, 1, 'ok')
+    return pending_reconciliation()
 
 @app.route('/updateRunningBalance/', methods=['GET'])
 def udpate_runnning_balance():
@@ -408,3 +420,41 @@ def udpate_runnning_balance():
         raise
     finally:
         db.session.close()
+
+#PENDING RECONCILIATION
+
+@app.route('/PendingReconciliationTransactions/', methods=['GET'])
+def pending_reconciliation():
+    t1 = db.aliased(Transaction)
+    t2 = db.aliased(Transaction)
+
+    query = PendingReconciliation.query.join(t1, PendingReconciliation.transaction_id1==t1.id).\
+        join(t2, PendingReconciliation.transaction_id2==t2.id)
+
+    total = len(query.all())
+    output = PendingReconciliationSchema(many=True).dump(query.all()).data
+    return getResponse('pendingReconciliation', total, 100, 0, output)
+
+@app.route('/ProcessReconciliation/', methods=['POST'])
+def process_reconciliation():
+    reconciliation_id = request.form['reconciliation_id']
+    transaction1_id = request.form['transaction1_id']
+    transaction1_keep = request.form['transaction1_keep']
+    transaction2_id = request.form['transaction2_id']
+    transaction2_keep = request.form['transaction2_keep']
+    try:
+        if not transaction1_keep:
+            db.session.delete(Transaction.query.get(transaction1_id).first())
+        if not transaction2_keep:
+            db.session.delete(Transaction.query.get(transaction2_id).first())
+
+        db.session.delete(PendingReconciliation.query.get(reconciliation_id))
+
+        db.session.commit()
+        return getResponse('ProcessReconciliation', None, None, None, reconciliation_id)
+    except:
+        db.session.rollback()
+        raise
+    finally:
+        db.session.close()
+
