@@ -146,13 +146,14 @@ def delete_transaction(transaction_id):
 
 @main.route('/transactions/', methods=['POST'])
 def post_transactions():
+    print(request.form.__dict__)
     transaction_id = request.form.get('transaction_id')
     description = request.form.get('Description')
     transaction_number = request.form.get('TransactionNumber')
     currency = request.form.get('Currency')
-    amount = request.form.get('Amount')
+    amount = float(request.form.get('Amount'))
     bank_name = request.form.get('BankName')
-    amountEUR = request.form.get('AmountEUR')
+    amountEUR = float(request.form.get('AmountEUR'))
     running_balance = request.form.get('RunningBalance')
     date = request.form.get('Date')
     if request.form.get('category_id') is None:
@@ -160,13 +161,14 @@ def post_transactions():
             filter(Category.Category == request.form.get('Category')).\
             filter(Category.SubCategory == request.form.get('SubCategory')).first().id
     else:
-        category_id = request.form.get('category_id')
+        category_id = int(request.form.get('category_id'))
 
     if not transaction_id:     
         new = Transaction(
             Description=description, TransactionNumber=transaction_number, Currency=currency, \
             Amount=amount, AmountEUR=amountEUR, RunningBalance=running_balance, \
             Date=date, category_id=category_id, account = bank_name, PaymentDate=date)
+        print('new', new.__dict__)
         db.session.add(new)
         db.session.commit()
         return _getResponse('insert transaction', None, None, None, new.id)
@@ -230,7 +232,7 @@ def add_future_transactions():
                 date = date + pd.to_timedelta(1, unit='Y')
         db.session.commit()
         update_running_balance(request.form['Account'])
-        return _getResponse('splitTransaction', None, None, None, 'sucess')
+        return _getResponse('addFutureTransactions', None, None, None, 'sucess')
     except:
         db.session.rollback()
         raise
@@ -242,10 +244,10 @@ def filter_data():
 
 @main.route('/categories/', methods=['POST'])
 def post_categories():
-    category_description_id = request.form['id']
-    category_id = request.form['selectedCategoryid']
-    category_description = request.form['description']
-    if category_description_id == '':
+    category_description_id = request.form.get('id')
+    category_id = request.form.get('selectedCategoryid')
+    category_description = request.form.get('description')
+    if category_description_id == '' or category_description_id is None:
         new = Categorydescription(Description=category_description, category_id=category_id)
         db.session.add(new)
         db.session.commit()
