@@ -1,7 +1,7 @@
 from server.flasky import app
 from server.app import  db
 from server.app.models import Category, Transaction, Categorydescription, Account, \
-    update_insert_transaction, update_running_balance, PendingReconciliation, \
+    update_running_balance, PendingReconciliation, \
     TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
 from flask import make_response, Flask, request
 import json
@@ -162,11 +162,28 @@ def post_transactions():
             filter(Category.SubCategory == request.form.get('SubCategory')).first().id
     else:
         category_id = request.form.get('category_id')
+
+    if not transaction_id:     
+        new = Transaction(
+            Description=description, TransactionNumber=transaction_number, Currency=currency, \
+            Amount=amount, AmountEUR=amountEUR, RunningBalance=running_balance, \
+            Date=date, category_id=category_id, account = bank_name, PaymentDate=date)
+        db.session.add(new)
+        db.session.commit()
+        return _getResponse('insert transaction', None, None, None, new.id)
+    else:
+        existing = Transaction.get(transaction_id)
+        if amount == 0: #delete
+            db.session.delete(existing)
+            db.session.commit()
+            return _getResponse('deletedtransaction', None, None, None, new.id)
+        else: # update
+            existing.update(category_id=category_id, transaction_number=transaction_number, \
+                running_balance=running_balance, amount=amount, amountEUR=amountEUR)
+            db.session.commit()
+            return _getResponse('update transaction', None, None, None, new.id)
+     
     
-    transaction_id = update_insert_transaction(transaction_id=transaction_id, description=description, transaction_number=transaction_number, \
-        currency=currency, amount=amount, amountEUR=amountEUR, running_balance=running_balance, date=date, payment_date=date, category_id=category_id, \
-        bank_name=bank_name)
-    return _getResponse('insert transaction', None, None, None, transaction_id)
 
 @app.route('/splitTransaction/', methods=['POST'])
 def split_transactions():
@@ -331,10 +348,26 @@ def post_budget():
     month=request.form['Month']
     year=request.form['Year']
     date = datetime(year= int(year), month= int(month), day= int(day))
-    update_insert_transaction(transaction_id=transaction_id, description='Budget entry', currency='EUR', \
-        amount=value, amountEUR=value, running_balance=0, date=date, payment_date=date, category_id=category_id, \
-        bank_name='Budget')
-    return _getResponse('post budget', None, None, None, 'sucess')
+
+    if not transaction_id:     
+        new = Transaction(
+            Description='Budget entry', TransactionNumber=None, Currency='EUR', \
+            Amount=value, AmountEUR=value, RunningBalance=0, \
+            Date=date, category_id=category_id, account = 'Budget', PaymentDate=date)
+        db.session.add(new)
+        db.session.commit()
+        return _getResponse('insert budget', None, None, None, new.id)
+    else:
+        existing = Transaction.get(transaction_id)
+        if amount == 0: #delete
+            db.session.delete(existing)
+            db.session.commit()
+            return _getResponse('deleted budget', None, None, None, new.id)
+        else: # update
+            existing.update(category_id=category_id, \
+                 amount=value, amountEUR=value)
+            db.session.commit()
+            return _getResponse('update budget', None, None, None, new.id)
 
 
 #INVESTMENT

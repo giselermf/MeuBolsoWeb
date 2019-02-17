@@ -2,11 +2,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow, fields
 from flask_migrate import Migrate
+from sqlalchemy import event
+from sqlalchemy.orm import object_session
 
 from marshmallow.fields import Int, String, Float
-from server.flasky import app
 from server.app import db
-
+from server.flasky import app
 ma = Marshmallow(app)
 
 class Account(db.Model):
@@ -27,16 +28,15 @@ class Category(db.Model):
     Category = db.Column(db.String(50), nullable=False)
     SubCategory = db.Column(db.String(50), nullable=False)
 
-
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Description = db.Column(db.String(100), nullable=False)
     TransactionNumber = db.Column(db.String(10))
     Currency= db.Column(db.String(6))
     Amount= db.Column(db.Float)
-    AmountEUR= db.Column(db.Float)
+    AmountEUR= db.Column(db.Float, nullable=False)
     RunningBalance= db.Column(db.Float)
-    Date= db.Column(db.Date)
+    Date= db.Column(db.Date, nullable=False)
     TransferTo= db.Column(db.String(100))
     TransferId= db.Column(db.Integer)
     PaymentDate= db.Column(db.Date)
@@ -72,6 +72,24 @@ class Transaction(db.Model):
     @hybrid_property
     def Active(self):
         return self.account.Active
+
+    def update(self, category_id, transaction_number, running_balance, amount, amountEUR):
+        if category_id != None: self.category_id = category_id
+        if transaction_number != None: self.TransactionNumber = transaction_number
+        if running_balance != None: self.RunningBalance = running_balance
+        if amount!= None: self.Amount = amount
+        if amountEUR != None: self.AmountEUR = amountEUR
+        
+
+# standard decorator style
+@event.listens_for(Transaction, 'after_insert')
+def receive_after_insert(mapper, connection, target):
+    transactions_in_db = get_similar_transaction(target.TransactionNumber, target.Currency, target.BankName, target.Amount, target.Date, target.Description)
+    if len(transactions_in_db) > 1: # has similars, not only the recent entry
+        for t in transactions_in_db:
+            if t.id != target.id:
+                object_session(target).add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
+
 
 class PendingReconciliation(db.Model):
     __tablename__ = 'PendingReconciliation'
@@ -139,57 +157,6 @@ def get_similar_transaction(transaction_number, currency, bankName, amount, date
             filter(Transaction.Amount == amount).\
             filter(Transaction.Date == date.strftime ('%Y-%m-%d') ).\
             filter(Transaction.Description.like("%"+description[:30]+"%")).all()
-
-def update_insert_transaction(transaction_id=None, description=None, transaction_number=None, 
-    currency=None, amount=None, amountEUR=None, running_balance=None, date=None, payment_date=None, 
-    category_id=None, bank_name=None):
-    
-    if transaction_id == '' or transaction_id == None: # ADD
-        if (running_balance):
-            running_balance = float(running_balance)
-        try:
-            new_transaction = Transaction( 
-                                Description = description,
-                                TransactionNumber = transaction_number,
-                                Currency= currency,
-                                Amount= float(amount),
-                                AmountEUR= float(amountEUR),
-                                RunningBalance= running_balance,
-                                Date= date, 
-                                TransferTo= None,
-                                TransferId= None,
-                                PaymentDate= date,
-                                category_id = category_id,
-                                BankName = bank_name)
-        
-            db.session.add(new_transaction)
-            transactions_in_db = get_similar_transaction(transaction_number, currency, bank_name, amount, date, description)
-            if len(transactions_in_db) > 1: # has similars, not only the recent entry
-                for t in transactions_in_db:
-                    if t.id != new_transaction.id:
-                        new_pending_reconciliation  = PendingReconciliation(transaction_id1 = t.id, transaction_id2 = new_transaction.id )
-                        db.session.add(new_pending_reconciliation)
-            db.session.commit()
-            return new_transaction.id
-        except Exception as e:
-            db.session.rollback()
-            print('raise', e)
-            raise
-       
-    elif amountEUR != None and float(amountEUR) == 0.0: #DELETE
-        to_be_deleted = Transaction.query.filter_by(id=transaction_id ).first()
-        db.session.delete(to_be_deleted)
-        db.session.commit()
-        return None
-    else: # UPDATE
-        to_update = Transaction.query.filter_by(id=transaction_id ).first()
-        if category_id != None: to_update.category_id = category_id
-        if transaction_number != None: to_update.TransactionNumber = transaction_number
-        if running_balance != None: to_update.RunningBalance = running_balance
-        if amount!= None: to_update.Amount = amount
-        if amountEUR != None: to_update.AmountEUR = amountEUR
-        db.session.commit()
-        return transaction_id
 
 def update_running_balance(bank_name):
     running_balance = 0

@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
-from server.app.models import Transaction, update_insert_transaction, update_running_balance
+from server.app.models import Transaction, update_running_balance
 import traceback
 
 class Processor(object):
@@ -44,9 +44,9 @@ class Processor(object):
                         self.Accounts.add(entry['Bank Name']) #???
                         entries_in_file += 1
                         self._update_start_date(entry['Date'])
-                        new_transaction_id = update_insert_transaction(transaction_id=None, description=entry['Description'], transaction_number=entry['Number'], \
-                                currency=entry['Currency'], amount=entry['Amount'], amountEUR=entry['Amount in EUR'], running_balance=0, \
-                                date=entry['Date'], category_id=entry['category_id'], bank_name=entry['Bank Name'], payment_date=entry['PaymentDate'])
+                        new_transaction_id = Transaction(Description=entry['Description'], TransactionNumber=entry['Number'], \
+                                Currency=entry['Currency'], Amount=entry['Amount'], AmountEUR=entry['Amount in EUR'], RunningBalance=0, \
+                                Date=entry['Date'], category_id=entry['category_id'], BankName=entry['Bank Name'], PaymentDate=entry['PaymentDate'])
  
                 except Exception as e:
                     all_passed = False
