@@ -1,17 +1,16 @@
-from server.flasky import app
-from server.app import  db
 from server.app.models import Category, Transaction, Categorydescription, Account, \
     update_running_balance, PendingReconciliation, \
     TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
-from flask import make_response, Flask, request
-import json
+from flask import make_response, request
 from sqlalchemy import desc,  func, and_, extract
 from datetime import datetime
 from server.process_data.processor import Processor
 import math
 import pandas as pd
 from distutils.util import strtobool
-
+import json
+from . import main
+from .. import db
 
 def _getLimitClause(query, page_number, per_page):
     if page_number is not None and per_page is not None:
@@ -69,13 +68,13 @@ def _getResponse(url, total_records, per_page, page_number, all_entries):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
-@app.route('/getFilterTransactionData/', methods=['GET'])
+@main.route('/getFilterTransactionData/', methods=['GET'])
 def getFilterTransactionData():
     results = Transaction.query.join(Category).join(Account).filter(Account.Active==1).\
         with_entities(Account.BankName, Category.Type, Category.Category, Category.SubCategory).distinct()
     return _getResponse('data', None, None, None, TransactionsFilterSchema(many=True).dump(results).data)
 
-@app.route('/getAllAccounts/', methods=['GET'])
+@main.route('/getAllAccounts/', methods=['GET'])
 def getAllAccounts():
     filter_param = request.args.get('filter')
     fromDate=None
@@ -121,7 +120,7 @@ def get_transaction_query(sort, sort_order,
     return query
 
 
-@app.route('/transactionsFiltered/', methods=['GET'])
+@main.route('/transactionsFiltered/', methods=['GET'])
 def transactionsFiltered():
     sort, sort_order, filter_param, page_number, per_page = _getParams(request)
     total = 0
@@ -138,14 +137,14 @@ def transactionsFiltered():
         output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('transactions', total, per_page, page_number, output)
 
-@app.route('/deleteTransaction/<int:transaction_id>', methods=['DELETE'])
+@main.route('/deleteTransaction/<int:transaction_id>', methods=['DELETE'])
 def delete_transaction(transaction_id):
     to_be_deleted = Transaction.query.filter(Transaction.id == transaction_id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
     return _getResponse('transaction deleted', None, None, None, transaction_id)
 
-@app.route('/transactions/', methods=['POST'])
+@main.route('/transactions/', methods=['POST'])
 def post_transactions():
     transaction_id = request.form.get('transaction_id')
     description = request.form.get('Description')
@@ -185,7 +184,7 @@ def post_transactions():
      
     
 
-@app.route('/splitTransaction/', methods=['POST'])
+@main.route('/splitTransaction/', methods=['POST'])
 def split_transactions():
     original_transaction_id = request.form['transaction_id']
     new_category_id = request.form['new_category_id']
@@ -206,7 +205,7 @@ def split_transactions():
         raise
 
         
-@app.route('/addFutureTransactions/', methods=['POST'])
+@main.route('/addFutureTransactions/', methods=['POST'])
 def add_future_transactions():
     try:
         date = pd.to_datetime(request.form['fromDate']).date()
@@ -236,12 +235,12 @@ def add_future_transactions():
         db.session.rollback()
         raise
 
-@app.route('/getFilterData/', methods=['GET'])
+@main.route('/getFilterData/', methods=['GET'])
 def filter_data():
     query = Category.query.all()
     return _getResponse('data', None, None, None, CategorySchema(many=True).dump(query).data)
 
-@app.route('/categories/', methods=['POST'])
+@main.route('/categories/', methods=['POST'])
 def post_categories():
     category_description_id = request.form['id']
     category_id = request.form['selectedCategoryid']
@@ -257,14 +256,14 @@ def post_categories():
         db.session.commit()
         return _getResponse('category updated', None, None, None, category_id)
 
-@app.route('/categories/<int:id>', methods=['DELETE'])
+@main.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
     to_be_deleted = Categorydescription.query.filter_by(id=id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
     return _getResponse('category deleted', None, None, None, id)
 
-@app.route('/categories/', methods=['GET'])
+@main.route('/categories/', methods=['GET'])
 def categories():
     sort, sort_order, filter_param, page_number, per_page = _getParams(request)
     query = Categorydescription.query.join(Category)
@@ -280,7 +279,7 @@ def categories():
     return _getResponse('category', total, per_page, page_number, output)
 
 #ESTATE
-@app.route('/estate/', methods=['GET'])
+@main.route('/estate/', methods=['GET'])
 def getEstate():
     subq = db.session.query(
         Transaction.BankName,
@@ -306,7 +305,7 @@ def getEstate():
     return _getResponse('estate', None, None, None, output)
 
 # BUDGET
-@app.route('/budget/', methods=['GET'])
+@main.route('/budget/', methods=['GET'])
 def getBudget():
     filter_param = request.args.get('filter')
     if filter_param is not None:
@@ -339,7 +338,7 @@ def getBudget():
     output =  BudgetSchema(many=True).dump(final_query.all()).data
     return _getResponse('Budget', None, None, 1, output)
 
-@app.route('/budget/', methods=['POST'])
+@main.route('/budget/', methods=['POST'])
 def post_budget():
     transaction_id=request.form['id']
     category_id=request.form['CategoryId']
@@ -371,7 +370,7 @@ def post_budget():
 
 
 #INVESTMENT
-@app.route('/Investment/', methods=['GET'])
+@main.route('/Investment/', methods=['GET'])
 def getInvestment():
     query = db.session.query(
         Transaction.BankName,
@@ -383,14 +382,14 @@ def getInvestment():
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('investments', total, 100, 0, output)
     
-@app.route('/processData/', methods=['POST'])
+@main.route('/processData/', methods=['POST'])
 def process_data():
     print('here', request.form.__dict__)
     folder = request.form['folder']
     Processor(folder).process()
     return pending_reconciliation()
 
-@app.route('/updateRunningBalance/', methods=['GET'])
+@main.route('/updateRunningBalance/', methods=['GET'])
 def udpate_runnning_balance():
     try:
         accounts = Account.query.all()
@@ -405,7 +404,7 @@ def udpate_runnning_balance():
 
 #PENDING RECONCILIATION
 
-@app.route('/PendingReconciliationTransactions/', methods=['GET'])
+@main.route('/PendingReconciliationTransactions/', methods=['GET'])
 def pending_reconciliation():
     t1 = db.aliased(Transaction)
     t2 = db.aliased(Transaction)
@@ -417,7 +416,7 @@ def pending_reconciliation():
     output = PendingReconciliationSchema(many=True).dump(query.all()).data
     return _getResponse('pendingReconciliation', total, 100, 0, output)
 
-@app.route('/ProcessReconciliation/', methods=['POST'])
+@main.route('/ProcessReconciliation/', methods=['POST'])
 def process_reconciliation():
     reconciliation_id = int(request.form['reconciliation_id'])
     transaction1_id = int(request.form['transaction1_id'])

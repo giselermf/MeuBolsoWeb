@@ -17,7 +17,8 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite://'
-
+    WTF_CSRF_ENABLED = False
+    
 class ProductionConfig(Config):
     database_name = os.path.join(BASE_DIR, 'database/dbMeuBolso.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:////'+database_name

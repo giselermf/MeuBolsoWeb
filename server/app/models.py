@@ -1,14 +1,13 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow, fields
 from flask_migrate import Migrate
 from sqlalchemy import event
 from sqlalchemy.orm import object_session
-
-from marshmallow.fields import Int, String, Float
+from marshmallow import Schema
+from marshmallow_sqlalchemy import ModelSchema
+from marshmallow.fields import Int, String, Float, Nested
 from server.app import db
-from server.flasky import app
-ma = Marshmallow(app)
+# from server.flasky import ma
 
 class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
@@ -100,20 +99,20 @@ class PendingReconciliation(db.Model):
     transaction2 = db.relationship('Transaction', foreign_keys=[transaction_id2])
 
 
-class CategorySchema(ma.ModelSchema):
+class CategorySchema(ModelSchema):
     class Meta:
         model = Category
 
-class CategorydescriptionSchema(ma.ModelSchema):
+class CategorydescriptionSchema(ModelSchema):
     class Meta:
         model = Categorydescription
-    category = ma.Nested(CategorySchema)
+    category = Nested(CategorySchema)
 
-class AccountSchema(ma.ModelSchema):
+class AccountSchema(ModelSchema):
     class Meta:
         model = Account     
 
-class TransactionsSchema(ma.ModelSchema):
+class TransactionsSchema(ModelSchema):
     class Meta:
         model = Transaction
     Month = Int(dump_only=True)
@@ -125,13 +124,13 @@ class TransactionsSchema(ma.ModelSchema):
     BankName = String(dump_only=True)
     Active = String(dump_only=True)
 
-class PendingReconciliationSchema(ma.ModelSchema):
+class PendingReconciliationSchema(ModelSchema):
     class Meta:
         model = PendingReconciliation
-    transaction1 = ma.Nested(TransactionsSchema)
-    transaction2 = ma.Nested(TransactionsSchema)
+    transaction1 = Nested(TransactionsSchema)
+    transaction2 = Nested(TransactionsSchema)
 
-class BudgetSchema(ma.ModelSchema):
+class BudgetSchema(ModelSchema):
     id = Int(dump_only=True)
     Month = Int(dump_only=True)
     Year = Int(dump_only=True)
@@ -144,7 +143,7 @@ class BudgetSchema(ma.ModelSchema):
     Actuals= Float(dump_only=True)
     Amount= Float(dump_only=True)
 
-class TransactionsFilterSchema(ma.Schema):
+class TransactionsFilterSchema(Schema):
     class Meta:
         fields = ('BankName', 'Type', 'Category', 'SubCategory')
 
