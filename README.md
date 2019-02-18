@@ -26,5 +26,10 @@ to start the application:
 2) in client folder:
   npm run dev
 
-to run unit tests:
-python3 -m server.process_data.test.entry_management_test -v
+to run unit tests with coverage report:
+pytest --cov=.
+or
+pytest --cov=. --cov-report html:coverage
+
+to run a single unit test file
+ python3 -m server.tests.process_data.entry_management_test -v

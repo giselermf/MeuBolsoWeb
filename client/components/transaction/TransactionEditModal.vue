@@ -180,13 +180,13 @@ export default {
         .post(
           "addFutureTransactions/",
           querystring.stringify({
-            Account: this.$refs.account_combo.getSelectedAccount(),
+            BankName: this.$refs.account_combo.getSelectedAccount(),
             Currency: this.$refs.account_combo.getCurrency(),
             AmountEUR: this.newAmount,
             numberOccurrencies: this.numberOccurrencies, 
             frequency: this.frequency,
             fromDate: moment(this.fromDate).format("YYYY-MM-DD"),
-            description: this.transaction.Description,
+            Description: this.transaction.Description,
             category_id: this.$refs.typecombos.getSelectedCategoryId(),
           })
         )
