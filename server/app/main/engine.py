@@ -41,10 +41,14 @@ def _getParams(request):
     sort_params = request.args.get('sort')
     sort = None
     sort_order = 'asc'
+    print('sort_params',sort_params)
     if sort_params is not None:
         sort_params = sort_params.split('|')
         sort = sort_params[0]
-        sort_order = sort_params[1]
+        if len(sort_params) > 1:
+            sort_order = sort_params[1]
+        else:
+            sort_order = "asc"
     filter_param = request.args.get('filter')
     page_number = request.args.get('page')
     per_page = request.args.get('per_page')

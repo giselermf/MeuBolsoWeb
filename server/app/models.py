@@ -1,13 +1,13 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import event
+from sqlalchemy import event, or_
 from sqlalchemy.orm import object_session
 from marshmallow import Schema
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow.fields import Int, String, Float, Nested
 from server.app import db
-# from server.flasky import ma
+from datetime import timedelta
 
 class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
@@ -83,12 +83,21 @@ class Transaction(db.Model):
 # standard decorator style
 @event.listens_for(Transaction, 'after_insert')
 def receive_after_insert(mapper, connection, target):
-    transactions_in_db = get_similar_transaction(target.TransactionNumber, target.Currency, target.BankName, target.Amount, target.Date, target.Description)
-    if len(transactions_in_db) > 1: # has similars, not only the recent entry
+    transactions_in_db = _get_similar_transaction(target.id, target.BankName, target.Amount, target.Date, target.Description)
+    if len(transactions_in_db) >= 1: # has similars, not only the recent entry
         for t in transactions_in_db:
-            if t.id != target.id:
-                object_session(target).add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
+            object_session(target).add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
 
+def _get_similar_transaction(id, bankName, amount, date, description):
+    days_in_range= 5
+    from_date = date - timedelta(days=days_in_range) 
+    to_date = date + timedelta(days=days_in_range) 
+    return Transaction.query.\
+            filter(Transaction.id != id).\
+            filter(Transaction.BankName == bankName).\
+            filter(Transaction.Amount == amount).\
+            filter(Transaction.Date >= from_date.strftime ('%Y-%m-%d'), Transaction.Date <= to_date.strftime ('%Y-%m-%d') ).\
+            filter(Transaction.Description.like("%"+description[:10]+"%")).all()
 
 class PendingReconciliation(db.Model):
     __tablename__ = 'PendingReconciliation'
@@ -148,14 +157,8 @@ class TransactionsFilterSchema(Schema):
         fields = ('BankName', 'Type', 'Category', 'SubCategory')
 
 
-def get_similar_transaction(transaction_number, currency, bankName, amount, date, description):
-    return Transaction.query.\
-            filter(Transaction.TransactionNumber == transaction_number).\
-            filter(Transaction.Currency == currency).\
-            filter(Transaction.BankName == bankName).\
-            filter(Transaction.Amount == amount).\
-            filter(Transaction.Date == date.strftime ('%Y-%m-%d') ).\
-            filter(Transaction.Description.like("%"+description[:30]+"%")).all()
+
+
 
 def update_running_balance(bank_name):
     running_balance = 0
