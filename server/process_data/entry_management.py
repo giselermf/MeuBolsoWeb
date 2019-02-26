@@ -89,5 +89,14 @@ class ProcessUNFCU(GenericProcessor):
         return str(row[5]) + str(row[6])
 
     def get_number(self, row):
-         str(row[self.number_pos]).replace('\n', '') if row[self.number_pos] is not None and str(row[self.number_pos]).strip() != "" else "..."
+        if 'Visa Elite' in row[self.account_name_pos] or 'Credit Card' in row[self.account_name_pos]:
+            result = self.get_description(row).strip().split(" ")
+            return result[0]
+        else:
+            result = self.get_description(row).strip().split(" ")
+            if result[len(result)-1].isdigit():
+                return result[len(result)-1] 
+            else:
+                return None
+            # if result[len(result)-1][:2] == '20%' return result[len(result)-1] else return None
     

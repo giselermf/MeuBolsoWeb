@@ -1,10 +1,11 @@
 import unittest
 from server.app import db
-from server.app.models import Category, Account, Categorydescription
+from server.app.models import Category, Account, Categorydescription, Transaction
 
 class BasicTest(unittest.TestCase):
     def clean_up_database(self):
         Category.query.delete()
+        Transaction.query.delete()
         Account.query.delete()
         Categorydescription.query.delete()
 

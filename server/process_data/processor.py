@@ -6,6 +6,7 @@ from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustri
 from server.process_data.category_management import Categories
 from server.app.models import Transaction, update_running_balance
 import traceback
+from server.app import db
 
 class Processor(object):
 
@@ -41,16 +42,33 @@ class Processor(object):
                 try:
                     entry = inputProcessor.process(row)
                     if entry:
-                        self.Accounts.add(entry['Bank Name']) #???
+                        self._process_entry(fileName, entry)
                         entries_in_file += 1
-                        self._update_start_date(entry['Date'])
-                        new_transaction_id = Transaction(Description=entry['Description'], TransactionNumber=entry['Number'], \
-                                Currency=entry['Currency'], Amount=entry['Amount'], AmountEUR=entry['Amount in EUR'], RunningBalance=0, \
-                                Date=entry['Date'], category_id=entry['category_id'], BankName=entry['Bank Name'], PaymentDate=entry['PaymentDate'])
- 
                 except Exception as e:
                     all_passed = False
                     print(traceback.print_exc())
                     print ('row ignored ' + str(row))
         print('processed', entries_in_file, fileName)
+
+    def _process_entry(self, fileName, entry):
+        self.Accounts.add(entry['Bank Name'])
+        self._update_start_date(entry['Date'])
+        query= Transaction.query.\
+            filter(Transaction.Date == entry['Date'].strftime ('%Y-%m-%d')).\
+            filter(Transaction.BankName == entry['Bank Name']).\
+            filter(Transaction.Amount == entry['Amount'])
+        if entry['Number'] is not None:
+            query = query.filter(Transaction.TransactionNumber == entry['Number'])
+        from_db = query.all()
+        if len(from_db) == 0:
+            new_transaction = Transaction(Description=entry['Description'], TransactionNumber=entry['Number'], \
+                Currency=entry['Currency'], Amount=entry['Amount'], AmountEUR=entry['Amount in EUR'], RunningBalance=0, \
+                Date=entry['Date'], category_id=entry['category_id'], BankName=entry['Bank Name'], PaymentDate=entry['PaymentDate'], \
+                Filename= fileName)
+            db.session.add(new_transaction)
+            db.session.commit()
+            return new_transaction.id
+        else:
+            return from_db[0].id
+        return 1
     

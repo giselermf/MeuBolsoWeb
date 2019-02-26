@@ -4,15 +4,17 @@
             <div class="field is-horizontal-left" >
                 <div class="field is-grouped">
                     <div class="field is-vertical-left">
-                        {{row.transaction2.TransactionNumber}}
+                        Bank: {{row.transaction2.BankName}}
                         <p></p>
-                        {{row.transaction2.Description}}
+                        Number: {{row.transaction2.TransactionNumber}}
                         <p></p>
-                        {{row.transaction2.AmountEUR}}
+                        Desc: {{row.transaction2.Description}}
                         <p></p>
-                        {{row.transaction2.Date}}
+                        Amount: {{row.transaction2.Amount}}
                         <p></p>
-                        {{row.transaction2.Type}} - {{row.transaction2.Category}} - {{row.transaction2.SubCategory}}
+                        Date: {{row.transaction2.Date}}
+                        <p></p>
+                        Catgory: {{row.transaction2.Type}} - {{row.transaction2.Category}} - {{row.transaction2.SubCategory}}
                     </div>
                 </div>
             </div>
@@ -21,15 +23,17 @@
             <div class="field is-horizontal-left" >
                 <div class="field is-grouped">
                     <div class="field is-vertical-left">
-                        {{row.transaction1.TransactionNumber}}
+                        Bank: {{row.transaction1.BankName}}
                         <p></p>
-                        {{row.transaction1.Description}}
+                        Number: {{row.transaction1.TransactionNumber}}
                         <p></p>
-                        {{row.transaction1.AmountEUR}}
+                        Desc: {{row.transaction1.Description}}
                         <p></p>
-                        {{row.transaction1.Date}}
+                        Amount: {{row.transaction1.Amount}}
                         <p></p>
-                        {{row.transaction1.Type}} - {{row.transaction1.Category}} - {{row.transaction1.SubCategory}}
+                        Date: {{row.transaction1.Date}}
+                        <p></p>
+                        Catgory: {{row.transaction1.Type}} - {{row.transaction1.Category}} - {{row.transaction1.SubCategory}}
                     </div>
                 </div>
             </div>

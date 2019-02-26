@@ -18,7 +18,6 @@ class TestUNFCU(unittest.TestCase):
         self.assertEqual(input_processor.from_usd_to_euro, 1.200439560)
     
     def test_real_entry(self):
-
         input_processor = ProcessUNFCU(self.mock_categories)
         input_processor.from_usd_to_euro = 1.12
         row = "UNFCU Visa Elite , 4024830900084389, 09/23/2017, 109.24, , 74570498B7PS3T18K BOHEMIA KRYSTAL CHVALOVICE CZ, BOHEMIA KRYSTAL CHVALOVICE CZ"
@@ -26,7 +25,7 @@ class TestUNFCU(unittest.TestCase):
         self.assertIsNotNone(entry)
         self.assertEqual(input_processor.from_usd_to_euro, 1.12)
         self.assertEqual(entry['Description'], "74570498B7PS3T18K BOHEMIA KRYSTAL CHVALOVICE CZ BOHEMIA KRYSTAL CHVALOVICE CZ")
-        self.assertIsNone(entry['Number'])
+        self.assertEqual(entry['Number'], '74570498B7PS3T18K')
         self.assertEqual(entry['Date'], datetime(2017, 9, 23, 0, 0))
         self.assertEqual(entry['PaymentDate'], datetime(2017, 9, 23, 0, 0))
         self.assertEqual(entry['Amount'], -109.24)

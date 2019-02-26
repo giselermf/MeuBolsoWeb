@@ -30,9 +30,6 @@ class Categories(object):
     def get_category(self, description):
         description = " ".join(description.split()).lower() # remove extra spaces between words
         category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), description)]
-        print('category_id', category_id)
         if len(category_id) == 0:
-            print('here')
             category_id = [self.categories_regex[k] for k in self.categories_regex if re.search(" ".join(k.split()).lower(), 'others')]
-            print('category_id', category_id)
         return category_id[0] 

@@ -70,6 +70,8 @@ def _getResponse(url, total_records, per_page, page_number, all_entries):
     response['data'] = all_entries
     resp = make_response(json.dumps(response))
     resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, PUT, POST, DELETE"
+    resp.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     return resp
 
 @main.route('/getFilterTransactionData/', methods=['GET'])
@@ -143,6 +145,7 @@ def transactionsFiltered():
 
 @main.route('/deleteTransaction/<int:transaction_id>', methods=['DELETE'])
 def delete_transaction(transaction_id):
+    print('in delete transaction')
     to_be_deleted = Transaction.query.filter(Transaction.id == transaction_id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
@@ -266,6 +269,7 @@ def post_categories():
 
 @main.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
+    print('in delete categories')
     to_be_deleted = Categorydescription.query.filter_by(id=id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()

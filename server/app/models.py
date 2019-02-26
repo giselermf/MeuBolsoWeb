@@ -43,6 +43,7 @@ class Transaction(db.Model):
     category = db.relationship('Category')
     BankName= db.Column(db.String(100), db.ForeignKey('account.BankName'), nullable=False)
     account = db.relationship('Account')
+    Filename = db.Column(db.String(100))
 
     @hybrid_property
     def Day(self):
@@ -83,18 +84,19 @@ class Transaction(db.Model):
 # standard decorator style
 @event.listens_for(Transaction, 'after_insert')
 def receive_after_insert(mapper, connection, target):
-    transactions_in_db = _get_similar_transaction(target.id, target.BankName, target.Amount, target.Date, target.Description)
+    transactions_in_db = _get_similar_transaction(target.id, target.TransactionNumber, target.BankName, target.Amount, target.Date, target.Description)
     if len(transactions_in_db) >= 1: # has similars, not only the recent entry
         for t in transactions_in_db:
             object_session(target).add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
 
-def _get_similar_transaction(id, bankName, amount, date, description):
+def _get_similar_transaction(id, transactionNumber, bankName, amount, date, description):
     days_in_range= 5
     from_date = date - timedelta(days=days_in_range) 
     to_date = date + timedelta(days=days_in_range) 
     return Transaction.query.\
             filter(Transaction.id != id).\
             filter(Transaction.BankName == bankName).\
+            filter(Transaction.TransactionNumber == transactionNumber).\
             filter(Transaction.Amount == amount).\
             filter(Transaction.Date >= from_date.strftime ('%Y-%m-%d'), Transaction.Date <= to_date.strftime ('%Y-%m-%d') ).\
             filter(Transaction.Description.like("%"+description[:10]+"%")).all()
@@ -155,10 +157,6 @@ class BudgetSchema(ModelSchema):
 class TransactionsFilterSchema(Schema):
     class Meta:
         fields = ('BankName', 'Type', 'Category', 'SubCategory')
-
-
-
-
 
 def update_running_balance(bank_name):
     running_balance = 0

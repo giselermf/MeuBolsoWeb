@@ -9,7 +9,7 @@
             </div>
             <div class="field-body">
                 <div class="field is-grouped">
-                    <date-range ref="cashFlow_range" minimumView="month"></date-range>  
+                    <date-range ref="cashFlow_range" minimumView="day"></date-range>  
                 </div>
             </div>
         </div>
