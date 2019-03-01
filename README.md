@@ -27,9 +27,9 @@ to start the application:
   npm run dev
 
 to run unit tests with coverage report:
-pytest --cov=.
+pytest server/tests --cov=,
 or
-pytest --cov=. --cov-report html:coverage
+pytest server/tests --cov=. --cov-report html:coverage
 
 to run a single unit test file
  python3 -m server.tests.process_data.entry_management_test -v

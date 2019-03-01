@@ -15,7 +15,9 @@
         <table  class="vuetable ui blue selectable celled stackable attached table">
           <thead>
             <tr>
-                <th v-for="col in columns" :key="col.Name" >{{col.Name}}</th>
+                <th v-for="col in columns" :key="col.Name" >{{col.Name}} 
+                  <a v-if="col.isHeader != true" class="is-link" @click="copyFromPrevious(col.Month, col.Year)">Copy</a></th>
+                
             </tr>
           </thead>
             <tbody>
@@ -52,6 +54,7 @@ import { addFilterParam } from "../util/Utils.js";
 import DateRange from "../util/DateRange.vue";
 import moment from "moment";
 import {HTTP} from '../util/http-common';
+import querystring  from "querystring"
 
 export default {
   components: {
@@ -185,6 +188,21 @@ export default {
         r["Category & SubCategory"] = "Total";
         return r;
       }, Object.create(null))];
+    },
+    copyFromPrevious(Month, Year) {
+       HTTP.post(
+          "copyBudget/",
+          querystring.stringify({
+            Month: Month,
+            Year: Year,
+          })
+        )
+        .then(response => {
+          this.$events.fire("search-budget", response);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
   }
 };

@@ -3,26 +3,22 @@
     <td  style="width: 250px;" v-if="isHeader">{{element}}</td>
     <td v-else >
       <div class="columns">
-
-        <p  v-if="isTotal" class="column is-one-forth">
-            
-        </p>
-       
-        <p  v-if="isTotal" class="column is-one-forth total">
+      
+        <p  v-if="isTotal" class="column is-one-third total">
             {{budgetValue}}
         </p>
-        <p v-else class="column is-one-forth">
+        <p v-else class="column is-one-third">
           <input v-bind:class="budgetClass" v-model="budgetValue" @change="saveBudget">
         </p> 
 
-        <p  v-if="isTotal" class="column is-one-forth total">
+        <p  v-if="isTotal" class="column is-one-third total">
             {{actualsValue}}
         </p>
-        <p v-else class="column is-one-forth">
+        <p v-else class="column is-one-third">
             <input v-bind:class="actualsClass" v-model="actualsValue" disabled>
         </p>
 
-        <p  class="column is-one-forth">
+        <p  class="column is-one-third">
           <progress :class="progressBarClass" style="margin-top: 10px;" :value="progressValue" :max="100"></progress>
         </p>
       </div>
@@ -65,14 +61,13 @@ export default {
   },
   methods: {
     saveBudget() {
+      let date = this.Year +"-"+this.Month+"-01" //'2019-01-01'
       HTTP.post(
           "budget/",
           querystring.stringify({
             id: this.getId(),
-            Day: 1,
-            Value: this.budgetValue,
-            Month: this.Month,
-            Year: this.Year,
+            Date: date,
+            Amount: this.budgetValue,
             CategoryId: this.categoryId
           })
         )

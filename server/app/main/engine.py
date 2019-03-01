@@ -3,6 +3,7 @@ from server.app.models import Category, Transaction, Categorydescription, Accoun
     TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
 from flask import make_response, request
 from sqlalchemy import desc,  func, and_, extract
+from sqlalchemy.orm.session import make_transient
 from datetime import datetime
 from server.process_data.processor import Processor
 import math
@@ -181,11 +182,12 @@ def post_transactions():
         return _getResponse('insert transaction', None, None, None, new.id)
     else:
         existing = Transaction.query.get(transaction_id)
-        if float(request.form.get('Amount',0)) == 0: #delete
+        if float(request.form.get('AmountEUR',0)) == 0: #delete
             db.session.delete(existing)
             db.session.commit()
             return _getResponse('deleted transaction', None, None, None, None)
         else: # update
+            print('update', float(request.form.get('Amount',0)))
             existing.update(category_id=category_id, \
                             transaction_number=request.form.get('TransactionNumber'), \
                             running_balance=request.form.get('RunningBalance'), \
@@ -205,7 +207,7 @@ def split_transactions():
     new = Transaction(
         Description="Split", TransactionNumber=existing.TransactionNumber, Currency=existing.Currency, \
         Amount=0, AmountEUR=float(new_amount_eur), RunningBalance=float(existing.RunningBalance) + float(new_amount_eur), \
-        Date=existing.Date, category_id=new_category_id, account = existing.account, PaymentDate=existing.PaymentDate)
+        Date=existing.Date, category_id=new_category_id, BankName = existing.account, PaymentDate=existing.PaymentDate)
     try:
         db.session.add(new)
         db.session.commit()
@@ -317,12 +319,40 @@ def getEstate():
     return _getResponse('estate', None, None, None, output)
 
 # BUDGET
+
+
+@main.route('/copyBudget/', methods=['POST'])
+def copyBudget():
+    month = str(request.form['Month']).zfill(2) 
+    year = request.form['Year']
+    
+    current_month = pd.to_datetime(year+"-"+month+"-01").date()
+    previous_month = (current_month + pd.DateOffset(months=-1)).date()
+
+    all_budget_from_previous_month = Transaction.query.filter(Transaction.BankName == 'Budget').\
+        filter(Transaction.Date == previous_month).all()
+    for b in all_budget_from_previous_month:
+        exist = Transaction.query.filter(Transaction.BankName == 'Budget').\
+            filter(Transaction.category_id == b.category_id).\
+            filter(Transaction.Date == current_month).first()
+        if exist:
+            exist.AmountEUR = b.AmountEUR
+            exist.Amount = b.Amount
+        else:
+            db.session.expunge(b)
+            make_transient(b)
+            b.PaymentDate = current_month
+            b.Date = current_month
+            b.id = None
+            db.session.add(b)
+    db.session.commit()
+    return _getResponse('copyBudget', None, None, None, None)
+
 @main.route('/budget/', methods=['GET'])
 def getBudget():
     filter_param = request.args.get('filter')
     if filter_param is not None:
         filter_param = json.loads(filter_param)
-
     budget_query = get_transaction_query( sort='Date', sort_order='desc', 
             bankName='Budget', fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'))
     actuals_query = get_transaction_query( sort='Date', sort_order='desc', 
@@ -352,33 +382,30 @@ def getBudget():
 
 @main.route('/budget/', methods=['POST'])
 def post_budget():
-    transaction_id=request.form['id']
-    category_id=request.form['CategoryId']
-    value=request.form['Value']
-    day=request.form['Day']
-    month=request.form['Month']
-    year=request.form['Year']
-    date = datetime(year= int(year), month= int(month), day= int(day))
-
-    if not transaction_id:     
+    transaction_id=request.form.get('id', '')
+    category_id=request.form.get('CategoryId')
+    amount=float(request.form.get('Amount',0))
+    date = pd.to_datetime(request.form.get('Date')).date()
+    if transaction_id is '' :     
         new = Transaction(
-            Description='Budget entry', TransactionNumber=None, Currency='EUR', \
-            Amount=value, AmountEUR=value, RunningBalance=0, \
-            Date=date, category_id=category_id, account = 'Budget', PaymentDate=date)
+            Description='Budget entry', TransactionNumber='number', Currency='EUR', \
+            Amount=amount, AmountEUR=amount, RunningBalance=0, \
+            Date=date, category_id=category_id, BankName = 'Budget', PaymentDate=date)
         db.session.add(new)
         db.session.commit()
         return _getResponse('insert budget', None, None, None, new.id)
     else:
-        existing = Transaction.get(transaction_id)
+        existing = Transaction.query.get(transaction_id)
         if amount == 0: #delete
+            print('*** delete', existing.id)
             db.session.delete(existing)
             db.session.commit()
-            return _getResponse('deleted budget', None, None, None, new.id)
+            return _getResponse('deleted budget', None, None, None, existing.id)
         else: # update
-            existing.update(category_id=category_id, \
-                 amount=value, amountEUR=value)
+            existing.update(category_id=category_id, running_balance=0,
+                 amount=amount, amountEUR=amount, transaction_number = existing.TransactionNumber)
             db.session.commit()
-            return _getResponse('update budget', None, None, None, new.id)
+            return _getResponse('update budget', None, None, None, existing.id)
 
 
 #INVESTMENT
