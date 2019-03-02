@@ -13,10 +13,10 @@
         :row-class="onRowClass"
     >
         <template slot="actions" scope="props">
-            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
-            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
-            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onAddRecurrence(props.rowData)">➕</a>
-            <a style="font-size: 11px; padding-right: 11px;cursor:pointer" @click="onDelete(props.rowData)">❌</a>
+            <a style="font-size: 11px; padding-right: 5px;cursor:pointer" @click="onEdit(props.rowData)">✏️</a>
+            <a style="font-size: 11px; padding-right: 5px;cursor:pointer" @click="onSplit(props.rowData)">✂️️</a>
+            <a style="font-size: 11px; padding-right: 5px;cursor:pointer" @click="onAddRecurrence(props.rowData)">➕</a>
+            <a style="font-size: 11px; padding-right: 5px;cursor:pointer" @click="onDelete(props.rowData)">❌</a>
             
         </template>
     </my-vuetable>

@@ -80,11 +80,10 @@ export default {
     },
   },
   mounted() {
-    this.$refs.cashFlow_range.setRange(0, 0);
+    this.$refs.cashFlow_range.setRange(0, 4);
     this.search();
     this.$events.$on("search-budget", eventData => { this.search(); });
-    this.$events.$on("close-category-modal", eventData =>
-      this.onModalClose(eventData)
+    this.$events.$on("close-category-modal", eventData => this.onModalClose(eventData)
     );
   },
   methods: {
