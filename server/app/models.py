@@ -70,8 +70,12 @@ class Transaction(db.Model):
         return self.category.SubCategory
     
     @hybrid_property
-    def Active(self):
+    def Accountctive(self):
         return self.account.Active
+    
+    @hybrid_property
+    def AccountType(self):
+        return self.account.Type
 
     def update(self, category_id, transaction_number, running_balance, amount, amountEUR):
         if category_id != None: self.category_id = category_id

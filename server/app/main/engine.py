@@ -84,19 +84,25 @@ def getFilterTransactionData():
 @main.route('/getAllAccounts/', methods=['GET'])
 def getAllAccounts():
     filter_param = request.args.get('filter')
-    fromDate=None
-    toDate=None
+    fromDate = toDate = types = active = None
+
     if filter_param is not None:
         filter_param = json.loads(filter_param)
         fromDate=filter_param.get('fromDate')
         toDate=filter_param.get('toDate')
+        types =filter_param.get('type')
+        active =filter_param.get('active')
 
-    query = Transaction.query.distinct(Transaction.BankName, Transaction.Currency).\
-        with_entities(Transaction.BankName, Transaction.Currency).filter(Transaction.BankName != "Budget")
+    query = Transaction.query.join(Account).distinct(Transaction.BankName, Transaction.Currency).\
+        with_entities(Transaction.BankName, Transaction.Currency)
     if fromDate:
-        query = query.filter( Transaction.Date >= fromDate)
+        query = query.filter(Transaction.Date >= fromDate)
     if toDate:
-        query = query.filter( Transaction.Date <= toDate)
+        query = query.filter(Transaction.Date <= toDate)
+    if types:
+        query = query.filter(Account.Type.in_(types))
+    if active:
+        query = query.filter(Account.Active == bool(active))
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('data', None, None, None, output)
 
@@ -253,6 +259,7 @@ def filter_data():
     query = Category.query.all()
     return _getResponse('data', None, None, None, CategorySchema(many=True).dump(query).data)
 
+#CATEGORIE
 @main.route('/categories/', methods=['POST'])
 def post_categories():
     category_description_id = request.form.get('id')

@@ -1,6 +1,6 @@
 <template>
     <div >
-        <account-select-combo :fromDate="fromDate" :toDate="toDate" :includeAll=false ref="account_combo" ></account-select-combo>
+        <account-select-combo :fromDate="fromDate" :toDate="toDate" :includeAll=false :accountTypes="accountTypes" ref="account_combo" ></account-select-combo>
         <div class="field is-horizontal" >
             <div class="field-label">
                 <label class="label">Date</label>
@@ -38,7 +38,7 @@
                     </p>
             </div></div>
         </div>
-        <category-select-combos ref="search_typecombos" ></category-select-combos>
+        <category-select-combos ref="search_typecombos" :accountTypes="accountTypes"></category-select-combos>
 
         <div class="field is-grouped is-grouped-centered" style="padding-top: 10px;">
             <p class="control">
@@ -53,7 +53,6 @@
 
 <script>
 import { addFilterParam } from "../util/Utils.js";
-import Datepicker from "vuejs-datepicker";
 import CategorySelectCombos from "../util/CategorySelectCombos.vue"
 import AccountSelectCombo from "../util/AccountSelectCombo.vue"
 import DateRange from "../util/DateRange.vue";
@@ -62,7 +61,7 @@ import moment from "moment";
 export default { 
     
   components: {
-    Datepicker, CategorySelectCombos, DateRange, AccountSelectCombo
+    CategorySelectCombos, DateRange, AccountSelectCombo
   },
   data() {
     return {
@@ -72,6 +71,7 @@ export default {
       toAmount: null,
       fromDate: null,
       toDate: null,
+      accountTypes: ['Credit Card', 'Checking Account']
     };
   },
   mounted() {

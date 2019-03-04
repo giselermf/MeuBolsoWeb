@@ -17,7 +17,7 @@
               </div>
           </div>
           <div  v-else>
-              <account-select-combo ref="account_combo" ></account-select-combo>
+              <account-select-combo ref="account_combo" :accountTypes="accountTypes" ></account-select-combo>
           </div>
         </div>
         <div class="field is-horizontal" >
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <category-select-combos ref="typecombos" ></category-select-combos>
+        <category-select-combos ref="typecombos"></category-select-combos>
         
     </section>
     <footer class="modal-card-foot">
@@ -101,7 +101,8 @@ export default {
       newAmount: this.transaction.AmountEUR,
       frequency: "Monthly",
       numberOccurrencies: 1,
-      fromDate: moment(new Date()).format("YYYY-MM-DD")
+      fromDate: moment(new Date()).format("YYYY-MM-DD"),
+      accountTypes: ['Credit Card', 'Checking Account', 'Savings']
     }
   },
   mounted() {

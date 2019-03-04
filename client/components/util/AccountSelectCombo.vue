@@ -21,6 +21,7 @@ export default {
   props: {
       fromDate: String,
       toDate: String,
+      accountTypes: null,
       includeAll: {
         type: Boolean,
         default: false
@@ -78,6 +79,8 @@ export default {
     },
     getParams() {
       let params = {};
+      if (this.accountTypes) params["type"] = this.accountTypes;
+      if (this.accountTypes) params["active"] = true;
       if (this.fromDate) params["fromDate"] = moment(this.fromDate).format("YYYY-MM-DD");
       if (this.toDate) params["toDate"] = moment(this.toDate).format("YYYY-MM-DD");
       return "?filter=" + JSON.stringify(params);

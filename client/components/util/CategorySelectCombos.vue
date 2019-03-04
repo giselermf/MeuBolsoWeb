@@ -16,7 +16,7 @@
     
     <div>
       <div v-if="selectedSubCategory=='Transfer'" >
-        <account-select-combo ref="account_combo" ></account-select-combo>
+        <account-select-combo ref="account_combo" :accountTypes="accountTypes"></account-select-combo>
       </div>
     </div>
     
@@ -63,7 +63,8 @@ export default {
       selectedType: null,
       selectedCategory: null,
       selectedSubCategory: null,
-      allData: null
+      allData: null,
+      accountTypes: ['Credit Card', 'Checking Account']
     };
   },
   mounted() {

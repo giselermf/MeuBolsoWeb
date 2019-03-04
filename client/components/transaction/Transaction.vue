@@ -131,6 +131,7 @@ export default {
     },
     getChartData() {
       let datasets = [];
+      
       let alabels = this.allData.map(x => moment(x.Date));
     
       alabels = alabels.sort(function(a, b) {
@@ -143,11 +144,9 @@ export default {
       alabels = Array.from(new Set(alabels));
 
       let groupedData = this.allData.reduce(function(r, a) {
-        if (a.Active === "True") { //only active accounts
-          r[a["BankName"]] = r[a["BankName"]] || {};
-          let dateRunning = moment(a.Date).format("YYYY-MM-DD");
-          r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
-        }
+        r[a["BankName"]] = r[a["BankName"]] || {};
+        let dateRunning = moment(a.Date).format("YYYY-MM-DD");
+        r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
          return r;
       }, Object.create(null));
 
@@ -161,7 +160,6 @@ export default {
               datasets.length
             )
           );
-        // }
       }
       this.chartData = {
         labels: alabels,
