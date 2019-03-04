@@ -413,20 +413,6 @@ def post_budget():
                  amount=amount, amountEUR=amount, transaction_number = existing.TransactionNumber)
             db.session.commit()
             return _getResponse('update budget', None, None, None, existing.id)
-
-
-#INVESTMENT
-@main.route('/Investment/', methods=['GET'])
-def getInvestment():
-    query = db.session.query(
-        Transaction.BankName,
-        func.max(Transaction.id).label('max_transaction_id')
-    ).group_by(Transaction.BankName).join(Account).filter(Account.Active == 1).filter(Account.Type=='Savings').\
-    with_entities(Transaction.Date, Transaction.RunningBalance, Transaction.BankName)
-
-    total = len(query.all())
-    output =  TransactionsSchema(many=True).dump(query.all()).data
-    return _getResponse('investments', total, 100, 0, output)
     
 @main.route('/processData/', methods=['POST'])
 def process_data():
