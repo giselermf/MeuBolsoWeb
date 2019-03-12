@@ -16,6 +16,7 @@ class Processor(object):
         self.startDate = datetime.now()
         self.Accounts = set()
 
+
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))

@@ -18,12 +18,17 @@
           <drill-down-with-table :allData="allData"></drill-down-with-table>
         </div>
       </div>
+      
+      <RunningBalanceChart ref="runningBalanceChart" :allData="allData"></RunningBalanceChart>
+
       <div id="app" class="ui horizontal segments" >
         <div class="ui  segment">
-          <vuetable ref="whatIHave"
-            api-url="http://127.0.0.1:5000/estate/"
-            :fields="estate_fields">
-          </vuetable>
+          <my-vuetable ref="vuetableTransaction"
+              api-url="http://127.0.0.1:5000/estate/"
+              :fields="estate_fields"
+          >
+          </my-vuetable>
+
         </div>
       </div>
 </div>
@@ -32,9 +37,10 @@
 <script>
 import meuBolsoBar from "../charts/meuBolsoBar.js";
 import DrillDownWithTable from "../transaction/DrillDownPieWithTable.vue";
-import Vuetable from "vuetable-2/src/components/Vuetable.vue";
 import DateRange from "../util/DateRange.vue";
 import {HTTP} from '../util/http-common';
+import RunningBalanceChart from "../transaction/RunningBalanceChart.vue";
+import MyVuetable from "../util/MyVuetable.vue";
 
 import {
   getGroupByMonthAnd,
@@ -43,8 +49,8 @@ import {
 
 export default {
   components: {
-    meuBolsoBar,Vuetable,
-    DrillDownWithTable,DateRange
+    meuBolsoBar,MyVuetable,
+    DrillDownWithTable,DateRange,RunningBalanceChart
   },
   data() {
     return {
@@ -77,7 +83,7 @@ export default {
           title: "Current Balance",
           titleClass: "center aligned",
           dataClass: "center aligned",
-          //callback: "formatFloat"
+          callback: "formatFloat"
         }]
     };
   },

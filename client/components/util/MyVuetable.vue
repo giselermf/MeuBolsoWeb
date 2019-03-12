@@ -101,10 +101,15 @@ export default {
       return value
     },
     formatFloat (value) {
-      if (value != null)
-        return value.toFixed(2)
-      return value
+      if (value == 0 || value == null) return "";
+      if (value < 0)
+        return '<div style="text-align: end;color: red;">' + value.toFixed(2) + "</span>";
+      else
+        return (
+          '<div style="text-align: end;color: black;">' + value.toFixed(2) + "</span>"
+        );
     },
+
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData)
       this.$refs.paginationInfo.setPaginationData(paginationData)

@@ -94,6 +94,13 @@ export default {
           dataClass: "center aligned"
         },
         {
+          name: "RunningBalance",
+          title: "Running Balance",
+          titleClass: "center aligned",
+          dataClass: "center aligned",
+          callback: "formatFloat"
+        },
+        {
           name: "__slot:actions",
           title: "Slot Actions",
           titleClass: "center aligned",
@@ -104,6 +111,11 @@ export default {
         {
           field: "Date",
           sortField: "Date",
+          direction: "desc"
+        },
+        {
+          field: "id",
+          sortField: "id",
           direction: "desc"
         }
       ],

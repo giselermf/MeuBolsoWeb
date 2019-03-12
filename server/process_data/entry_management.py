@@ -1,12 +1,13 @@
 from datetime import datetime
 import re
 import ssl
+from currency_converter import CurrencyConverter
 
 class GenericProcessor(object):
      
     def __init__(self, categories):
         self.categories = categories
-        self.from_usd_to_euro = 1
+        self.c = CurrencyConverter('http://www.ecb.int/stats/eurofxref/eurofxref-hist.zip', fallback_on_missing_rate=True)
     
     def convert_to_number(self, number_in_string):
         return float(str(number_in_string).strip())
@@ -30,15 +31,8 @@ class GenericProcessor(object):
             account_name = ' - ' + row[self.account_name_pos] if self.account_name_pos is not None else " - Checking Account"
             account_number = row[self.account_number_pos] if self.account_number_pos is not None else ""
             entry['Bank Name'] = self.bank_name + account_name + account_number
-            entry['Amount in EUR' ] = self.from_usd_to_euro * entry['Amount']
+            entry['Amount in EUR' ] = self.c.convert(entry['Amount'], entry['Currency'], 'EUR',  date=entry['Date'])
             return entry
-        else:
-            try:
-                description = self.get_description(row).split(' ')
-                if description[3] == '978':
-                    self.from_usd_to_euro = self.convert_to_number(description[4])
-            finally:
-                return
         
 class ProcessBankAustria(GenericProcessor):
     # Booking date    Value date    Booking Text    Internal Note    Currency    Amount    Record data    Record Number    Originator name    Originator Account    Originator's Bank Code    Payee Name    Payee Account    Payee Bank Code    Purpose Text
@@ -71,7 +65,7 @@ class ProcessBankAustria(GenericProcessor):
 
 
 class ProcessUNFCU(GenericProcessor):
-    ['UNFCU Visa Elite ', ' 4024830900084389', ' 11/22/2017', ' 49.99', ' ', ' 2479262A62E0463Z6 SLING.COM 888-393-6312 CO', ' SLING.COM 888-393-6312 CO']
+    # ['UNFCU Visa Elite ', ' 4024830900084389', ' 11/22/2017', ' 49.99', ' ', ' 2479262A62E0463Z6 SLING.COM 888-393-6312 CO', ' SLING.COM 888-393-6312 CO']
    # AccountName,  AccountNumber, TransactioDate, TransactionAmount, TransactionCheckNumber, TransactionDesc, TransactionMemo
     def __init__(self, categories):
         self.delimiter = ','
