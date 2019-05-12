@@ -8,7 +8,7 @@ class FlaskProductionTestCase(unittest.TestCase):
             print('*****',rule)
         self.assertEqual(self.client.get('/getFilterTransactionData/').status_code, 200)
         self.assertEqual(self.client.get('/transactionsFiltered/').status_code, 200)
-        self.assertEqual(self.client.get('/updateRunningBalance/').status_code, 200)
+        # self.assertEqual(self.client.get('/updateRunningBalance/').status_code, 200)
         self.assertEqual(self.client.get('/estate/').status_code, 200)
 
 if __name__ == '__main__':

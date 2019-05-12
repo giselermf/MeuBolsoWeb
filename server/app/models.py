@@ -2,12 +2,15 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import event, or_
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import object_session, Session
 from marshmallow import Schema
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow.fields import Int, String, Float, Nested
 from server.app import db
 from datetime import timedelta
+from currency_converter import CurrencyConverter
+
+c = CurrencyConverter('http://www.ecb.int/stats/eurofxref/eurofxref-hist.zip', fallback_on_missing_rate=True)
 
 class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
@@ -31,8 +34,8 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Description = db.Column(db.String(100), nullable=False)
     TransactionNumber = db.Column(db.String(10))
-    Currency= db.Column(db.String(6))
-    Amount= db.Column(db.Float)
+    Currency= db.Column(db.String(6), nullable=False)
+    Amount= db.Column(db.Float, nullable=False)
     AmountEUR= db.Column(db.Float, nullable=False)
     RunningBalance= db.Column(db.Float)
     Date= db.Column(db.Date, nullable=False)
@@ -77,21 +80,25 @@ class Transaction(db.Model):
     def AccountType(self):
         return self.account.Type
 
-    def update(self, category_id, transaction_number, running_balance, amount, amountEUR):
+    def update(self, category_id, transaction_number, amount):
         if category_id != None: self.category_id = category_id
         if transaction_number != None: self.TransactionNumber = transaction_number
-        if running_balance != None: self.RunningBalance = running_balance
-        if amount!= None: self.Amount = amount
-        if amountEUR != None: self.AmountEUR = amountEUR
-        
+        if amount!= None: 
+            self.Amount = amount
+            self.AmountEUR = c.convert(self.Amount , self.Currency, 'EUR',  date=self.Date)
 
-# standard decorator style
 @event.listens_for(Transaction, 'after_insert')
 def receive_after_insert(mapper, connection, target):
-    transactions_in_db = _get_similar_transaction(target.id, target.TransactionNumber, target.BankName, target.Amount, target.Date, target.Description)
-    if len(transactions_in_db) >= 1: # has similars, not only the recent entry
-        for t in transactions_in_db:
-            object_session(target).add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
+    @event.listens_for(Session, "after_flush", once=True)
+    def receive_after_flush(session, context):
+        transactions_in_db = _get_similar_transaction(target.id, target.TransactionNumber, target.BankName, target.Amount, target.Date, target.Description)
+        if len(transactions_in_db) >= 1: # has similars, not only the recent entry
+            for t in transactions_in_db:   
+                session.add(PendingReconciliation(transaction_id1 = t.id, transaction_id2 = target.id ))
+
+@event.listens_for(Transaction, 'before_insert')
+def receive_before_insert(mapper, connect, target):
+    target.AmountEUR  = c.convert(target.Amount, target.Currency, 'EUR',  date=target.Date)
 
 def _get_similar_transaction(id, transactionNumber, bankName, amount, date, description):
     days_in_range= 5
@@ -163,9 +170,13 @@ class TransactionsFilterSchema(Schema):
         fields = ('BankName', 'Type', 'Category', 'SubCategory')
 
 def update_running_balance(bank_name):
+    print('!!!! update_running_balance ', bank_name )
     running_balance = 0
     transactions = Transaction.query.filter().filter(Transaction.BankName == bank_name).order_by(Transaction.Date).all()
     for t in transactions:
         running_balance = running_balance + t.Amount
         t.RunningBalance = running_balance
     db.session.commit()
+        
+    
+    

@@ -1,6 +1,6 @@
-from server.app.models import Category, Transaction, Categorydescription, Account, \
-    update_running_balance, PendingReconciliation, \
-    TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, BudgetSchema
+from server.app.models import Category, Transaction, Categorydescription, Account, PendingReconciliation, \
+    TransactionsFilterSchema, CategorySchema, CategorydescriptionSchema, TransactionsSchema, PendingReconciliationSchema, \
+    BudgetSchema, update_running_balance
 from flask import make_response, request
 from sqlalchemy import desc,  func, and_, extract
 from sqlalchemy.orm.session import make_transient
@@ -158,16 +158,20 @@ def delete_transaction(transaction_id):
     db.session.commit()
     return _getResponse('transaction deleted', None, None, None, transaction_id)
 
+def _get_category_id(typec, cateogry, subcategory):
+    return Category.query.\
+        filter(Category.Type == typec).\
+        filter(Category.Category == cateogry).\
+        filter(Category.SubCategory ==subcategory).first().id
+
 @main.route('/transactions/', methods=['POST'])
 def post_transactions():
+    category_id = None
     transaction_id = request.form.get('transaction_id')
     if request.form.get('Date'):
         date = pd.to_datetime(request.form.get('Date')).date()
     if not request.form.get('category_id') and request.form.get('Type') and request.form.get('Category') and request.form.get('SubCategory'):
-        category_id = Category.query.\
-                                    filter(Category.Type == request.form.get('Type')).\
-                                    filter(Category.Category == request.form.get('Category')).\
-                                    filter(Category.SubCategory == request.form.get('SubCategory')).first().id
+        category_id = _get_category_id(request.form.get('Type'), request.form.get('Category'), request.form.get('SubCategory'))
     elif request.form.get('category_id') :
         category_id = int(request.form.get('category_id'))
 
@@ -178,30 +182,32 @@ def post_transactions():
                 Currency=request.form.get('Currency'), \
                 Amount=float(request.form.get('Amount',0)), \
                 AmountEUR=float(request.form.get('AmountEUR',0)), \
-                RunningBalance=request.form.get('RunningBalance'), \
                 Date=date, \
                 category_id=category_id, \
                 BankName = request.form.get('BankName'), \
                 PaymentDate=date)
         db.session.add(new)
         db.session.commit()
+        update_running_balance(new.BankName)
         return _getResponse('insert transaction', None, None, None, new.id)
     else:
         existing = Transaction.query.get(transaction_id)
-        if float(request.form.get('AmountEUR',0)) == 0: #delete
+        if float(request.form.get('Amount',0)) == 0: #delete
+            print('delete', float(request.form.get('Amount',0)))
             db.session.delete(existing)
             db.session.commit()
+            update_running_balance(existing.BankName)
             return _getResponse('deleted transaction', None, None, None, None)
         else: # update
             print('update', float(request.form.get('Amount',0)))
             existing.update(category_id=category_id, \
                             transaction_number=request.form.get('TransactionNumber'), \
-                            running_balance=request.form.get('RunningBalance'), \
-                            amount=float(request.form.get('Amount',0)), \
-                            amountEUR=float(request.form.get('AmountEUR',0)))
+                            amount=float(request.form.get('Amount',0) ))
             db.session.commit()
+            update_running_balance(existing.BankName)
             return _getResponse('update transaction', None, None, None, existing.id)
-     
+
+
 @main.route('/splitTransaction/', methods=['POST'])
 def split_transactions():
     original_transaction_id = request.form['transaction_id']
@@ -217,39 +223,8 @@ def split_transactions():
     try:
         db.session.add(new)
         db.session.commit()
+        update_running_balance(new.BankName)
         return _getResponse('splitTransaction', None, None, None, 'sucess')
-    except:
-        db.session.rollback()
-        raise
-
-@main.route('/addFutureTransactions/', methods=['POST'])
-def add_future_transactions():
-    new_transactions = []
-    try:
-        date = pd.to_datetime(request.form['fromDate']).date()
-        for x in range(0, int(request.form['numberOccurrencies'])):
-            new = Transaction(  Description = request.form['Description'],
-                                TransactionNumber = 'Future',
-                                Currency= request.form['Currency'],
-                                Amount= float(request.form.get('AmountEUR',0)),
-                                AmountEUR= float(request.form.get('AmountEUR',0)),
-                                Date= date, 
-                                PaymentDate= date,
-                                category_id = request.form.get('category_id'),
-                                BankName = request.form.get('BankName') )
-            new_transactions.append(new)
-            db.session.add(new)
-            if request.form['frequency'] == "Monthly":
-                date =  date + pd.DateOffset(months=1)
-            elif request.form['frequency'] == "Weekly":
-                date = date + pd.DateOffset(weeks=1)
-            elif request.form['frequency'] == "Quartely":
-                date = date + pd.DateOffset(months=3)
-            elif request.form['frequency'] == "Yearly":
-                date = date + pd.DateOffset(years=1)
-        db.session.commit()
-        update_running_balance(request.form['BankName'])
-        return _getResponse('addFutureTransactions', None, None, None, TransactionsSchema(many=True).dump(new_transactions).data)
     except:
         db.session.rollback()
         raise
@@ -400,6 +375,7 @@ def post_budget():
             Date=date, category_id=category_id, BankName = 'Budget', PaymentDate=date)
         db.session.add(new)
         db.session.commit()
+        update_running_balance(new.BankName)
         return _getResponse('insert budget', None, None, None, new.id)
     else:
         existing = Transaction.query.get(transaction_id)
@@ -409,8 +385,7 @@ def post_budget():
             db.session.commit()
             return _getResponse('deleted budget', None, None, None, existing.id)
         else: # update
-            existing.update(category_id=category_id, running_balance=0,
-                 amount=amount, amountEUR=amount, transaction_number = existing.TransactionNumber)
+            existing.update(category_id=category_id, amount=amount, transaction_number = existing.TransactionNumber)
             db.session.commit()
             return _getResponse('update budget', None, None, None, existing.id)
     

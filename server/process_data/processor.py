@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
-from server.app.models import Transaction, update_running_balance
+from server.app.models import Transaction
 import traceback
 from server.app import db
 
@@ -20,9 +20,6 @@ class Processor(object):
     def process(self):
         self._process_bank(self.folder + 'UNFCU', ProcessUNFCU(self.categories))
         self._process_bank(self.folder + 'BankAustria', ProcessBankAustria(self.categories))
-        for a in self.Accounts:
-            print('update running balance ', a)
-            update_running_balance(a)
 
     def _update_start_date(self, date):
         if date < self.startDate:
@@ -63,7 +60,7 @@ class Processor(object):
         from_db = query.all()
         if len(from_db) == 0:
             new_transaction = Transaction(Description=entry['Description'], TransactionNumber=entry['Number'], \
-                Currency=entry['Currency'], Amount=entry['Amount'], AmountEUR=entry['Amount in EUR'], RunningBalance=0, \
+                Currency=entry['Currency'], Amount=entry['Amount'], RunningBalance=0, \
                 Date=entry['Date'], category_id=entry['category_id'], BankName=entry['Bank Name'], PaymentDate=entry['PaymentDate'], \
                 Filename= fileName)
             db.session.add(new_transaction)

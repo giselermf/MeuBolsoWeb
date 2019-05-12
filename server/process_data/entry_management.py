@@ -1,13 +1,11 @@
 from datetime import datetime
 import re
 import ssl
-from currency_converter import CurrencyConverter
 
 class GenericProcessor(object):
      
     def __init__(self, categories):
         self.categories = categories
-        self.c = CurrencyConverter('http://www.ecb.int/stats/eurofxref/eurofxref-hist.zip', fallback_on_missing_rate=True)
     
     def convert_to_number(self, number_in_string):
         return float(str(number_in_string).strip())
@@ -31,7 +29,6 @@ class GenericProcessor(object):
             account_name = ' - ' + row[self.account_name_pos] if self.account_name_pos is not None else " - Checking Account"
             account_number = row[self.account_number_pos] if self.account_number_pos is not None else ""
             entry['Bank Name'] = self.bank_name + account_name + account_number
-            entry['Amount in EUR' ] = self.c.convert(entry['Amount'], entry['Currency'], 'EUR',  date=entry['Date'])
             return entry
         
 class ProcessBankAustria(GenericProcessor):

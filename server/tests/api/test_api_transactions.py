@@ -24,21 +24,22 @@ class FlaskTransactionTestCase(BasicTest):
     def tearDown(self):
         super(BasicTest, self).tearDown()
 
-    def assertTransaction(self, transaction, BankName, Currency, Amount, AmountEUR, Date, Description, TransactionNumber):
+    def assertTransaction(self, transaction, BankName, Currency, Amount, AmountEUR, Date, Description, TransactionNumber, RunningBalance):
         self.assertEqual(transaction.BankName, BankName)
         self.assertEqual(transaction.Currency, Currency)
         self.assertEqual(transaction.Amount, Amount)
         self.assertEqual(transaction.AmountEUR, AmountEUR)
         self.assertEqual(transaction.Date.__str__(), Date)
         self.assertEqual(transaction.Description, Description)
-        self.assertEqual(transaction.TransactionNumber, TransactionNumber)
+        self.assertEqual(transaction.TransactionNumber, TransactionNumber)   
+        self.assertEqual(transaction.RunningBalance, RunningBalance)    
 
     def test_post_transaction_with_category_id(self):
         response = self.client.post(
             '/transactions/', 
             data=dict(
                 BankName='Bank for test',
-                Currency='EUR',
+                Currency='USD',
                 Amount=100,
                 AmountEUR=101,
                 Date= '2019-01-01',
@@ -50,7 +51,7 @@ class FlaskTransactionTestCase(BasicTest):
         self.assertEqual(response.status_code, 200)
         new_id = json.loads(response.data).get('data')
         new_transaction = Transaction.query.get(new_id)
-        self.assertTransaction(new_transaction, 'Bank for test', 'EUR', 100, 101, '2019-01-01', 'test transaction', 'xxx')
+        self.assertTransaction(new_transaction, 'Bank for test', 'USD', 100, 87.53884536262967, '2019-01-01', 'test transaction', 'xxx', 100)
         self.assertEqual(new_transaction.category, self.category)
 
     def test_post_transaction_with_category_details(self):
@@ -60,7 +61,6 @@ class FlaskTransactionTestCase(BasicTest):
                 BankName='Bank for test',
                 Currency='EUR',
                 Amount=100,
-                AmountEUR=101,
                 Date= '2019-01-01',
                 Description='test transaction',
                 TransactionNumber='xxx',
@@ -72,7 +72,7 @@ class FlaskTransactionTestCase(BasicTest):
         self.assertEqual(response.status_code, 200)
         new_id = json.loads(response.data).get('data')
         new_transaction = Transaction.query.get(new_id)
-        self.assertTransaction(new_transaction, 'Bank for test', 'EUR', 100, 101, '2019-01-01', 'test transaction', 'xxx')
+        self.assertTransaction(new_transaction, 'Bank for test', 'EUR', 100, 100, '2019-01-01', 'test transaction', 'xxx', 100)
         self.assertEqual(new_transaction.category, self.category)
 
     def test_delete_transaction(self):
@@ -98,15 +98,15 @@ class FlaskTransactionTestCase(BasicTest):
     def test_update_transaction(self):
         #INSERT
         new = Transaction(
-            Description='description', Currency='EUR', \
-            Amount=100, AmountEUR=101, 
+            Description='description', Currency='USD', \
+            Amount=100,
             Date=pd.to_datetime('2019-01-01').date(), \
             category_id=self.category.id, BankName = self.account.BankName)
         db.session.add(new)
         db.session.commit()
 
         new_transaction = Transaction.query.get(new.id)
-        self.assertTransaction(new_transaction, self.account.BankName, 'EUR', 100, 101, '2019-01-01', 'description', None)
+        self.assertTransaction(new_transaction, self.account.BankName, 'USD', 100, 87.53884536262967, '2019-01-01', 'description', None, None)
         self.assertEqual(new_transaction.category, self.category)
 
         
@@ -116,104 +116,13 @@ class FlaskTransactionTestCase(BasicTest):
             data=dict(
                 transaction_id=new.id,
                 Amount=200,
-                AmountEUR=201,
-                RunningBalance=2000,
                 category_id=self.category2.id,
                 TransactionNumber='xxx'
             ))
         self.assertEqual(response.status_code, 200)
         updated_transaction = Transaction.query.get(new.id)
-        self.assertTransaction(new_transaction, self.account.BankName, 'EUR', 200, 201, '2019-01-01', 'description', 'xxx')
+        self.assertTransaction(new_transaction, self.account.BankName, 'USD', 200, 175.07769072525934, '2019-01-01', 'description', 'xxx', 200)
         self.assertEqual(new_transaction.category, self.category2)
-
-
-    def test_add_future_transactions_monthly(self):
-        response = self.client.post(
-            '/addFutureTransactions/', 
-            data=dict(
-                BankName=self.account.BankName,
-                Currency='EUR',
-                AmountEUR=100,
-                fromDate= '2019-01-01',
-                frequency= "Monthly",
-                numberOccurrencies= 5,
-                Description='desc',
-                category_id=self.category.id
-            ))
-        self.assertEqual(response.status_code, 200)
-        results = json.loads(response.data).get('data')
-        results_obj = list(map(lambda d: namedtuple("t", d.keys())(*d.values()), results))
-        self.assertEqual(len(results), 5)
-        self.assertTransaction(results_obj[0], self.account.BankName, 'EUR', 100, 100, '2019-01-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[1], self.account.BankName, 'EUR', 100, 100, '2019-02-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[2], self.account.BankName, 'EUR', 100, 100, '2019-03-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[3], self.account.BankName, 'EUR', 100, 100, '2019-04-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[4], self.account.BankName, 'EUR', 100, 100, '2019-05-01', 'desc', 'Future')
-
-    def test_add_future_transactions_quartely(self):
-        response = self.client.post(
-            '/addFutureTransactions/', 
-            data=dict(
-                BankName=self.account.BankName,
-                Currency='EUR',
-                AmountEUR=100,
-                fromDate= '2019-01-01',
-                frequency= "Quartely",
-                numberOccurrencies= 3,
-                Description='desc',
-                category_id=self.category.id
-            ))
-        self.assertEqual(response.status_code, 200)
-        results = json.loads(response.data).get('data')
-        results_obj = list(map(lambda d: namedtuple("t", d.keys())(*d.values()), results))
-        self.assertEqual(len(results), 3)
-        self.assertTransaction(results_obj[0], self.account.BankName, 'EUR', 100, 100, '2019-01-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[1], self.account.BankName, 'EUR', 100, 100, '2019-04-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[2], self.account.BankName, 'EUR', 100, 100, '2019-07-01', 'desc', 'Future')
-
-    def test_add_future_transactions_yearly(self):
-        response = self.client.post(
-            '/addFutureTransactions/', 
-            data=dict(
-                BankName=self.account.BankName,
-                Currency='EUR',
-                AmountEUR=100,
-                fromDate= '2019-01-01',
-                frequency= "Yearly",
-                numberOccurrencies= 3,
-                Description='desc',
-                category_id=self.category.id
-            ))
-        self.assertEqual(response.status_code, 200)
-        results = json.loads(response.data).get('data')
-        results_obj = list(map(lambda d: namedtuple("t", d.keys())(*d.values()), results))
-        self.assertEqual(len(results), 3)
-        self.assertTransaction(results_obj[0], self.account.BankName, 'EUR', 100, 100, '2019-01-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[1], self.account.BankName, 'EUR', 100, 100, '2020-01-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[2], self.account.BankName, 'EUR', 100, 100, '2021-01-01', 'desc', 'Future')
-    
-    def test_add_future_transactions_weekly(self):
-        response = self.client.post(
-            '/addFutureTransactions/', 
-            data=dict(
-                BankName=self.account.BankName,
-                Currency='EUR',
-                AmountEUR=100,
-                fromDate= '2019-01-01',
-                frequency= "Weekly",
-                numberOccurrencies= 3,
-                Description='desc',
-                category_id=self.category.id
-            ))
-        self.assertEqual(response.status_code, 200)
-        results = json.loads(response.data).get('data')
-        results_obj = list(map(lambda d: namedtuple("t", d.keys())(*d.values()), results))
-        self.assertEqual(len(results), 3)
-        self.assertTransaction(results_obj[0], self.account.BankName, 'EUR', 100, 100, '2019-01-01', 'desc', 'Future')
-        self.assertTransaction(results_obj[1], self.account.BankName, 'EUR', 100, 100, '2019-01-08', 'desc', 'Future')
-        self.assertTransaction(results_obj[2], self.account.BankName, 'EUR', 100, 100, '2019-01-15', 'desc', 'Future')
-    
-
 
 if __name__ == '__main__':
     unittest.main()

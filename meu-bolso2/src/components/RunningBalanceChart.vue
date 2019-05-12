@@ -1,17 +1,17 @@
 <template>
-  <div>
+  <v-flex xs12 sm6 md10>
     <meu-bolso-line
-      :height="300"
+      :height=300
       :chartData="chartData"
       :title="title"
       xLabel="Date"
       data-set-label="BankName"
     ></meu-bolso-line>
-  </div>
+  </v-flex>
 </template>
 
 <script>
-import meuBolsoLine from "../charts/meuBolsoLine.js";
+import meuBolsoLine from "../charts/MeuBolsoLine.js";
 import moment from "moment";
 import { colors } from "../util/Utils.js";
 
@@ -64,7 +64,6 @@ export default {
     },
     getChartData() {
       let datasets = [];
-      
 
       let alabels = this.allData.map(x => moment(x.Date));
 
@@ -81,15 +80,13 @@ export default {
         r[a["BankName"]] = r[a["BankName"]] || {};
         let dateRunning = moment(a.Date).format("YYYY-MM-DD");
         r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
-        
+
         // r["Total"] = r["Total"] || {};
         // let value =  r["Total"][dateRunning] || 0;
         // value += Math.round(a.RunningBalance);
         // r["Total"][dateRunning] = value;
         return r;
       }, Object.create(null));
-
-      console.log(groupedData)
 
       let runningValues = [];
       for (let bank in groupedData) {

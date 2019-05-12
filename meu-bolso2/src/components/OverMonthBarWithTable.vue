@@ -13,7 +13,7 @@
 </template> 
 
 <script>
-import meuBolsoBar from "../charts/meuBolsoBar.js";
+import meuBolsoBar from "../charts/MeuBolsoBar.js";
 import Vuetable from "vuetable-2/src/components/Vuetable.vue";
 import Vue from "vue";
 

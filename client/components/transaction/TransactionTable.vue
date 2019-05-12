@@ -150,19 +150,19 @@ export default {
       this.selected_transaction = data;
       this.$events.fire("edit-record", data);
     },
-    onDelete(data) {
-      HTTP
-        .delete(
-          "deleteTransaction/" + data.id,
-          querystring.stringify()
-        )
-        .then(response => {
-          this.onModalClose();
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
+    // onDelete(data) {
+    //   HTTP
+    //     .delete(
+    //       "deleteTransaction/" + data.id,
+    //       querystring.stringify()
+    //     )
+    //     .then(response => {
+    //       this.onModalClose();
+    //     })
+    //     .catch(function(error) {
+    //       console.log(error);
+    //     });
+    // },
     onFilterSet(filterParams) {
       this.appendParams.filter = filterParams;
       if (this.$refs.vuetableTransaction)

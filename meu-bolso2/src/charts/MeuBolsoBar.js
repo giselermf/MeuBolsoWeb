@@ -1,7 +1,8 @@
 import { Bar } from 'vue-chartjs'
 
-export default Bar.extend({
-  data () {
+export default {
+  extends: Bar,
+  data() {
     return {
       options: {
         scales: {
@@ -14,7 +15,7 @@ export default Bar.extend({
               display: true
             }
           }],
-          xAxes: [ {
+          xAxes: [{
             stacked: true,
             categoryPercentage: 0.5,
             barPercentage: 1,
@@ -36,17 +37,17 @@ export default Bar.extend({
     }
   },
   props: ['chartData', 'title'],
-  mounted () {
+  mounted() {
     if (this._chart) this._chart.destroy();
-    this.renderChart(this.chartData, this.options );
+    this.renderChart(this.chartData, this.options);
   },
-  watch:{
+  watch: {
     'chartData': {
-      handler (newData, oldData) {
+      handler(newData, oldData) {
         this.options.title.text = this.title;
         if (this._chart) this._chart.destroy();
         this.renderChart(this.chartData, this.options);
       }
     }
-	},
-})
+  },
+}
