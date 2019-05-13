@@ -34,29 +34,26 @@
               </v-tab>
 
               <v-tab-item :value="'tab-1'">
+                <v-card flat></v-card>
+              </v-tab-item>
+
+              <v-tab-item :value="'tab-2'">
                 <v-card flat>
-                  
+                  <transactions :accountTypes="['Checking Account', 'Credit Card']"></transactions>
                 </v-card>
               </v-tab-item>
 
-              <v-tab-item  :value="'tab-2'">
-                <v-card flat>
-                  <transactions :accountTypes="['Checking Account', 'Credit Card']"  ></transactions>
-                </v-card>
-              </v-tab-item>
-
-              <v-tab-item  :value="'tab-3'">
+              <v-tab-item :value="'tab-3'">
                 <v-card flat>
                   <category-table></category-table>
                 </v-card>
               </v-tab-item>
 
-              <v-tab-item  :value="'tab-4'">
+              <v-tab-item :value="'tab-4'">
                 <v-card flat>
-                  <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-30"></transactions>
+                  <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-3"></transactions>
                 </v-card>
               </v-tab-item>
-
             </v-tabs>
           </div>
         </v-app>
@@ -72,20 +69,12 @@ import CategoryTable from "./components/CategoryTable";
 export default {
   name: "App",
   components: {
-    Transactions, CategoryTable
+    Transactions,
+    CategoryTable
   },
   data() {
     return {
-      active: null,
-      text:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
     };
-  },
-  methods: {
-    next() {
-      const active = parseInt(this.active);
-      this.active = active < 2 ? active + 1 : 0;
-    }
   }
 };
 </script>

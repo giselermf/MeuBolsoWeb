@@ -2,6 +2,7 @@ import { Bar } from 'vue-chartjs'
 
 export default {
   extends: Bar,
+  props: ['chartData', 'title'],
   data() {
     return {
       options: {
@@ -36,7 +37,7 @@ export default {
       }
     }
   },
-  props: ['chartData', 'title'],
+  
   mounted() {
     if (this._chart) this._chart.destroy();
     this.renderChart(this.chartData, this.options);

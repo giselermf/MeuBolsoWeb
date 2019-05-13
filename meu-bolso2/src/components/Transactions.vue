@@ -94,22 +94,32 @@
           </v-flex>
         </v-layout>
       </v-flex>
-      <v-flex xs12 sm6 md6 style="height: 300px;">
-        <select v-model="grouper">
-          <option disabled value>Please select one</option>
-          <option>Type</option>
-          <option>Category</option>
-          <option>SubCategory</option>
-        </select>
-        <over-month-with-table
-          :height="300"
-          :allData="allData"
-          :show-table="true"
-          :grouper="grouper"
-        ></over-month-with-table>
-      </v-flex>
-      <v-flex xs12 sm6 md6 style="height: 300px;">
-        <RunningBalanceChart ref="runningBalanceChart" :allData="allData"></RunningBalanceChart>
+      <v-flex xs12 sm6 md6 >
+        <div>
+          <v-tabs color="cyan" dark slider-color="yellow">
+            <v-tab href="#tab-1">Over Month</v-tab>
+            <v-tab href="#tab-2">Running Balance</v-tab>
+            <v-tab-item :value="'tab-1'">
+              <v-card flat>
+                <v-combobox
+                  v-model="grouper"
+                  :items="['Type', 'Category', 'SubCategory']"
+                  label="Please select one"
+                ></v-combobox>
+                <over-month-with-table
+                  :height="200"
+                  :allData="allData"
+                  :grouper="grouper"
+                ></over-month-with-table>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item :value="'tab-2'">
+              <v-card flat>
+                <RunningBalanceChart ref="runningBalanceChart" :allData="allData"></RunningBalanceChart>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </div>
       </v-flex>
     </v-layout>
     <transactions-table
@@ -160,13 +170,13 @@ export default {
   }),
   mounted() {
     this.dateFrom = moment(new Date())
-        .add(this.dateFromDelta, "month")
-        .startOf("month")
-        .format("YYYY-MM-DD");
+      .add(this.dateFromDelta, "month")
+      .startOf("month")
+      .format("YYYY-MM-DD");
     this.dateTo = moment(new Date())
-        .add(this.dateToDelta, "month")
-        .endOf("month")
-        .format("YYYY-MM-DD");
+      .add(this.dateToDelta, "month")
+      .endOf("month")
+      .format("YYYY-MM-DD");
     this.getData();
   },
   watch: {

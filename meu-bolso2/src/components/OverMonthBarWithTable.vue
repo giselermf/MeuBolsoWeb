@@ -1,22 +1,25 @@
 <template>
-<div >
-    <meu-bolso-bar :height="height" :chartData="chartData" xLabel="yearmonth" datasetLabel="grouper" :title="title" ></meu-bolso-bar>  
-    <div v-if="showTable && tableFields.length>0" class="ui  segment">
-      <vuetable ref="vuetableData"
-            :data="tableData"
-            :api-mode=false
-            table-wrapper="#content"
-            :fields="tableFields"
-      ></vuetable> 
+  <div>
+    <meu-bolso-bar
+      :height="height"
+      :chartData="chartData"
+      xLabel="yearmonth"
+      data-set-label="grouper"
+      :title="title"
+    ></meu-bolso-bar>
+    <v-checkbox v-model="showTable" :label="`Show table: ${showTable.toString()}`"></v-checkbox>
+    <div v-if="showTable && tableData.length>0" class="ui segment">
+      <v-data-table ref="vuetableData" :headers="tableLabels" :items="tableData" class="elevation-1">
+        <template slot="items" slot-scope="props">
+          <td v-for="header in tableLabels" :key="header.value">{{ props.item[header.text] }}</td>
+        </template>
+      </v-data-table>
     </div>
-</div>
+  </div>
 </template> 
 
 <script>
 import meuBolsoBar from "../charts/MeuBolsoBar.js";
-import Vuetable from "vuetable-2/src/components/Vuetable.vue";
-import Vue from "vue";
-
 import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar,
@@ -25,30 +28,37 @@ import {
 
 export default {
   components: {
-    meuBolsoBar,
-    Vuetable
+    meuBolsoBar
   },
-  props: ["allData", "width", "height", "showTable", "grouper"],
+  props: ["allData", "height", "grouper"],
   data() {
     return {
+      showTable: true,
       title: this.grouper + " Over Months",
-      tableFields: [],
       tableData: [],
-      chartData: {}
+      chartData: {},
+      tableLabels: [{ text: "name", value: "name" }]
     };
   },
   watch: {
     allData: {
       handler(newData, oldData) {
-        this.getOverMonth();
+        console.log('!!! allData')
+        this.getChartData();
       }
     },
     grouper: {
       handler(newData, oldData) {
         this.title = this.grouper + " Over Months";
-        this.getOverMonth();
+        console.log('!!! grouper')
+
+        this.getChartData();
       }
     }
+  },
+  mounted() {
+    console.log('!!! created')
+    this.getChartData();
   },
   methods: {
     formatValues(value) {
@@ -60,41 +70,44 @@ export default {
           '<div style="text-align: end;color: black;">' + value + "</span>"
         );
     },
-    getOverMonth() {
+    getChartData() {
       if (this.allData == null) return;
       let rows = {};
       let groupedData = getGroupByMonthAnd(this.allData, this.grouper);
+      let newData = [];
       //clean table data
       this.tableData.splice(0, this.tableData.length);
-      //this.tableFields.splice(0, this.tableFields.length);
-      this.tableFields = ["Desc"];
-      //push data into table data
-      let grandTotal = {"Desc": "Total"};
+
       for (let col in groupedData) {
-        if (this.tableFields.indexOf(col) < 0)
-          this.tableFields.push({ name: col, callback: "formatValues" });
         for (let desc in groupedData[col]) {
-          grandTotal[col] = (grandTotal[col] || 0) + groupedData[col][desc]
           if (groupedData[col][desc] != 0) {
-            if (desc in rows) {
-              rows[desc][col] = groupedData[col][desc];
-            } else {
-              let newCol = {};
-              newCol[col] = groupedData[col][desc];
-              rows[desc] = newCol;
-            }
+            let entry = {};
+            entry["name"] = desc;
+            entry["date"] = col;
+            entry["value"] = groupedData[col][desc];
+            newData.push(entry);
           }
         }
       }
-      for (let e in rows) {
-        rows[e]["Desc"] = e;
-        this.tableData.push(rows[e]);
+      let result = newData.reduce(function(r, a) {
+        r[a["name"]] = r[a["name"]] || [];
+        r[a["name"]].push(a);
+        return r;
+      }, Object.create(null));
+
+      for (let col in result) {
+        let entry = {};
+        entry["name"] = col;
+        for (let value in result[col]) {
+          let date = result[col][value]["date"];
+          let newLabel = { text: date, value: date };
+          if (this.tableLabels.findIndex(x => x.text == date) === -1) {
+            this.tableLabels.push(newLabel);
+          }
+          entry[date] = result[col][value]["value"];
+        }
+        this.tableData.push(entry);
       }
-      this.tableData.push(grandTotal);
-      if (this.$refs.vuetableData) {
-        Vue.nextTick(() => this.$refs.vuetableData.normalizeFields());
-      }
-      //chart data
       this.chartData = getLabelAndDatabaseBar(groupedData, colors);
     }
   }

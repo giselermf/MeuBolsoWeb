@@ -2,6 +2,7 @@
   <v-flex xs12 sm6 md10>
     <meu-bolso-line
       :height=300
+      :width=600
       :chartData="chartData"
       :title="title"
       xLabel="Date"
@@ -23,8 +24,7 @@ export default {
   data() {
     return {
       title: "Running Balance",
-      chartData: {},
-      componentKey: 0
+      chartData: {}
     };
   },
   created() {
@@ -38,9 +38,6 @@ export default {
     }
   },
   methods: {
-    forceRerender() {
-      this.componentKey += 1;
-    },
     createDataset(alabels, bank, allBankSerie, datasetsLength) {
       let values = [];
       let lastValue = 0;
@@ -80,11 +77,6 @@ export default {
         r[a["BankName"]] = r[a["BankName"]] || {};
         let dateRunning = moment(a.Date).format("YYYY-MM-DD");
         r[a["BankName"]][dateRunning] = Math.round(a.RunningBalance);
-
-        // r["Total"] = r["Total"] || {};
-        // let value =  r["Total"][dateRunning] || 0;
-        // value += Math.round(a.RunningBalance);
-        // r["Total"][dateRunning] = value;
         return r;
       }, Object.create(null));
 
