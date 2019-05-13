@@ -19,7 +19,7 @@
                   <v-text-field v-model="description" :counter="20" label="Description" required></v-text-field>required
                 </v-flex>
 
-                <v-btn @click="add">Add</v-btn>
+                <v-btn color="primary" dark class="mb-2" @click="add">Add</v-btn>
               </v-layout>
             </v-container>
           </v-form>

@@ -33,6 +33,11 @@
                 <v-icon>attach_money</v-icon>
               </v-tab>
 
+              <v-tab href="#tab-5">
+                Process Data
+                <v-icon>add_circle_outline</v-icon>
+              </v-tab>
+
               <v-tab-item :value="'tab-1'">
                 <v-card flat></v-card>
               </v-tab-item>
@@ -54,6 +59,13 @@
                   <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-3"></transactions>
                 </v-card>
               </v-tab-item>
+
+              <v-tab-item :value="'tab-5'">
+                <v-card flat>
+                 <process-data></process-data>
+                </v-card>
+              </v-tab-item>
+
             </v-tabs>
           </div>
         </v-app>
@@ -65,12 +77,14 @@
 <script>
 import Transactions from "./components/Transactions";
 import CategoryTable from "./components/CategoryTable";
+import ProcessData from "./components/process/ProcessData.vue";
 
 export default {
   name: "App",
   components: {
     Transactions,
-    CategoryTable
+    CategoryTable,ProcessData
+    
   },
   data() {
     return {
