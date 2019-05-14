@@ -1,5 +1,4 @@
 <template>
-  <v-container fluid>
     <v-layout wrap>
       <v-flex xs12>
         <v-combobox
@@ -10,7 +9,6 @@
         ></v-combobox>
       </v-flex>
     </v-layout>
-  </v-container>
 </template>
 
 <script>

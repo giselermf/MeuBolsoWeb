@@ -10,13 +10,13 @@
     </v-layout>
     <p></p>
 
-    <pending-reconciliation v-for="row in allData" :key="row.id" :row="row" :columns="columns"></pending-reconciliation>
+    <pending-reconciliation @reconcilitions-refresh="removeFromData" v-for="row in allData" :key="row.id" :row="row" :columns="columns"></pending-reconciliation>
   </div>
 </template>
 
 <script>
 import PendingReconciliation from "./PendingReconciliation.vue";
-import { HTTP } from "../../util/http-common";
+import { HTTP } from "../util/http-common";
 import querystring from "querystring";
 
 export default {
@@ -32,7 +32,6 @@ export default {
   },
   mounted() {
     this.search();
-    this.$events.$on("reconcilitions-refresh", e => this.removeFromData(e));
   },
   methods: {
     removeFromData(e) {

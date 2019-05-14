@@ -1,18 +1,21 @@
 <template>
   <div>
-    <v-card-title>
-      <v-spacer></v-spacer>
-      <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
-    </v-card-title>
-    <v-toolbar v-if="this.editedItem.BankName" flat color="white">
-      <v-spacer></v-spacer>
-      <v-dialog v-model="dialog" max-width="700px">
-        <template v-slot:activator="{ on }">
-          <v-btn color="primary" dark class="mb-2" v-on="on">New Transaction</v-btn>
-        </template>
-        <transaction-add :editedItem="editedItem" @close-dialog="closeDialog"></transaction-add>
-      </v-dialog>
-    </v-toolbar>
+    <v-layout row wrap>
+      <v-flex xs12 sm6 md6>
+        <v-spacer></v-spacer>
+        <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
+        <v-spacer></v-spacer>
+      </v-flex>
+      <v-toolbar v-if="this.editedItem.BankName" flat color="white">
+        <v-spacer></v-spacer>
+        <v-dialog v-model="dialog" max-width="700px">
+          <template v-slot:activator="{ on }">
+            <v-btn color="primary" dark class="mb-2" v-on="on">New Transaction</v-btn>
+          </template>
+          <transaction-add :editedItem="editedItem" @close-dialog="closeDialog"></transaction-add>
+        </v-dialog>
+      </v-toolbar>
+    </v-layout>
     <v-data-table :headers="headers" :items="allData" :search="search">
       <template v-slot:items="props">
         <td :class="getClass(props.item)">{{ props.item.BankName }}</td>

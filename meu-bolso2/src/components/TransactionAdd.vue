@@ -82,7 +82,7 @@
   </v-card>
 </template>
 <script>
-import CategorySelect from "./CategorySelect";
+import CategorySelect from "../util/CategorySelect";
 import moment from "moment";
 import { HTTP } from "../util/http-common";
 import querystring from "querystring";

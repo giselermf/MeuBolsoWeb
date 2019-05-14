@@ -1,5 +1,18 @@
 <template>
   <div>
+    <v-layout row wrap>
+      <v-flex xs12 sm6 md6>
+        <v-combobox
+          v-model="grouper"
+          :items="['Type', 'Category', 'SubCategory']"
+          label="Please select one"
+        ></v-combobox>
+      </v-flex>
+      <v-flex xs12 sm6 md3>
+        <v-checkbox v-model="showTable" :label=" 'Show table' "></v-checkbox>
+      </v-flex>
+    </v-layout>
+
     <meu-bolso-bar
       :height="height"
       :chartData="chartData"
@@ -7,9 +20,13 @@
       data-set-label="grouper"
       :title="title"
     ></meu-bolso-bar>
-    <v-checkbox v-model="showTable" :label="`Show table: ${showTable.toString()}`"></v-checkbox>
     <div v-if="showTable && tableData.length>0" class="ui segment">
-      <v-data-table ref="vuetableData" :headers="tableLabels" :items="tableData" class="elevation-1">
+      <v-data-table
+        ref="vuetableData"
+        :headers="tableLabels"
+        :items="tableData"
+        class="elevation-1"
+      >
         <template slot="items" slot-scope="props">
           <td v-for="header in tableLabels" :key="header.value">{{ props.item[header.text] }}</td>
         </template>
@@ -19,7 +36,7 @@
 </template> 
 
 <script>
-import meuBolsoBar from "../charts/MeuBolsoBar.js";
+import meuBolsoBar from "./MeuBolsoBar.js";
 import {
   getGroupByMonthAnd,
   getLabelAndDatabaseBar,
@@ -30,34 +47,36 @@ export default {
   components: {
     meuBolsoBar
   },
-  props: ["allData", "height", "grouper"],
+  props: ["allData", "height"],
   data() {
+    scroll;
     return {
-      showTable: true,
-      title: this.grouper + " Over Months",
+      showTable: false,
+      grouper: "Category",
       tableData: [],
       chartData: {},
       tableLabels: [{ text: "name", value: "name" }]
     };
   },
+  computed: {
+    title: function() {
+      return this.grouper + " Over Months";
+    }
+  },
   watch: {
     allData: {
       handler(newData, oldData) {
-        console.log('!!! allData')
         this.getChartData();
       }
     },
     grouper: {
       handler(newData, oldData) {
-        this.title = this.grouper + " Over Months";
-        console.log('!!! grouper')
-
         this.getChartData();
       }
     }
   },
   mounted() {
-    console.log('!!! created')
+    console.log("!!! created");
     this.getChartData();
   },
   methods: {

@@ -39,12 +39,14 @@
               </v-tab>
 
               <v-tab-item :value="'tab-1'">
-                <v-card flat></v-card>
+                <v-card flat>
+                  <main-dashboard></main-dashboard>
+                </v-card>
               </v-tab-item>
 
               <v-tab-item :value="'tab-2'">
                 <v-card flat>
-                  <transactions :accountTypes="['Checking Account', 'Credit Card']"></transactions>
+                  <transactions :showOverMonth="true" :accountTypes="['Checking Account', 'Credit Card']"></transactions>
                 </v-card>
               </v-tab-item>
 
@@ -78,12 +80,13 @@
 import Transactions from "./components/Transactions";
 import CategoryTable from "./components/CategoryTable";
 import ProcessData from "./components/process/ProcessData.vue";
+import MainDashboard from "./components/MainDashboard.vue";
 
 export default {
   name: "App",
   components: {
     Transactions,
-    CategoryTable,ProcessData
+    CategoryTable,ProcessData, MainDashboard
     
   },
   data() {

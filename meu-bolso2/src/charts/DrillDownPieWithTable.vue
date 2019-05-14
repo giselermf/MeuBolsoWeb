@@ -1,47 +1,60 @@
 <template>
-<div>
-    <select v-model="currentCategoryType" @change="reset()" >
+  <div>
+    <select v-model="currentCategoryType" @change="reset()">
       <option>Incomes</option>
       <option>Expenses</option>
     </select>
-    <meu-bolso-pie :width="500" :height="200" 
-    :chartLabels="chartLabels" :chartValues="chartValues" :title="compositeTitle" :positives="isPositive" ></meu-bolso-pie>
+    <meu-bolso-pie
+      :width="500"
+      :height="200"
+      @drilldown-click="onClick"
+      :chartLabels="chartLabels"
+      :chartValues="chartValues"
+      :title="compositeTitle"
+      :positives="isPositive"
+    ></meu-bolso-pie>
     <br>
-    <vuetable
-        :data="tableData"
-        :api-mode=false
-        table-wrapper="#content"
-        :fields="fields"
-    ></vuetable>      
-</div>
+    <v-flex xs12 sm6 md6>
+      <v-data-table
+        :headers="tableHeaders"
+        :items="tableData"
+        class="elevation-1 .theme--light"
+        hide-actions
+        hide-headers
+      >
+        <template v-slot:items="props">
+          <td class="text-xs-right">{{ props.item.Group }}</td>
+          <td class="text-xs-right">{{ props.item.Value }}</td>
+        </template>
+      </v-data-table>
+    </v-flex>
+  </div>
 </template>
 
 <script>
-import MeuBolsoPie from "../charts/MeuBolsoPie.js";
-import Vuetable from "vuetable-2/src/components/Vuetable.vue";
+import MeuBolsoPie from "./MeuBolsoPie.js";
 import { groupDataBy } from "../util/Utils.js";
 
 export default {
   components: {
-    Vuetable,
     MeuBolsoPie
   },
   props: ["allData"],
   data() {
     return {
       compositeTitle: null,
-      currentCategoryType: 'Expenses',
+      currentCategoryType: "Expenses",
       labels: [],
       values: [],
       tableData: [],
       chartLabels: null,
       chartValues: null,
       drillDownLevel: 1,
-      fields: [{ name: "Group" }, { name: "Value", callback: "formatValues" }]
+      tableHeaders: [
+        { value: "Group", text: "Group" },
+        { value: "Value", text: "Value" }
+      ]
     };
-  },
-  mounted() {
-    this.$events.$on("drilldown-click", eventData => this.onClick(eventData));
   },
   watch: {
     allData: {

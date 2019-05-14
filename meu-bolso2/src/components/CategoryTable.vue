@@ -77,7 +77,7 @@
 
 <script>
 import { HTTP } from "../util/http-common";
-import CategorySelect from "./CategorySelect";
+import CategorySelect from "../util/CategorySelect";
 import querystring from "querystring";
 
 export default {

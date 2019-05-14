@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { HTTP } from "../../util/http-common";
+import { HTTP } from "../util/http-common";
 import querystring from "querystring";
 
 export default {
@@ -61,7 +61,7 @@ export default {
         })
       )
         .then(response => {
-          this.$events.fire("reconcilitions-refresh", response);
+          this.$emit("reconcilitions-refresh", response);
         })
         .catch(function(error) {
           console.log(error);

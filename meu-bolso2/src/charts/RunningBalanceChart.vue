@@ -4,7 +4,7 @@
       :height=300
       :width=600
       :chartData="chartData"
-      :title="title"
+      :title=" 'Running Balance'"
       xLabel="Date"
       data-set-label="BankName"
     ></meu-bolso-line>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import meuBolsoLine from "../charts/MeuBolsoLine.js";
+import meuBolsoLine from "./MeuBolsoLine.js";
 import moment from "moment";
 import { colors } from "../util/Utils.js";
 
@@ -23,7 +23,6 @@ export default {
   props: ["allData"],
   data() {
     return {
-      title: "Running Balance",
       chartData: {}
     };
   },

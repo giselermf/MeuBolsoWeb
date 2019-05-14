@@ -3,7 +3,8 @@ import {
   getDataSetPie
 } from "../util/Utils.js";
 
-export default Pie.extend({
+export default {
+  extends: Pie,
   props: ['chartLabels', 'chartValues', 'positives', 'title'],
   data() {
     return {
@@ -36,7 +37,7 @@ export default Pie.extend({
       this.renderChart(dataset, this.chartOptions);
     },
     graphClickEvent(event, item) {
-      this.$events.fire("drilldown-click", item[0]._index);
+      this.$emit("drilldown-click", item[0]._index);
     }
   }
-})
+}
