@@ -14,9 +14,9 @@ c = CurrencyConverter('http://www.ecb.int/stats/eurofxref/eurofxref-hist.zip', f
 
 class Account(db.Model):
     BankName = db.Column(db.String(30), primary_key=True)
-    Active = db.Column(db.Boolean)
-    Type = db.Column(db.String(15))
-    Currency= db.Column(db.String(6))
+    Active = db.Column(db.Boolean, nullable=False)
+    Type = db.Column(db.String(15), nullable=False)
+    Currency= db.Column(db.String(6), nullable=False)
 
 class Categorydescription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,7 +73,7 @@ class Transaction(db.Model):
         return self.category.SubCategory
     
     @hybrid_property
-    def Accountctive(self):
+    def AccountActive(self):
         return self.account.Active
     
     @hybrid_property
@@ -145,6 +145,7 @@ class TransactionsSchema(ModelSchema):
     SubCategory = String(dump_only=True)
     BankName = String(dump_only=True)
     Active = String(dump_only=True)
+    AccountType = String(dump_only=True)
 
 class PendingReconciliationSchema(ModelSchema):
     class Meta:
@@ -170,7 +171,6 @@ class TransactionsFilterSchema(Schema):
         fields = ('BankName', 'Type', 'Category', 'SubCategory')
 
 def update_running_balance(bank_name):
-    print('!!!! update_running_balance ', bank_name )
     running_balance = 0
     transactions = Transaction.query.filter().filter(Transaction.BankName == bank_name).order_by(Transaction.Date).all()
     for t in transactions:

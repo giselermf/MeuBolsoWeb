@@ -2,7 +2,7 @@
     <v-layout wrap>
       <v-flex xs12>
         <v-combobox
-          :multiple="multiple"
+          multiple
           v-model="selectedAccount"
           :items="allActiveAccounts"
           label="Select account"
@@ -20,7 +20,6 @@ export default {
     dateFrom: String,
     dateTo: String,
     accountTypes: null,
-    multiple: false
   },
   data() {
     return {
@@ -52,9 +51,9 @@ export default {
     // selectFirstAccount() {
     //   this.selectedAccount = this.allActiveAccounts[0];
     // },
-    setSelectedAccount(BankName) {
-      this.selectedAccount = BankName;
-    },
+    // setSelectedAccount(BankName) {
+    //   this.selectedAccount = BankName;
+    // },
     getSelectedAccount() {
       return this.selectedAccount;
     },

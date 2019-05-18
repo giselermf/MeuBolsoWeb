@@ -58,7 +58,7 @@
 
               <v-tab-item :value="'tab-4'">
                 <v-card flat>
-                  <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-3"></transactions>
+                  <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-30"></transactions>
                 </v-card>
               </v-tab-item>
 
@@ -79,7 +79,7 @@
 <script>
 import Transactions from "./components/Transactions";
 import CategoryTable from "./components/CategoryTable";
-import ProcessData from "./components/process/ProcessData.vue";
+import ProcessData from "./process/ProcessData.vue";
 import MainDashboard from "./components/MainDashboard.vue";
 
 export default {

@@ -19,7 +19,8 @@ class FlaskTransactionTestCase(BasicTest):
 
         self.category = self.create_category("Expense", "Home", "TV")
         self.category2 = self.create_category("Expense", "Home", "Cell Phone")
-        self.account = self.create_account()
+        self.create_accounts()
+        self.account = Account.query.first()
 
     def tearDown(self):
         super(BasicTest, self).tearDown()

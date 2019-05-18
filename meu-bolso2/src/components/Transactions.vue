@@ -111,8 +111,8 @@ export default {
   },
   data: () => ({
     allData: [],
-    min: -10000,
-    max: 10000,
+    min: -100000,
+    max: 100000,
     slider: 40,
     range: [-10000, 10000],
     selectedAccount: null,
@@ -129,7 +129,11 @@ export default {
     },
     getFilterParams() {
       let params = {};
-      params["bankName"] = this.selectedAccount;
+      if (this.selectedAccount && this.selectedAccount.length > 0) {
+        params["bankNames"] = this.selectedAccount;
+      } else {
+        params["accountTypes"] = this.accountTypes;
+      } 
       params["fromDate"] = this.$refs.date_range.getFromDate();
       params["toDate"] = this.$refs.date_range.getToDate();
       params["fromAmount"] = this.range[0];
@@ -143,8 +147,9 @@ export default {
           "transactionsFiltered/?sort=BankName|asc&filter=" +
           JSON.stringify(this.getFilterParams())
       })
-        .then(response => {
+        .then(response => { 
           this.allData = response["data"]["data"];
+          console.log('main componenent fresh dat',this.getFilterParams(), response["data"].total)
         })
         .catch(function(error) {
           console.log(error);

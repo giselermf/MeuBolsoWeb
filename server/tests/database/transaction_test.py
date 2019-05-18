@@ -181,12 +181,12 @@ class TransactionModelTestCase(unittest.TestCase):
 
         db.session.commit()
 
-        query = get_transaction_query("Date", "desc", bankName="Test Bank")
+        query = get_transaction_query("Date", "desc", bankNames=["Test Bank"])
         output =  TransactionsSchema(many=True).dump(query.all()).data
         self.assertEqual(output[0]['Description'], "Description for t1")
         self.assertEqual(output[0]['BankName'], "Test Bank")
    
-        query = get_transaction_query("Date", "desc", bankName="Test Bank2")
+        query = get_transaction_query("Date", "desc", bankNames=["Test Bank2"])
         output =  TransactionsSchema(many=True).dump(query.all()).data
         self.assertEqual(output[0]['Description'], "Description for t2")
         self.assertEqual(output[0]['BankName'], "Test Bank2")

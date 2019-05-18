@@ -27,8 +27,10 @@ class BasicTest(unittest.TestCase):
         db.session.commit()
         return new
 
-    def create_account(self):
-        new = Account(BankName='Bank for test', Active=True, Type='Checking Account', Currency='EUR')
-        db.session.add(new)
+    def create_accounts(self):
+        db.session.add(Account(BankName='Bank for test1 - Checking Account', Active=True, Type='Checking Account', Currency='EUR'))
+        db.session.add(Account(BankName='Bank for test2 - Checking Account', Active=True, Type='Checking Account', Currency='EUR'))
+        db.session.add(Account(BankName='Bank for test1 - Savings', Active=True, Type='Savings', Currency='EUR'))
+        db.session.add(Account(BankName='Bank for test2 - Savings', Active=True, Type='Savings', Currency='EUR'))
+
         db.session.commit()
-        return new

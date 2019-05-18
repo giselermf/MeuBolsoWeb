@@ -85,7 +85,7 @@ export default {
   props: {
     allData: Array,
     defaultDescriptionAdd: String,
-    BankName: String
+    BankName: Array
   },
   components: {
     TransactionAdd
@@ -138,7 +138,7 @@ export default {
   watch: {
     BankName: {
       handler(newData, oldData) {
-        this.editedItem.BankName = this.BankName;
+        this.editedItem.BankName = this.BankName[0];
       }
     }
   },

@@ -42,7 +42,6 @@ def _getParams(request):
     sort_params = request.args.get('sort')
     sort = None
     sort_order = 'asc'
-    print('sort_params',sort_params)
     if sort_params is not None:
         sort_params = sort_params.split('|')
         sort = sort_params[0]
@@ -109,15 +108,15 @@ def getAllAccounts():
 
 def get_transaction_query(sort, sort_order, 
                                     category_type=None, category=None, subcategory=None,
-                                    bankName=None, fromDate=None, toDate=None, 
+                                    bankNames=None, fromDate=None, toDate=None, 
                                     fromAmount=None, toAmount=None, description=None, 
-                                    exclude_budget=True):
+                                    accountTypes=None, exclude_budget=True):
     query = Transaction.query.join(Category).join(Account)
     query = _getSortClause(query, sort, sort_order)
     query = _getFilterByCategory(query, category_type, category, subcategory)
     
-    if bankName:
-        query = query.filter( Transaction.BankName == bankName)
+    if bankNames:
+        query = query.filter( Transaction.BankName.in_(tuple(bankNames)) )
     elif exclude_budget:
         query = query.filter( Transaction.BankName != "Budget")
     if fromDate:
@@ -130,6 +129,8 @@ def get_transaction_query(sort, sort_order,
         query = query.filter( Transaction.AmountEUR <= float(toAmount ))
     if description:
         query = query.filter( Transaction.Description.like("%"+description+"%") )
+    if accountTypes:
+        query = query.filter(Account.Type.in_(tuple(accountTypes)))
     return query
 
 
@@ -142,11 +143,12 @@ def transactionsFiltered():
         filter_param = json.loads(filter_param)
         query = get_transaction_query( sort=sort, sort_order=sort_order, 
             category_type=filter_param.get('type'), category=filter_param.get('category'), subcategory=filter_param.get('subcategory'),
-            bankName=filter_param.get('bankName'), fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'), 
-            fromAmount=filter_param.get('fromAmount'), toAmount=filter_param.get('toAmount'), description=filter_param.get('Description'), 
-            exclude_budget=True)
+            bankNames=filter_param.get('bankNames'), fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'), 
+            fromAmount=filter_param.get('fromAmount'), toAmount=filter_param.get('toAmount'), description=filter_param.get('Description'),
+            accountTypes=filter_param.get("accountTypes"), exclude_budget=True )
         total = len(query.all())
         query = _getLimitClause(query, page_number, per_page)
+        
         output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('transactions', total, per_page, page_number, output)
 

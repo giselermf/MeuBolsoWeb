@@ -158,7 +158,7 @@ export default {
       this.$emit("close-dialog");
     },
     onAddFutureTransactions() {
-      let transaction_date = this.editedItem.date;
+      let transaction_date = this.editedItem.Date;
 
       for (let i = 0; i < this.numberOccurrencies; i++) {
         this.postTransactions(transaction_date);
