@@ -5,7 +5,7 @@
         <v-text-field v-model="folder" :counter="100" label="Source of bank files *" required></v-text-field>
       </v-flex>
       <v-flex xs12 sm6 md6>
-        <v-btn color="primary" dark class="mb-2" @click="processData = false">Process Data</v-btn>
+        <v-btn color="primary" dark class="mb-2" @click="processData">Process Data</v-btn>
       </v-flex>
     </v-layout>
     <p></p>

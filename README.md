@@ -24,7 +24,7 @@ to start the application:
   flask run
   
 2) in client folder:
-  npm run dev
+  npm run serve
 
 to run unit tests with coverage report:
 pytest server/tests --cov=,

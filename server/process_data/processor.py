@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 from server.process_data.entry_management import ProcessUNFCU, ProcessBankAustria
 from server.process_data.category_management import Categories
-from server.app.models import Transaction
+from server.app.models import Transaction, update_running_balance
 import traceback
 from server.app import db
 
@@ -51,6 +51,7 @@ class Processor(object):
     def _process_entry(self, fileName, entry):
         self.Accounts.add(entry['Bank Name'])
         self._update_start_date(entry['Date'])
+
         query= Transaction.query.\
             filter(Transaction.Date == entry['Date'].strftime ('%Y-%m-%d')).\
             filter(Transaction.BankName == entry['Bank Name']).\
@@ -65,8 +66,11 @@ class Processor(object):
                 Filename= fileName)
             db.session.add(new_transaction)
             db.session.commit()
+            print('new', new_transaction.Date, new_transaction.Amount, new_transaction.TransactionNumber)
+            # update_running_balance(new_transaction.BankName)
             return new_transaction.id
         else:
+            print('exist', entry['Date'], entry['Bank Name'], entry['Amount'], entry['Number'])
             return from_db[0].id
         return 1
     

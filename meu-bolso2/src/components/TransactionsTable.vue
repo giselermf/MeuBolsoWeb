@@ -1,30 +1,34 @@
 <template>
   <div>
     <v-layout row wrap>
-      <v-flex xs12 sm6 md6>
+      <v-flex xs12 sm6 md8>
         <v-spacer></v-spacer>
         <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         <v-spacer></v-spacer>
       </v-flex>
-      <v-toolbar v-if="this.editedItem.BankName" flat color="white">
-        <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="700px">
+      <v-flex xs12 sm6 md4>
+        <v-dialog v-if="this.editedItem.BankName" v-model="dialog" max-width="700px">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark class="mb-2" v-on="on">New Transaction</v-btn>
           </template>
           <transaction-add :editedItem="editedItem" @close-dialog="closeDialog"></transaction-add>
         </v-dialog>
-      </v-toolbar>
+      </v-flex>
     </v-layout>
-    <v-data-table :headers="headers" :items="allData" :search="search">
+    <v-data-table
+      :headers="headers"
+      :items="allData"
+      :search="search"
+      :pagination.sync="pagination"
+    >
       <template v-slot:items="props">
-        <td :class="getClass(props.item)">{{ props.item.BankName }}</td>
-        <td :class="getClass(props.item)">{{ props.item.Type }}</td>
-        <td :class="getClass(props.item)">{{ props.item.Category }}</td>
-        <td :class="getClass(props.item)">{{ props.item.SubCategory }}</td>
-        <td :class="getClass(props.item)">{{ props.item.Description }}</td>
-        <td :class="getClass(props.item)">{{ props.item.Currency }}</td>
-        <td :class="getClass(props.item)">
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.BankName }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.Type }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.Category }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.SubCategory }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.Description }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.Currency }}</td>
+        <td >
           <v-edit-dialog :return-value.sync="props.item" lazy @close="close(props.item)">
             {{ props.item.Amount }}
             <template v-slot:input>
@@ -38,7 +42,7 @@
             </template>
           </v-edit-dialog>
         </td>
-        <td :class="getClass(props.item)">
+        <td >
           <v-edit-dialog :return-value.sync="props.item" lazy @close="close(props.item)">
             {{ props.item.Date }}
             <template v-slot:input>
@@ -52,7 +56,7 @@
             </template>
           </v-edit-dialog>
         </td>
-        <td :class="getClass(props.item)">{{ props.item.RunningBalance }}</td>
+        <td v-bind:class="{futuretransaction: isFuture(props.item)}">{{ props.item.RunningBalance }}</td>
         <td class="justify-center layout px-0">
           <v-icon small class="mr-2" @click="addTransaction(props.item)">autorenew</v-icon>
           <v-icon small @click="onDelete(props.item)">delete</v-icon>
@@ -98,13 +102,15 @@ export default {
       snackColor: "",
       snackText: "",
       max25chars: v => v.length <= 25 || "Input too long!",
-      pagination: {},
       editedItem: {
         Description: null,
         Category_id: null,
         Currency: null,
         Date: null,
         BankName: null
+      },
+      pagination: {
+        rowsPerPage: -1
       },
       defaultItem: {
         Description: this.defaultDescriptionAdd,
@@ -118,17 +124,27 @@ export default {
           text: "Band Name",
           value: "BankName",
           align: "left",
-          sortable: false
+          sortable: false,
+          width: "8%"
         },
-        { text: "Type", value: "Type" },
-        { text: "Category", value: "Category" },
-        { text: "Subcategory", value: "SubCategory" },
-        { text: "Description", value: "Description" },
-        { text: "Currency", value: "Currency" },
-        { text: "Amount", value: "Amount" },
-        { text: "Date", value: "Date" },
-        { text: "RunningBalance", value: "RunningBalance" },
-        { text: "Actions", value: "Actions" }
+        { text: "Type", value: "Type" ,
+          width: "1%"},
+        { text: "Category", value: "Category" ,
+          width: "1%"},
+        { text: "Subcategory", value: "SubCategory" ,
+          width: "1%"},
+        { text: "Description", value: "Description" ,
+          width: "8%"},
+        { text: "Currency", value: "Currency" ,
+          width: "2%"},
+        { text: "Amount", value: "Amount" ,
+          width: "1%"},
+        { text: "Date", value: "Date" ,
+          width: "2%"},
+        { text: "RunningBalance", value: "RunningBalance" ,
+          width: "1%"},
+        { text: "Actions", value: "Actions" ,
+          width: "1%"}
       ]
     };
   },
@@ -143,10 +159,8 @@ export default {
     }
   },
   methods: {
-    getClass(dataItem) {
+    isFuture(dataItem) {
       return dataItem.TransactionNumber === "Future"
-        ? "text-xs-left futuretransaction"
-        : "text-xs-left";
     },
     saveTransaction(transaction_id, new_amount, new_date) {
       HTTP.post(

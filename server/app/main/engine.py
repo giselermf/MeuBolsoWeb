@@ -12,6 +12,7 @@ from distutils.util import strtobool
 import json
 from . import main
 from .. import db
+from server.process_data.category_management import Categories
 
 def _getLimitClause(query, page_number, per_page):
     if page_number is not None and per_page is not None:
@@ -115,22 +116,26 @@ def get_transaction_query(sort, sort_order,
     query = _getSortClause(query, sort, sort_order)
     query = _getFilterByCategory(query, category_type, category, subcategory)
     
-    if bankNames:
+    if bankNames != None:
         query = query.filter( Transaction.BankName.in_(tuple(bankNames)) )
     elif exclude_budget:
         query = query.filter( Transaction.BankName != "Budget")
-    if fromDate:
+    if fromDate != None:
         query = query.filter( Transaction.Date >= fromDate)
-    if toDate:
+    if toDate != None:
         query = query.filter( Transaction.Date <= toDate)
-    if fromAmount:
+    if fromAmount != None:
         query = query.filter( Transaction.AmountEUR >= float(fromAmount))
-    if toAmount:
+    if toAmount != None:
         query = query.filter( Transaction.AmountEUR <= float(toAmount ))
-    if description:
+    if description != None:
         query = query.filter( Transaction.Description.like("%"+description+"%") )
-    if accountTypes:
+    if accountTypes != None:
         query = query.filter(Account.Type.in_(tuple(accountTypes)))
+
+    # print(bankNames, fromDate, toDate, fromAmount, toAmount, description, accountTypes)
+    # print('to', 'float', float(toAmount) , 'string', toAmount)
+    # print('query', str(query))
     return query
 
 
@@ -393,7 +398,6 @@ def post_budget():
     
 @main.route('/processData/', methods=['POST'])
 def process_data():
-    print('here', request.form.__dict__)
     folder = request.form['folder']
     Processor(folder).process()
     return pending_reconciliation()
@@ -405,6 +409,22 @@ def udpate_runnning_balance():
         for a in accounts:
             update_running_balance(a.BankName)
         return _getResponse('updateRunningBalance', None, None, 1, 'ok')
+    except:
+        db.session.rollback()
+        raise
+    finally:
+        db.session.close()
+
+@main.route('/updateCategories/', methods=['GET'])
+def udpate_categories():
+    try:
+        categories = Categories()
+        transactions = Transaction.query.all()
+        for t in transactions:
+            if t.category_id != categories.get_category(t.Description):
+                t.category_id = categories.get_category(t.Description)
+        db.session.commit()
+        return _getResponse('updateClassification', None, None, 1, 'ok')
     except:
         db.session.rollback()
         raise

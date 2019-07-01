@@ -7,8 +7,6 @@
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-content>
-      <div id="app">
-        <v-app id="inspire">
           <div>
             <v-tabs centered color="cyan" dark icons-and-text>
               <v-tabs-slider color="yellow"></v-tabs-slider>
@@ -39,38 +37,36 @@
               </v-tab>
 
               <v-tab-item :value="'tab-1'">
-                <v-card flat>
+                <v-card flat class='padding-card'>
                   <main-dashboard></main-dashboard>
                 </v-card>
               </v-tab-item>
 
               <v-tab-item :value="'tab-2'">
-                <v-card flat>
+                <v-card flat class='padding-card'>
                   <transactions :showOverMonth="true" :accountTypes="['Checking Account', 'Credit Card']"></transactions>
                 </v-card>
               </v-tab-item>
 
               <v-tab-item :value="'tab-3'">
-                <v-card flat>
+                <v-card flat class='padding-card'>
                   <category-table></category-table>
                 </v-card>
               </v-tab-item>
 
               <v-tab-item :value="'tab-4'">
-                <v-card flat>
+                <v-card flat class='padding-card'>
                   <transactions :accountTypes="['Savings']" v-bind:dateFromDelta="-30"></transactions>
                 </v-card>
               </v-tab-item>
 
               <v-tab-item :value="'tab-5'">
-                <v-card flat>
+                <v-card flat class='padding-card'>
                  <process-data></process-data>
                 </v-card>
               </v-tab-item>
 
             </v-tabs>
-          </div>
-        </v-app>
       </div>
     </v-content>
   </v-app>
@@ -95,3 +91,13 @@ export default {
   }
 };
 </script>
+
+<style>
+.padding-card {
+  padding-top: 50px;
+  padding-right: 30px;
+  padding-bottom: 50px;
+  padding-left: 80px;
+}
+</style>
+

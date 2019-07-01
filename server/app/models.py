@@ -35,9 +35,9 @@ class Transaction(db.Model):
     Description = db.Column(db.String(100), nullable=False)
     TransactionNumber = db.Column(db.String(10))
     Currency= db.Column(db.String(6), nullable=False)
-    Amount= db.Column(db.Float, nullable=False)
-    AmountEUR= db.Column(db.Float, nullable=False)
-    RunningBalance= db.Column(db.Float)
+    Amount= db.Column(db.Float(10,2), nullable=False)
+    AmountEUR= db.Column(db.Float(10,2), nullable=False)
+    RunningBalance= db.Column(db.Float(10,2))
     Date= db.Column(db.Date, nullable=False)
     TransferTo= db.Column(db.String(100))
     TransferId= db.Column(db.Integer)
@@ -101,7 +101,7 @@ def receive_before_insert(mapper, connect, target):
     target.AmountEUR  = c.convert(target.Amount, target.Currency, 'EUR',  date=target.Date)
 
 def _get_similar_transaction(id, transactionNumber, bankName, amount, date, description):
-    days_in_range= 5
+    days_in_range= 0
     from_date = date - timedelta(days=days_in_range) 
     to_date = date + timedelta(days=days_in_range) 
     return Transaction.query.\
@@ -146,6 +146,9 @@ class TransactionsSchema(ModelSchema):
     BankName = String(dump_only=True)
     Active = String(dump_only=True)
     AccountType = String(dump_only=True)
+    RunningBalance= Float(dump_only=True)
+    Amount= Float(dump_only=True)
+    AmountEUR= Float(dump_only=True)
 
 class PendingReconciliationSchema(ModelSchema):
     class Meta:

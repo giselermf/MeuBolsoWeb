@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-container fluid>
       <v-layout row wrap>
         <v-flex xs12 sm6 md6>
           <v-flex>
@@ -68,14 +67,11 @@
           </div>
         </v-flex>
       </v-layout>
-    </v-container>
-    <v-container fluid>
       <transactions-table
         @refresh-transaction-table-data="getData"
         v-bind:BankName="selectedAccount"
         :allData="allData"
       ></transactions-table>
-    </v-container>
   </div>
 </template>
 
