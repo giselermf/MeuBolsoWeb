@@ -4,7 +4,6 @@
       <v-menu
         :close-on-content-click="false"
         :nudge-right="40"
-        lazy
         transition="scale-transition"
         offset-y
         full-width
@@ -27,7 +26,6 @@
       <v-menu
         :close-on-content-click="false"
         :nudge-right="40"
-        lazy
         transition="scale-transition"
         offset-y
         full-width
@@ -60,6 +58,11 @@ export default {
     dateFrom: null,
     dateTo: null
   }),
+  computed: {
+    fromAndTo() {
+      return `${this.dateFrom}|${this.dateTo}`;
+    },
+  },
   mounted() {
     this.dateFrom = moment(new Date())
       .add(this.dateFromDelta, "month")
@@ -71,12 +74,9 @@ export default {
       .format("YYYY-MM-DD");
   },
   watch: {
-    dateFrom: function(newVal, oldVal) {
-      this.$emit("date_range_updated");
+    fromAndTo: function(newVal, oldVal) {
+      if (newVal != oldVal) this.$emit("date_range_updated");
     },
-    dateTo: function(newVal, oldVal) {
-      this.$emit("date_range_updated");
-    }
   },
   methods: {
     getFromDate() {

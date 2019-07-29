@@ -1,8 +1,8 @@
 <template>
   <v-flex xs12 sm6 md10>
     <meu-bolso-line
-      :height=300
-      :width=600
+      :height="300"
+      :width="width"
       :chartData="chartData"
       :title=" 'Running Balance'"
       xLabel="Date"
@@ -20,7 +20,15 @@ export default {
   components: {
     meuBolsoLine
   },
-  props: ["allData"],
+  props: {
+    allData: {
+      default: null
+    },
+    width: {
+      type: Number,
+      default: 600
+    }
+  },
   data() {
     return {
       chartData: {}

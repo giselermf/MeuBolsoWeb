@@ -70,9 +70,6 @@ def _getResponse(url, total_records, per_page, page_number, all_entries):
     response['to'] = response['from'] + per_page
     response['data'] = all_entries
     resp = make_response(json.dumps(response))
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    resp.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, PUT, POST, DELETE"
-    resp.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     return resp
 
 @main.route('/getFilterTransactionData/', methods=['GET'])
@@ -208,6 +205,8 @@ def post_transactions():
         else: # update
             print('update', float(request.form.get('Amount',0)))
             existing.update(category_id=category_id, \
+                            description=request.form.get('Description'), \
+                            date = date, \
                             transaction_number=request.form.get('TransactionNumber'), \
                             amount=float(request.form.get('Amount',0) ))
             db.session.commit()
@@ -260,7 +259,6 @@ def post_categories():
 
 @main.route('/categories/<int:id>', methods=['DELETE'])
 def delete_category_id(id):
-    print('in delete categories')
     to_be_deleted = Categorydescription.query.filter_by(id=id).first()
     db.session.delete(to_be_deleted)
     db.session.commit()
@@ -284,9 +282,18 @@ def categories():
 #ESTATE
 @main.route('/estate/', methods=['GET'])
 def getEstate():
+
+    print("1", request.form)
+
+    if request.args.get('Date'):
+        print('here' + request.args.get('Date'))
+        date = pd.to_datetime(request.args.get('Date')).date()
+    else:
+        date = datetime.now()
+
     subq = db.session.query(
         Transaction.BankName,
-        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Transaction.Date <= datetime.now()).\
+        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Transaction.Date <= date).\
         group_by(Transaction.BankName).subquery('t1')
 
     subq2 = db.session.query(Transaction).join(

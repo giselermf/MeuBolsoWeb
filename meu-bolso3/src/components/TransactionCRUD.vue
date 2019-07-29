@@ -1,17 +1,17 @@
 <template>
   <v-card>
     <v-card-title>
-      <span class="headline">New Transaction</span>
+      <span class="headline">{{typeTransaction}} Transaction</span>
     </v-card-title>
     <v-card-text>
       <v-flex>
-        <v-text-field
+        <v-combobox
           v-model="editedItem.BankName"
-          :counter="100"
-          :disabled="true"
-          abel="BankName *"
+          :disabled="false"
+          label="BankName *"
           required
-        ></v-text-field>
+          :items="allActiveAccounts"
+        ></v-combobox>
       </v-flex>
       <v-flex>
         <category-select ref="typecombos"></category-select>
@@ -33,6 +33,7 @@
             v-model="editedItem.Currency"
             :items="['USD', 'EUR']"
             label="Currency *"
+            :disabled="typeTransaction=='Edit'"
             required
           ></v-combobox>
         </v-flex>
@@ -42,7 +43,6 @@
           <v-menu
             :close-on-content-click="false"
             :nudge-right="40"
-            lazy
             transition="scale-transition"
             offset-y
             full-width
@@ -61,10 +61,17 @@
           </v-menu>
         </v-flex>
         <v-flex xs12 md3>
-          <v-text-field v-model="numberOccurrencies" :counter="2" label="Occurrencies *" required></v-text-field>
+          <v-text-field
+            v-if="typeTransaction=='Add'"
+            v-model="numberOccurrencies"
+            :counter="2"
+            label="Occurrencies *"
+            required
+          ></v-text-field>
         </v-flex>
         <v-flex xs12 md6>
           <v-combobox
+            v-if="typeTransaction=='Add'"
             v-model="frequency"
             :items="['Weekly', 'Monthly', 'Quartely', 'Yearly']"
             label="Frequency *"
@@ -76,8 +83,17 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="blue darken-1" flat @click="closeDialog">Cancel</v-btn>
-      <v-btn color="blue darken-1" flat @click="onAddFutureTransactions">Add</v-btn>
+      <v-btn color="blue darken-1" @click="closeDialog">Cancel</v-btn>
+      <v-btn
+        v-if="typeTransaction=='Add'"
+        color="blue darken-1"
+        @click="onAddFutureTransactions"
+      >Add</v-btn>
+      <v-btn
+        v-if="typeTransaction=='Edit'"
+        color="blue darken-1"
+        @click="onSaveTransactions"
+      >Save</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -92,6 +108,7 @@ export default {
     CategorySelect
   },
   props: {
+    typeTransaction: null,
     editedItem: {
       Description: String,
       Category_id: Number,
@@ -119,15 +136,28 @@ export default {
       this.editedItem.Category,
       this.editedItem.SubCategory
     );
+    this.getAllAccounts();
   },
   data() {
     return {
       frequency: "Monthly",
-      numberOccurrencies: 1
+      numberOccurrencies: 1,
+      allActiveAccounts: []
     };
   },
   methods: {
-    postTransactions(transaction_date) {
+    getAllAccounts() {
+      HTTP.get("getAllAccounts/?filter=" + JSON.stringify({ active: true }))
+        .then(response => {
+          this.allActiveAccounts = Object.values(
+            response["data"].data.map(e => e.BankName)
+          );
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    postTransactions(transaction_date, transaction_id) {
       if (
         this.editedItem.BankName &&
         this.editedItem.Amount &&
@@ -136,6 +166,7 @@ export default {
         HTTP.post(
           "transactions/",
           querystring.stringify({
+            transaction_id: transaction_id,
             category_id: this.$refs.typecombos.getSelectedCategoryId(),
             Description: this.editedItem.Description,
             Date: transaction_date,
@@ -143,13 +174,9 @@ export default {
             Amount: this.editedItem.Amount,
             BankName: this.editedItem.BankName
           })
-        )
-          .then(response => {
-            this.getData();
-          })
-          .catch(function(error) {
-            console.log(error);
-          });
+        ).catch(function(error) {
+          console.log(error);
+        });
       } else {
         console.log("no values to save transactions");
       }
@@ -157,11 +184,15 @@ export default {
     closeDialog() {
       this.$emit("close-dialog");
     },
+    onSaveTransactions() {
+      this.postTransactions(this.editedItem.Date, this.editedItem.id);
+      this.closeDialog();
+    },
     onAddFutureTransactions() {
       let transaction_date = this.editedItem.Date;
 
       for (let i = 0; i < this.numberOccurrencies; i++) {
-        this.postTransactions(transaction_date);
+        this.postTransactions(transaction_date, null);
         if (this.frequency == "Monthly") {
           transaction_date = moment(transaction_date)
             .add(1, "months")
@@ -183,7 +214,7 @@ export default {
             .format("YYYY-MM-DD");
         }
       }
-      this.$emit("close-dialog");
+      this.closeDialog();
     }
   }
 };

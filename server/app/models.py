@@ -80,9 +80,11 @@ class Transaction(db.Model):
     def AccountType(self):
         return self.account.Type
 
-    def update(self, category_id, transaction_number, amount):
+    def update(self, category_id, date, description, transaction_number, amount):
         if category_id != None: self.category_id = category_id
         if transaction_number != None: self.TransactionNumber = transaction_number
+        if description != None: self.Description = description
+        if date != None: self.Date = date
         if amount!= None: 
             self.Amount = amount
             self.AmountEUR = c.convert(self.Amount , self.Currency, 'EUR',  date=self.Date)

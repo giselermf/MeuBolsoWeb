@@ -19,8 +19,8 @@
         :headers="tableHeaders"
         :items="tableData"
         class="elevation-1 .theme--light"
-        hide-actions
-        hide-headers
+        hide-default-footer
+        hide-default-header
       >
         <template v-slot:items="props">
           <td class="text-xs-right">{{ props.item.Group }}</td>

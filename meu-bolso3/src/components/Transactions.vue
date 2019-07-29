@@ -2,7 +2,7 @@
   <div>
       <v-layout row wrap>
         <v-flex xs12 sm6 md6>
-          <v-flex>
+          <v-flex xs12 sm6 md6>
             <AccountSelectCombo
               ref="account_combo"
               @new-selected-account="refreshAccount"
@@ -32,7 +32,7 @@
                     ></v-text-field>
                   </v-flex>
                   <v-flex class="px-3">
-                    <v-range-slider v-model="range" :max="max" :min="min"></v-range-slider>
+                    <v-range-slider type="number" v-model="range" :max="max" :min="min"></v-range-slider>
                   </v-flex>
                   <v-flex shrink style="width: 100px">
                     <v-text-field
@@ -67,11 +67,11 @@
           </div>
         </v-flex>
       </v-layout>
-      <transactions-table
-        @refresh-transaction-table-data="getData"
-        v-bind:BankName="selectedAccount"
-        :allData="allData"
-      ></transactions-table>
+    <transactions-table
+      @refresh-transaction-table-data="getData"
+      v-bind:BankName="selectedAccount"
+      :allData="allData"
+    ></transactions-table>
   </div>
 </template>
 
@@ -107,11 +107,11 @@ export default {
   },
   data: () => ({
     allData: [],
-    min: -100000,
-    max: 100000,
+    min: -200000,
+    max: 200000,
     slider: 40,
     range: [-10000, 10000],
-    selectedAccount: null,
+    selectedAccount: null
   }),
   watch: {
     range: function(newVal, oldVal) {
@@ -123,29 +123,24 @@ export default {
       this.selectedAccount = this.$refs.account_combo.getSelectedAccount();
       this.getData();
     },
-    getFilterParams() {
+    getParams() {
       let params = {};
       if (this.selectedAccount && this.selectedAccount.length > 0) {
         params["bankNames"] = this.selectedAccount;
       } else {
         params["accountTypes"] = this.accountTypes;
-      } 
+      }
       params["fromDate"] = this.$refs.date_range.getFromDate();
       params["toDate"] = this.$refs.date_range.getToDate();
       params["fromAmount"] = this.range[0];
       params["toAmount"] = this.range[1];
-      return params;
+      return "?filter=" + JSON.stringify(params);
     },
     getData() {
-      HTTP({
-        method: "get",
-        url:
-          "transactionsFiltered/?sort=BankName|asc&filter=" +
-          JSON.stringify(this.getFilterParams())
-      })
-        .then(response => { 
+      // HTTP.get("transactionsFiltered/?sort=BankName|asc&filter=" +
+      HTTP.get("transactionsFiltered/" + this.getParams())
+        .then(response => {
           this.allData = response["data"]["data"];
-          console.log('main componenent fresh dat',this.getFilterParams(), response["data"].total)
         })
         .catch(function(error) {
           console.log(error);
