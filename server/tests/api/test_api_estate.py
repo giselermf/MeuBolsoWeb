@@ -41,11 +41,12 @@ class Test_TestApiEstate(BasicTest):
 
         self.t_date_2017 = pd.to_datetime('2017-01-01').date()
         self.t_date_2019 = pd.to_datetime('2019-01-01').date()
-        amount = 100
 
         self.category = self.create_category("Expense", "Home", "TV")
         db.session.commit()
 
+    def add_transactions(self):
+        amount = 100
         db.session.add_all([
             Transaction(
                 Description='d', TransactionNumber='n', Currency='EUR', category_id=self.category.id,
@@ -72,6 +73,7 @@ class Test_TestApiEstate(BasicTest):
         db.session.commit()
 
     def test_first_date(self):
+        self.add_transactions()
         self.assertEqual(self.client.get(
             '/updateRunningBalance/').status_code, 200)
 
@@ -84,6 +86,7 @@ class Test_TestApiEstate(BasicTest):
                           'RunningBalance': 100.0, 'Date': '2017-01-01', 'Type': 'Credit Card'}, output[0])
 
     def test_last_date(self):
+        self.add_transactions()
         self.assertEqual(self.client.get(
             '/updateRunningBalance/').status_code, 200)
 
@@ -98,6 +101,38 @@ class Test_TestApiEstate(BasicTest):
                           'RunningBalance': 200.0, 'Date': '2019-01-01', 'Type': 'Credit Card'}, output[1])
         self.assertEqual(
             {'BankName': 'Savings2', 'RunningBalance': 100.0, 'Date': '2019-01-01', 'Type': 'Savings'}, output[2])
+
+    def test_two_transactions_same_day(self):
+        db.session.add_all([
+            Transaction(
+                Description='d', TransactionNumber='n', Currency='EUR', category_id=self.category.id,
+                Amount=100, AmountEUR=100, RunningBalance=0,  PaymentDate=self.t_date_2019,
+                Date=self.t_date_2019, BankName='Credit Card1'),
+            Transaction(
+                Description='d', TransactionNumber='n', Currency='EUR', category_id=self.category.id,
+                Amount=-20, AmountEUR=-20, RunningBalance=0,  PaymentDate=self.t_date_2019,
+                Date=self.t_date_2019, BankName='Credit Card1')])
+        self.assertEqual(self.client.get(
+            '/updateRunningBalance/').status_code, 200)
+
+        # response = self.client.get(
+        #     '/transactionsFiltered/?sort=BankName|asc&filter={"bankNames": ["Credit Card1"]} ')
+
+        # self.assertEqual(response.status_code, 200)
+        # output = json.loads(response.data).get('data')
+        # self.assertEqual(2, len(output))
+        # self.assertEqual({}, output[1])
+
+        response = self.client.get('/estate/?2019-01-01')
+
+        self.assertEqual(response.status_code, 200)
+        output = json.loads(response.data).get('data')
+        self.assertEqual(1, len(output))
+        self.assertEqual({'BankName': 'Credit Card1',
+                          'RunningBalance': 80.0, 'Date': '2019-01-01', 'Type': 'Credit Card'}, output[0])
+
+
+
 
 
 if __name__ == '__main__':

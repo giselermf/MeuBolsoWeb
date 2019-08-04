@@ -289,27 +289,23 @@ def getEstate():
         date = datetime.now()
 
     subq = db.session.query(
-        Transaction.BankName, Account.Type,
-        func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Transaction.Date <= date).\
+        func.max(Transaction.id).label('maxid')).join(Account, Account.BankName == Transaction.BankName).filter(Account.Active==1).filter(Transaction.Date <= date).\
         group_by(Transaction.BankName, Account.Type).subquery('t1')
 
-    subq2 = db.session.query(Transaction).join(Account).join(
+    subq2 = db.session.query(Transaction).join(Account, Account.BankName == Transaction.BankName).join(
         subq,
         and_(
-            Transaction.BankName == subq.c.BankName,
-            Account.Type == subq.c.Type,
-            Transaction.Date == subq.c.maxdate
+            Transaction.id == subq.c.maxid
         )
-    ).with_entities(Transaction.BankName, Account.Type, Transaction.Date, Transaction.RunningBalance).subquery('t2')
+    ).with_entities(Transaction.id, Transaction.BankName, Account.Type, Transaction.Date, Transaction.RunningBalance).subquery('t2')
 
-    query = db.session.query(Transaction).join(Account).join(
+    query = db.session.query(Transaction).join(Account, Account.BankName == Transaction.BankName).join(
         subq2,
         and_(
-            Transaction.BankName == subq2.c.BankName,
-            Account.Type == subq2.c.Type,
-            Transaction.Date == subq2.c.Date
+            Transaction.id == subq2.c.id
         )).group_by(Transaction.BankName).with_entities(Transaction.BankName, Account.Type, Transaction.Date, Transaction.RunningBalance)
-        
+    
+    # import pdb; pdb.set_trace()
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('estate', None, None, None, output)
 
