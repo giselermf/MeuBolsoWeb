@@ -83,15 +83,9 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary"  @click="closeDialog">Cancel</v-btn>
-      <v-btn color="primary" 
-        v-if="typeTransaction=='Add'"
-        @click="onAddFutureTransactions"
-      >Add</v-btn>
-      <v-btn color="primary" 
-        v-if="typeTransaction=='Edit'"
-        @click="onSaveTransactions"
-      >Save</v-btn>
+      <v-btn color="primary" @click="closeDialog">Cancel</v-btn>
+      <v-btn color="primary" v-if="typeTransaction=='Add'" @click="onAddFutureTransactions">Add</v-btn>
+      <v-btn color="primary" v-if="typeTransaction=='Edit'" @click="onSaveTransactions">Save</v-btn>
     </v-card-actions>
   </v-card>
 </template>

@@ -13,10 +13,10 @@
       </v-flex>
 
       <v-flex xs12 sm6 md6>
-        <v-btn color="primary"  v-if="difference>0" class="mx-2" fab >
+        <v-btn color="primary" v-if="difference>0" class="mx-2" fab>
           <v-icon dark>add</v-icon>
         </v-btn>
-        <v-btn color="primary" v-if="difference<=0" lass="mx-2" fab >
+        <v-btn color="primary" v-if="difference<=0" lass="mx-2" fab>
           <v-icon dark>remove</v-icon>
         </v-btn>
         {{this.difference}}
@@ -25,58 +25,48 @@
 
     <v-layout row wrap>
       <v-flex xs12 sm6 md4>
-        <v-card>
-          <v-card-title class="cyan darken-1">
-            <span class="headline white--text">Before</span>
-          </v-card-title>
-          <v-spacer></v-spacer>
+        <v-data-table
+          :headers="estateHeaders"
+          :items="estateDataBefore"
+          class="elevation-1"
+          hide-default-footer
+          group-by="Type"
+        >
+          <template v-slot:header.RunningBalance="{ header }">Previous</template>
+          <template v-slot:items="props">
+            <td class="text-xs-right">{{ props.item.Type }}</td>
+            <td class="text-xs-right">{{ props.item.BankName }}</td>
+            <td class="text-xs-right">{{ props.item.RunningBalance }}</td>
+          </template>
 
-          <v-data-table
-            :headers="estateHeaders"
-            :items="estateDataBefore"
-            class="elevation-1"
-            hide-default-footer
-          >
-            <template v-slot:items="props">
-              <td class="text-xs-right">{{ props.item.BankName }}</td>
-              <td class="text-xs-right">{{ props.item.Date }}</td>
-              <td class="text-xs-right">{{ props.item.RunningBalance }}</td>
-            </template>
-
-            <template v-slot:footer>
-              <td class="text-xs-right font-weight-bold">TOTAL</td>
-              <td class="text-xs-right " ></td>
-              <td class="text-xs-right font-weight-bold">{{grandTotalBefore}}</td>
-            </template>
-          </v-data-table>
-        </v-card>
+          <template v-slot:header color="primary">
+            <td class="text-xs-right font-weight-bold">TOTAL</td>
+            <td class="text-xs-right font-weight-bold">{{grandTotalBefore}}</td>
+          </template>
+        </v-data-table>
       </v-flex>
 
       <v-flex xs12 sm6 md4>
-        <v-card>
-          <v-card-title class="cyan darken-1">
-            <span class="headline white--text">After</span>
-          </v-card-title>
-          <v-spacer></v-spacer>
-          <v-data-table
-            :headers="estateHeaders"
-            :items="estateDataAfter"
-            class="elevation-1"
-            hide-default-footer
-          >
-            <template v-slot:items="props">
-              <td class="text-xs-right ">{{ props.item.BankName }}</td>
-              <td class="text-xs-right">{{ props.item.Date }}</td>
-              <td class="text-xs-right">{{ props.item.RunningBalance }}</td>
-            </template>
+        <v-data-table
+          :headers="estateHeaders"
+          :items="estateDataAfter"
+          class="elevation-1"
+          hide-default-footer
+          group-by="Type"
+        >
+          <template v-slot:header.RunningBalance="{ header }">Current</template>
 
-            <template v-slot:footer>
-              <td class="text-xs-right font-weight-bold">TOTAL</td>
-              <td class="text-xs-right"></td>
-              <td class="text-xs-right font-weight-bold">{{grandTotalAfter}}</td>
-            </template>
-          </v-data-table>
-        </v-card>
+          <template v-slot:items="props">
+            <td class="text-xs-right">{{ props.item.Type }}</td>
+            <td class="text-xs-right">{{ props.item.BankName }}</td>
+            <td class="text-xs-right">{{ props.item.RunningBalance }}</td>
+          </template>
+
+          <template v-slot:header>
+            <td class="text-xs-right font-weight-bold">TOTAL</td>
+            <td class="text-xs-right font-weight-bold">{{grandTotalAfter}}</td>
+          </template>
+        </v-data-table>
       </v-flex>
     </v-layout>
   </div>
@@ -105,8 +95,8 @@ export default {
       estateDataBefore: [],
       estateDataAfter: [],
       estateHeaders: [
+        { value: "Type", text: "Account Type" },
         { value: "BankName", text: "Bank" },
-        { value: "Date", text: "Date" },
         { value: "RunningBalance", text: "Current Balance" }
       ],
       grandTotalBefore: 0,

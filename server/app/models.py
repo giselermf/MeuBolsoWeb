@@ -47,7 +47,7 @@ class Transaction(db.Model):
     BankName= db.Column(db.String(100), db.ForeignKey('account.BankName'), nullable=False)
     account = db.relationship('Account')
     Filename = db.Column(db.String(100))
-    categoryManuallyUpdated = db.Column(db.Boolean, nullable=False)
+    categoryManuallyUpdated = db.Column(db.Boolean, nullable=False, default=False)
 
     @hybrid_property
     def Day(self):

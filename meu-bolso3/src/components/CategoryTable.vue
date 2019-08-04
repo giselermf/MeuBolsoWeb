@@ -1,34 +1,29 @@
 <template>
   <v-div>
-    <v-card>
-    <v-card-title>
-      <v-dialog v-model="dialog" max-width="500px">
-        <template v-slot:activator="{ on }">
-          <v-btn color="primary" v-on="on">New Item</v-btn>
-        </template>
-        <v-card>
-          <v-card-text>
-            <v-container grid-list-md>
-              <category-select ref="typecombos"></category-select>
-              <v-text-field v-model="editedItem.Description" label="Description" required></v-text-field>
-            </v-container>
-          </v-card-text>
+    <v-dialog v-model="dialog" max-width="500px">
+      <template v-slot:activator="{ on }">
+        <v-btn color="primary" v-on="on">New Item</v-btn>
+      </template>
+      <v-card>
+        <v-card-text>
+          <v-container grid-list-md>
+            <category-select ref="typecombos"></category-select>
+            <v-text-field v-model="editedItem.Description" label="Description" required></v-text-field>
+          </v-container>
+        </v-card-text>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="close">Cancel</v-btn>
-            <v-btn color="primary" text @click="add">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-spacer></v-spacer>
-      <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
-    </v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="close">Cancel</v-btn>
+          <v-btn color="primary" text @click="add">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-spacer></v-spacer>
+    <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
 
     <v-data-table :headers="headers" :items="allData" :search="search" dense :items-per-page="20">
-      
       <template v-slot:item.Description="props">
-        
         <v-edit-dialog :return-value.sync="props.item" @close="save(props.item)">
           {{ props.item.Description }}
           <template v-slot:input>
@@ -52,7 +47,6 @@
       {{ snackText }}
       <v-btn color="primary" text @click="snack = false">Close</v-btn>
     </v-snackbar>
-  </v-card>
   </v-div>
 </template>
 

@@ -1,6 +1,13 @@
 <template>
   <v-app>
-    <v-toolbar color="primary"  flat>
+    <v-card
+    color="grey lighten-4"
+    flat
+    height="200px"
+    tile
+  >
+    <v-toolbar color="primary"
+      extended extension-height="80">
       <v-toolbar-title>Meu Bolso</v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -78,6 +85,7 @@
         </v-card>
       </v-tab-item>
     </v-tabs-items>
+    </v-card>
   </v-app>
 </template>
 

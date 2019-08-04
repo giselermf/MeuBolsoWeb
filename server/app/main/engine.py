@@ -283,34 +283,33 @@ def categories():
 @main.route('/estate/', methods=['GET'])
 def getEstate():
 
-    print("1", request.form)
-
     if request.args.get('Date'):
-        print('here' + request.args.get('Date'))
         date = pd.to_datetime(request.args.get('Date')).date()
     else:
         date = datetime.now()
 
     subq = db.session.query(
-        Transaction.BankName,
+        Transaction.BankName, Account.Type,
         func.max(Transaction.Date).label('maxdate')).join(Account).filter(Account.Active==1).filter(Transaction.Date <= date).\
-        group_by(Transaction.BankName).subquery('t1')
+        group_by(Transaction.BankName, Account.Type).subquery('t1')
 
-    subq2 = db.session.query(Transaction).join(
+    subq2 = db.session.query(Transaction).join(Account).join(
         subq,
         and_(
             Transaction.BankName == subq.c.BankName,
+            Account.Type == subq.c.Type,
             Transaction.Date == subq.c.maxdate
         )
-    ).subquery('t2')
+    ).with_entities(Transaction.BankName, Account.Type, Transaction.Date, Transaction.RunningBalance).subquery('t2')
 
-    query = db.session.query(Transaction).join(
+    query = db.session.query(Transaction).join(Account).join(
         subq2,
         and_(
             Transaction.BankName == subq2.c.BankName,
+            Account.Type == subq2.c.Type,
             Transaction.Date == subq2.c.Date
-        )).group_by(Transaction.BankName).with_entities(Transaction.BankName, Transaction.Date, Transaction.RunningBalance)
-
+        )).group_by(Transaction.BankName).with_entities(Transaction.BankName, Account.Type, Transaction.Date, Transaction.RunningBalance)
+        
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('estate', None, None, None, output)
 
@@ -399,7 +398,7 @@ def post_budget():
             db.session.commit()
             return _getResponse('deleted budget', None, None, None, existing.id)
         else: # update
-            existing.update(category_id=category_id, amount=amount, transaction_number = existing.TransactionNumber)
+            existing.update(category_id=category_id, date=date, description='Budget entry', amount=amount, transaction_number = existing.TransactionNumber)
             db.session.commit()
             return _getResponse('update budget', None, None, None, existing.id)
     

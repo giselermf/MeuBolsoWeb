@@ -1,12 +1,14 @@
 <template>
   <div>
     <v-layout row wrap>
+      <v-flex xs12 sm6 md12>
       <date-range
         ref="date_range"
         :dateFromDelta="-6"
         :dateToDelta="0"
         @date_range_updated="getData"
       ></date-range>
+      </v-flex>
       <v-flex xs12 sm6 md6>
         <meu-bolso-bar :height="300" :chartData="barChartData" :title="'Net Over Monhts'"></meu-bolso-bar>
       </v-flex>
