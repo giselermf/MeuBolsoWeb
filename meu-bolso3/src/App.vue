@@ -1,13 +1,13 @@
 <template>
-  <v-card>
-    <v-toolbar :color="cyan" flat>
+  <v-app>
+    <v-toolbar color="primary"  flat>
       <v-toolbar-title>Meu Bolso</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <template v-slot:extension>
+      <template v-slot:extension >
         <v-tabs centered icons-and-text v-model="model">
-          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tabs-slider ></v-tabs-slider>
 
           <v-tab href="#tab-1" :key="1">
             Dashboard
@@ -78,7 +78,7 @@
         </v-card>
       </v-tab-item>
     </v-tabs-items>
-  </v-card>
+  </v-app>
 </template>
 
 <script>

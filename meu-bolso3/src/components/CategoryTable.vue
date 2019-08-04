@@ -1,9 +1,10 @@
 <template>
-  <v-card>
+  <v-div>
+    <v-card>
     <v-card-title>
       <v-dialog v-model="dialog" max-width="500px">
         <template v-slot:activator="{ on }">
-          <v-btn color="primary" dark class="mb-2" v-on="on">New Item</v-btn>
+          <v-btn color="primary" v-on="on">New Item</v-btn>
         </template>
         <v-card>
           <v-card-text>
@@ -15,8 +16,8 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-            <v-btn color="blue darken-1" text @click="add">Save</v-btn>
+            <v-btn color="primary" text @click="close">Cancel</v-btn>
+            <v-btn color="primary" text @click="add">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -49,9 +50,10 @@
 
     <v-snackbar v-model="snack" :timeout="1000" :color="snackColor">
       {{ snackText }}
-      <v-btn text @click="snack = false">Close</v-btn>
+      <v-btn color="primary" text @click="snack = false">Close</v-btn>
     </v-snackbar>
   </v-card>
+  </v-div>
 </template>
 
 

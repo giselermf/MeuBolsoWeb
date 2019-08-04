@@ -13,10 +13,10 @@
       </v-flex>
 
       <v-flex xs12 sm6 md6>
-        <v-btn v-if="difference>0" class="mx-2" fab dark color="cyan">
+        <v-btn color="primary"  v-if="difference>0" class="mx-2" fab >
           <v-icon dark>add</v-icon>
         </v-btn>
-        <v-btn v-if="difference<=0" lass="mx-2" fab dark color="cyan">
+        <v-btn color="primary" v-if="difference<=0" lass="mx-2" fab >
           <v-icon dark>remove</v-icon>
         </v-btn>
         {{this.difference}}

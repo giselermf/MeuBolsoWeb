@@ -83,15 +83,13 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="blue darken-1" @click="closeDialog">Cancel</v-btn>
-      <v-btn
+      <v-btn color="primary"  @click="closeDialog">Cancel</v-btn>
+      <v-btn color="primary" 
         v-if="typeTransaction=='Add'"
-        color="blue darken-1"
         @click="onAddFutureTransactions"
       >Add</v-btn>
-      <v-btn
+      <v-btn color="primary" 
         v-if="typeTransaction=='Edit'"
-        color="blue darken-1"
         @click="onSaveTransactions"
       >Save</v-btn>
     </v-card-actions>

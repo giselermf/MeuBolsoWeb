@@ -1,72 +1,72 @@
 <template>
   <div>
-      <v-layout row wrap>
+    <v-layout row wrap>
+      <v-flex xs12 sm6 md6>
         <v-flex xs12 sm6 md6>
-          <v-flex xs12 sm6 md6>
-            <AccountSelectCombo
-              ref="account_combo"
-              @new-selected-account="refreshAccount"
-              :accountTypes="accountTypes"
-            ></AccountSelectCombo>
+          <AccountSelectCombo
+            ref="account_combo"
+            @new-selected-account="refreshAccount"
+            :accountTypes="accountTypes"
+          ></AccountSelectCombo>
+        </v-flex>
+        <date-range
+          ref="date_range"
+          :dateFromDelta="dateFromDelta"
+          :dateToDelta="dateToDelta"
+          @date_range_updated="getData"
+        ></date-range>
+        <v-layout row wrap>
+          <v-flex xs12 sm6 md3>
+            <v-card-text>Amount range (EUR)</v-card-text>
           </v-flex>
-          <date-range
-            ref="date_range"
-            :dateFromDelta="dateFromDelta"
-            :dateToDelta="dateToDelta"
-            @date_range_updated="getData"
-          ></date-range>
-          <v-layout row wrap>
-            <v-flex xs12 sm6 md3>
-              <v-card-text>Amount range (EUR)</v-card-text>
-            </v-flex>
-            <v-flex xs12 sm6 md8>
-              <v-card-text>
-                <v-layout row>
-                  <v-flex shrink style="width: 100px">
-                    <v-text-field
-                      v-model="range[0]"
-                      class="mt-0"
-                      hide-details
-                      single-line
-                      type="number"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex class="px-3">
-                    <v-range-slider type="number" v-model="range" :max="max" :min="min"></v-range-slider>
-                  </v-flex>
-                  <v-flex shrink style="width: 100px">
-                    <v-text-field
-                      v-model="range[1]"
-                      class="mt-0"
-                      hide-details
-                      single-line
-                      type="number"
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
-              </v-card-text>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex xs12 sm6 md6>
-          <div>
-            <v-tabs color="grey" dark slider-color="yellow">
-              <v-tab v-if="showOverMonth" href="#tab-1">Over Month</v-tab>
-              <v-tab href="#tab-2">Running Balance</v-tab>
-              <v-tab-item v-if="showOverMonth" :value="'tab-1'">
-                <v-card flat>
-                  <over-month-with-table :height="200" :allData="allData"></over-month-with-table>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item :value="'tab-2'">
-                <v-card flat>
-                  <RunningBalanceChart ref="runningBalanceChart" :allData="allData"></RunningBalanceChart>
-                </v-card>
-              </v-tab-item>
-            </v-tabs>
-          </div>
-        </v-flex>
-      </v-layout>
+          <v-flex xs12 sm6 md8>
+            <v-card-text>
+              <v-layout row>
+                <v-flex shrink style="width: 100px">
+                  <v-text-field
+                    v-model="range[0]"
+                    class="mt-0"
+                    hide-details
+                    single-line
+                    type="number"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex class="px-3">
+                  <v-range-slider type="number" v-model="range" :max="max" :min="min"></v-range-slider>
+                </v-flex>
+                <v-flex shrink style="width: 100px">
+                  <v-text-field
+                    v-model="range[1]"
+                    class="mt-0"
+                    hide-details
+                    single-line
+                    type="number"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 sm6 md6>
+        <div>
+          <v-tabs color="primary" >
+            <v-tab v-if="showOverMonth" href="#tab-1">Over Month</v-tab>
+            <v-tab href="#tab-2">Running Balance</v-tab>
+            <v-tab-item v-if="showOverMonth" :value="'tab-1'">
+              <v-card flat>
+                <over-month-with-table :height="200" :allData="allData"></over-month-with-table>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item :value="'tab-2'">
+              <v-card flat>
+                <RunningBalanceChart ref="runningBalanceChart" :allData="allData"></RunningBalanceChart>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </div>
+      </v-flex>
+    </v-layout>
     <transactions-table
       @refresh-transaction-table-data="getData"
       v-bind:BankName="selectedAccount"

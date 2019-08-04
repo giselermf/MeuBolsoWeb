@@ -30,9 +30,9 @@
           </v-flex>
         </v-layout>
         <v-card-actions>
-          <v-btn flat small color="orange" @click="onProcess(true, false)">Keep old</v-btn>
-          <v-btn flat small color="orange" @click="onProcess(false, true)">Keep new</v-btn>
-          <v-btn flat small color="orange" @click="onProcess(true, true)">Keep both</v-btn>
+          <v-btn color="primary"  @click="onProcess(true, false)">Keep old</v-btn>
+          <v-btn  color="primary"  @click="onProcess(false, true)">Keep new</v-btn>
+          <v-btn  color="primary"  @click="onProcess(true, true)">Keep both</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

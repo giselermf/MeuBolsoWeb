@@ -52,6 +52,11 @@ export default {
   mounted() {
     this.getFilterData();
   },
+  watch: {
+    selectedSubCategory: function (val) {
+      this.$emit('selectedCategoryId', this.getSelectedCategoryId());
+    },
+  },
   methods: {
     onChangeType() {
       this.selectedCategory = null;
@@ -120,7 +125,7 @@ export default {
           )
             return this.allData[e].id;
         }
-      }
+      } else return null;
     },
     processData() {
       this.type_data = this.allData.reduce(function(r, a) {
