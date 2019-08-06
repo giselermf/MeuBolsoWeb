@@ -44,7 +44,32 @@
           show-select
           v-model="selected"
           item-key="id"
+          color="primary"
         >
+          <template v-slot:item.BankName="props">
+            <td
+              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+            >{{ props.item.BankName }}</td>
+          </template>
+
+          <template v-slot:item.Type="props">
+            <td
+              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+            >{{ props.item.Type }}</td>
+          </template>
+
+          <template v-slot:item.Category="props">
+            <td
+              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+            >{{ props.item.Category }}</td>
+          </template>
+
+          <template v-slot:item.SubCategory="props">
+            <td
+              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+            >{{ props.item.SubCategory }}</td>
+          </template>
+
           <template v-slot:item.Description="props">
             <v-edit-dialog :return-value.sync="props.item" @close="close(props.item)">
               {{ props.item.Description }}
@@ -185,9 +210,6 @@ export default {
     }
   },
   methods: {
-    isFuture(dataItem) {
-      return dataItem.TransactionNumber === "Future";
-    },
     saveTransaction(
       transaction_id,
       new_amount,

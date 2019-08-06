@@ -2,8 +2,8 @@
   <div>
     <date-range
       ref="date_range"
-      :dateFromDelta="-12"
-      :dateToDelta="0"
+      :dateFromDelta="-3"
+      :dateToDelta="3"
       @date_range_updated="getData"
     ></date-range>
 

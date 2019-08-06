@@ -90,7 +90,11 @@ class Transaction(db.Model):
         if date != None: self.Date = date
         if amount!= None: 
             self.Amount = amount
-            self.AmountEUR = c.convert(self.Amount , self.Currency, 'EUR',  date=self.Date)
+            try:
+                self.AmountEUR = c.convert(self.Amount , self.Currency, 'EUR',  date=self.Date)
+            except Exception as e:
+                self.AmountEUR = self.Amount
+                print('amountEUR remains 0 until real transaction comes')
 
 @event.listens_for(Transaction, 'after_insert')
 def receive_after_insert(mapper, connection, target):
@@ -103,7 +107,11 @@ def receive_after_insert(mapper, connection, target):
 
 @event.listens_for(Transaction, 'before_insert')
 def receive_before_insert(mapper, connect, target):
-    target.AmountEUR  = c.convert(target.Amount, target.Currency, 'EUR',  date=target.Date)
+    try:
+        target.AmountEUR  = c.convert(target.Amount, target.Currency, 'EUR',  date=target.Date)
+    except Exception as e:
+        target.AmountEUR = target.Amount
+        print('amountEUR remains equal to Amount until real transaction comes')
 
 def _get_similar_transaction(id, transactionNumber, bankName, amount, date, description):
     days_in_range= 0
