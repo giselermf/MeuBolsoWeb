@@ -14,7 +14,13 @@
         ></v-combobox>
       </v-flex>
       <v-flex>
-        <category-select ref="typecombos"></category-select>
+        <category-select
+          @selectedCategoryId="onUpdateCategorySelected"
+          :Type="editedItem.Type"
+          :Category="editedItem.Category"
+          :SubCategory="editedItem.SubCategory"
+          ref="typecombos"
+        ></category-select>
       </v-flex>
       <v-flex>
         <v-text-field
@@ -104,6 +110,18 @@ export default {
     editedItem: {
       Description: String,
       Category_id: Number,
+      Type: {
+        type: String,
+        default: ""
+      },
+      Category: {
+        type: String,
+        default: ""
+      },
+      SubCategory: {
+        type: String,
+        default: ""
+      },
       Amount: {
         type: Number,
         default: 0
@@ -122,12 +140,13 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      selectedCategoryId: null
+    };
+  },
   mounted() {
-    this.$refs.typecombos.setValues(
-      this.editedItem.Type,
-      this.editedItem.Category,
-      this.editedItem.SubCategory
-    );
+    console.log('inside crud', this.editedItem)
     this.getAllAccounts();
   },
   data() {
@@ -138,6 +157,9 @@ export default {
     };
   },
   methods: {
+    onUpdateCategorySelected(value) {
+      this.selectedCategoryId = value;
+    },
     getAllAccounts() {
       HTTP.get("getAllAccounts/?filter=" + JSON.stringify({ active: true }))
         .then(response => {
@@ -153,13 +175,13 @@ export default {
       if (
         this.editedItem.BankName &&
         this.editedItem.Amount &&
-        this.$refs.typecombos.getSelectedCategoryId()
+        this.selectedCategoryId
       ) {
         HTTP.post(
           "transactions/",
           querystring.stringify({
             transaction_id: transaction_id,
-            category_id: this.$refs.typecombos.getSelectedCategoryId(),
+            category_id: this.selectedCategoryId,
             Description: this.editedItem.Description,
             Date: transaction_date,
             Currency: this.editedItem.Currency,

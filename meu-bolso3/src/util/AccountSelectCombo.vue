@@ -48,12 +48,9 @@ export default {
     }
   },
   methods: {
-    // selectFirstAccount() {
-    //   this.selectedAccount = this.allActiveAccounts[0];
-    // },
-    // setSelectedAccount(BankName) {
-    //   this.selectedAccount = BankName;
-    // },
+    resetValues() {
+      this.selectedAccount = [];
+    },
     getSelectedAccount() {
       return this.selectedAccount;
     },

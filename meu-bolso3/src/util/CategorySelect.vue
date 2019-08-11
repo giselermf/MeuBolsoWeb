@@ -1,70 +1,62 @@
 <template>
   <div>
-      <v-form>
-          <v-layout>
-            <v-flex xs12 md4>
-              <v-select
-                v-model="selectedType"
-                :items="getTypes()"
-                :rules="[v => !!v || 'Item is required']"
-                label="Type"
-                required
-              ></v-select>
-            </v-flex>
+    <v-form>
+      <v-layout>
+        <v-flex xs12 md4>
+          <v-select v-model="selectedType" :items="getTypes()" label="Type"></v-select>
+        </v-flex>
 
-            <v-flex xs12 md4>
-              <v-select
-                v-model="selectedCategory"
-                :items="getCategories()"
-                :rules="[v => !!v || 'Item is required']"
-                label="Category"
-                required
-              ></v-select>
-            </v-flex>
+        <v-flex xs12 md4>
+          <v-select v-model="selectedCategory" :items="getCategories()" label="Category"></v-select>
+        </v-flex>
 
-            <v-flex xs12 md4>
-              <v-select
-                v-model="selectedSubCategory"
-                :items="getSubCategories()"
-                :rules="[v => !!v || 'Item is required']"
-                label="SubCategory"
-                required
-              ></v-select>
-            </v-flex>
-          </v-layout>
-      </v-form>
+        <v-flex xs12 md4>
+          <v-select v-model="selectedSubCategory" :items="getSubCategories()" label="SubCategory"></v-select>
+        </v-flex>
+      </v-layout>
+    </v-form>
   </div>
 </template>
 <script>
 import { HTTP } from "../util/http-common";
 
 export default {
+  props: {
+    Type: {
+      type: String,
+      default: ""
+    },
+    Category: {
+      type: String,
+      default: ""
+    },
+    SubCategory: {
+      type: String,
+      default: ""
+    }
+  },
   data() {
     return {
       type_data: null,
       category_data: null,
+      allData: null,
       selectedType: null,
       selectedCategory: null,
-      selectedSubCategory: null,
-      allData: null,
+      selectedSubCategory: null
     };
   },
   mounted() {
+    this.selectedType = this.Type;
+    this.selectedCategory = this.Category;
+    this.selectedSubCategory = this.SubCategory;
     this.getFilterData();
   },
   watch: {
-    selectedSubCategory: function (val) {
-      this.$emit('selectedCategoryId', this.getSelectedCategoryId());
-    },
+    selectedSubCategory: function(val) {
+      this.$emit("selectedCategoryId", this.getSelectedCategoryId());
+    }
   },
   methods: {
-    onChangeType() {
-      this.selectedCategory = null;
-      this.selectedSubCategory = null;
-    },
-    onChangeCategory() {
-      this.selectedSubCategory = null;
-    },
     getTypes() {
       if (this.type_data != null) return Object.keys(this.type_data);
     },
@@ -84,23 +76,6 @@ export default {
       this.selectedCategory = null;
       this.selectedSubCategory = null;
     },
-    setValues(type, category, subcategory) {
-      this.selectedType = type;
-      this.selectedCategory = category;
-      this.selectedSubCategory = subcategory;
-    },
-    getSelectedType() {
-      return this.selectedType;
-    },
-    getSelectedCategory() {
-      return this.selectedCategory;
-    },
-    getSelectedSubCategory() {
-      return this.selectedSubCategory;
-    },
-    getSelectedTransferAccount() {
-      return this.$refs.account_combo.getSelectedAccount();
-    },
     getFilterData() {
       HTTP.get("getFilterData/")
         .then(response => {
@@ -113,9 +88,9 @@ export default {
     },
     getSelectedCategoryId() {
       if (
-        this.selectedType != null &&
-        this.selectedCategory != null &&
-        this.selectedSubCategory != null
+        this.selectedType &&
+        this.selectedCategory &&
+        this.selectedSubCategory
       ) {
         for (let e in this.allData) {
           if (

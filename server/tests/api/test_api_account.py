@@ -3,7 +3,7 @@ import json
 from server.app import create_app, db
 from server.app.models import Transaction, Category, Account, PendingReconciliation
 import pandas as pd
-from .basic_test import BasicTest
+from server.tests.basic_test import BasicTest
 from collections import namedtuple
 
 class FlaskAccountTestCase(BasicTest):

@@ -2,7 +2,7 @@ import unittest
 import json
 from server.app import create_app, db
 from server.app.models import Category, Categorydescription
-from .basic_test import BasicTest
+from server.tests.basic_test import BasicTest
 
 class FlaskTransactionTestCase(BasicTest):
     
@@ -88,11 +88,6 @@ class FlaskTransactionTestCase(BasicTest):
         self.assertEqual(len(result.get('data')), 1)
         all_descriptions_for_expenses = list(map(lambda x: x.get('Description'), result.get('data')))
         self.assertListEqual(all_descriptions_for_expenses, ["UN salary"])
-
-# #category: this.$refs.typecombos.getSelectedCategory(),
-#         subcategory: this.$refs.typecombos.getSelectedSubCategory(),
-#         description: this.description,
-#         type: this.$refs.typecombos.getSelectedType()
 
     def test_post_and_delete_CategoryDescription(self):
         #post

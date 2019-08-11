@@ -61,24 +61,27 @@ export default {
   computed: {
     fromAndTo() {
       return `${this.dateFrom}|${this.dateTo}`;
-    },
+    }
   },
   mounted() {
-    this.dateFrom = moment(new Date())
-      .add(this.dateFromDelta, "month")
-      .startOf("month")
-      .format("YYYY-MM-DD");
-    this.dateTo = moment(new Date())
-      .add(this.dateToDelta, "month")
-      .endOf("month")
-      .format("YYYY-MM-DD");
+    this.resetValues();
   },
   watch: {
     fromAndTo: function(newVal, oldVal) {
       if (newVal != oldVal) this.$emit("date_range_updated");
-    },
+    }
   },
   methods: {
+    resetValues() {
+      this.dateFrom = moment(new Date())
+        .add(this.dateFromDelta, "month")
+        .startOf("month")
+        .format("YYYY-MM-DD");
+      this.dateTo = moment(new Date())
+        .add(this.dateToDelta, "month")
+        .endOf("month")
+        .format("YYYY-MM-DD");
+    },
     getFromDate() {
       return this.dateFrom;
     },

@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <v-card-title>
-        <v-dialog v-if="this.editedItem.BankName" v-model="dialog" max-width="700px">
+        <v-dialog v-model="dialog" max-width="700px">
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" color="primary">New Transaction</v-btn>
           </template>
@@ -12,7 +12,10 @@
             @close-dialog="closeDialog"
           ></transactionCRUD>
         </v-dialog>
-
+        <v-divider
+          class="mx-4"
+          vertical
+        ></v-divider>
         <v-dialog v-if="this.selected.length > 0" v-model="dialogCategory" max-width="700px">
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" color="primary">Update Category</v-btn>
@@ -22,7 +25,13 @@
               <span class="headline">{{typeTransaction}} Transaction</span>
             </v-card-title>
             <v-card-text>
-              <category-select @selectedCategoryId="onUpdateCategorySelected" ref="typecombos"></category-select>
+              <category-select
+                :Type="selected[0].Type"
+                :Category="selected[0].Category"
+                :SubCategory="selected[0].SubCategory"
+                @selectedCategoryId="onUpdateCategorySelected"
+                ref="typecombos"
+              ></category-select>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -31,16 +40,12 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-
-        <v-spacer></v-spacer>
-        <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
       </v-card-title>
       <v-card>
         <v-data-table
           :headers="headers"
           :items="allData"
-          :search="search"
-          :itemsPerPage="10"
+          :itemsPerPage="30"
           show-select
           v-model="selected"
           item-key="id"
@@ -48,25 +53,25 @@
         >
           <template v-slot:item.BankName="props">
             <td
-              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+              v-bind:class="{'futuretransaction':(props.item.Filename == null)}"
             >{{ props.item.BankName }}</td>
           </template>
 
           <template v-slot:item.Type="props">
             <td
-              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+              v-bind:class="{'futuretransaction':(props.item.Filename == null)}"
             >{{ props.item.Type }}</td>
           </template>
 
           <template v-slot:item.Category="props">
             <td
-              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+              v-bind:class="{'futuretransaction':(props.item.Filename == null)}"
             >{{ props.item.Category }}</td>
           </template>
 
           <template v-slot:item.SubCategory="props">
             <td
-              v-bind:class="{'futuretransaction':(props.item.TransactionNumber == null)}"
+              v-bind:class="{'futuretransaction':(props.item.Filename == null)}"
             >{{ props.item.SubCategory }}</td>
           </template>
 
@@ -118,13 +123,6 @@
             <v-icon small @click="onDelete(item)">delete</v-icon>
           </template>
         </v-data-table>
-        <template v-slot:no-results>
-          <v-alert
-            :value="true"
-            color="error"
-            icon="warning"
-          >Your search for "{{ search }}" found no results.</v-alert>
-        </template>
         <v-snackbar v-model="snack" :timeout="1000" :color="snackColor">
           {{ snackText }}
           <v-btn color="primary" flat @click="snack = false">Close</v-btn>
@@ -158,7 +156,6 @@ export default {
       dialogCategory: false,
       selectedCategoryId: null,
       typeTransaction: "Add",
-      search: "",
       snack: false,
       snackColor: "",
       snackText: "",
@@ -167,6 +164,9 @@ export default {
       max25chars: v => v.length <= 25 || "Input too long!",
       editedItem: {
         id: null,
+        Type: null,
+        Category: null,
+        SubCategory: null,
         Description: null,
         Category_id: null,
         Currency: null,
@@ -205,11 +205,15 @@ export default {
   watch: {
     BankName: {
       handler(newData, oldData) {
-        this.editedItem.BankName = this.BankName[0];
+        if (this.BankName && this.BankName.length > 0)
+          this.editedItem.BankName = this.BankName[0];
       }
     }
   },
   methods: {
+    onUpdateCategorySelected(value) {
+      this.selectedCategoryId = value;
+    },
     saveTransaction(
       transaction_id,
       new_amount,
@@ -258,15 +262,15 @@ export default {
         item.Description,
         item.category_id
       );
-    },
-    onUpdateCategorySelected(value) {
-      this.selectedCategoryId = value;
+      this.dialog = false;
     },
     updateCategory() {
+      console.log("update catgegory", this.selectedCategoryId);
       if (this.selectedCategoryId) {
         //don't update if selected is null
         for (let index = 0; index < this.selected.length; ++index) {
           let e = this.selected[index];
+          console.log("update", e);
           if (e.category_id != this.selectedCategoryId) {
             this.saveTransaction(
               e.id,
@@ -291,6 +295,7 @@ export default {
     },
     editTransaction(item) {
       this.editedItem = Object.assign({}, item);
+      console.log('editedItem', this.editedItem)
       this.dialog = true;
       this.typeTransaction = "Edit";
     },

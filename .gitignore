@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 test/unit/coverage
+server/coverage
 
 # Editor directories and files
 .idea
@@ -17,3 +18,4 @@ server/.pytest_cache/v/cache/lastfailed
 server/.pytest_cache/v/cache/nodeids
 server/.pytest_cache/v/cache/stepwise
 server/app/__pycache__/models.cpython-36.pyc
+

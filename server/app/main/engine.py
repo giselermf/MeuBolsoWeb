@@ -30,13 +30,16 @@ def _getSortClause(query, sort, sort_order):
             return query.order_by(sort)
     return query
 
-def _getFilterByCategory(query, category_type=None, category=None, subcategory=None,):
-    if category_type:
-        query = query.filter( Category.Type == category_type )
-    if category:
-        query = query.filter( Category.Category == category )
-    if subcategory:
-        query = query.filter( Category.SubCategory == subcategory )
+def _getFilterByCategory(query, category_type=None, category=None, subcategory=None, category_id=None):
+    if category_id:
+        query = query.filter( Transaction.category_id == category_id)
+    else:
+        if category_type:
+            query = query.filter( Category.Type == category_type )
+        if category:
+            query = query.filter( Category.Category == category )
+        if subcategory:
+            query = query.filter( Category.SubCategory == subcategory )
     return query
 
 def _getParams(request): 
@@ -108,10 +111,10 @@ def get_transaction_query(sort, sort_order,
                                     category_type=None, category=None, subcategory=None,
                                     bankNames=None, fromDate=None, toDate=None, 
                                     fromAmount=None, toAmount=None, description=None, 
-                                    accountTypes=None, exclude_budget=True):
+                                    accountTypes=None, category_id=None, exclude_budget=True):
     query = Transaction.query.join(Category).join(Account)
     query = _getSortClause(query, sort, sort_order)
-    query = _getFilterByCategory(query, category_type, category, subcategory)
+    query = _getFilterByCategory(query, category_type, category, subcategory, category_id)
     
     if bankNames != None:
         query = query.filter( Transaction.BankName.in_(tuple(bankNames)) )
@@ -147,7 +150,7 @@ def transactionsFiltered():
             category_type=filter_param.get('type'), category=filter_param.get('category'), subcategory=filter_param.get('subcategory'),
             bankNames=filter_param.get('bankNames'), fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'), 
             fromAmount=filter_param.get('fromAmount'), toAmount=filter_param.get('toAmount'), description=filter_param.get('Description'),
-            accountTypes=filter_param.get("accountTypes"), exclude_budget=True )
+            accountTypes=filter_param.get("accountTypes"), category_id=filter_param.get("category_id") )
         total = len(query.all())
         query = _getLimitClause(query, page_number, per_page)
         
@@ -253,6 +256,7 @@ def post_categories():
         return _getResponse('category new', None, None, None, new.id)
     else:
         to_update = Categorydescription.query.filter_by(id=category_description_id).first()
+        to_update.category_id=category_id
         to_update.Description = category_description
         db.session.commit()
         return _getResponse('category updated', None, None, None, category_id)
@@ -309,94 +313,6 @@ def getEstate():
     output =  TransactionsSchema(many=True).dump(query.all()).data
     return _getResponse('estate', None, None, None, output)
 
-# BUDGET
-
-
-@main.route('/copyBudget/', methods=['POST'])
-def copyBudget():
-    month = str(request.form['Month']).zfill(2) 
-    year = request.form['Year']
-    
-    current_month = pd.to_datetime(year+"-"+month+"-01").date()
-    previous_month = (current_month + pd.DateOffset(months=-1)).date()
-
-    all_budget_from_previous_month = Transaction.query.filter(Transaction.BankName == 'Budget').\
-        filter(Transaction.Date == previous_month).all()
-    for b in all_budget_from_previous_month:
-        exist = Transaction.query.filter(Transaction.BankName == 'Budget').\
-            filter(Transaction.category_id == b.category_id).\
-            filter(Transaction.Date == current_month).first()
-        if exist:
-            exist.AmountEUR = b.AmountEUR
-            exist.Amount = b.Amount
-        else:
-            db.session.expunge(b)
-            make_transient(b)
-            b.PaymentDate = current_month
-            b.Date = current_month
-            b.id = None
-            db.session.add(b)
-    db.session.commit()
-    return _getResponse('copyBudget', None, None, None, None)
-
-@main.route('/budget/', methods=['GET'])
-def getBudget():
-    filter_param = request.args.get('filter')
-    if filter_param is not None:
-        filter_param = json.loads(filter_param)
-    budget_query = get_transaction_query( sort='Date', sort_order='desc', 
-            bankName='Budget', fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'))
-    actuals_query = get_transaction_query( sort='Date', sort_order='desc', 
-            fromDate=filter_param.get('fromDate'), toDate=filter_param.get('toDate'))
-
-    q2 = actuals_query.with_entities(
-        extract('month', Transaction.Date).label('Month'), extract('year', Transaction.Date).label('Year'), 
-        Category.id.label('category_id'), Category.Type, Category.Category, Category.SubCategory, func.sum(Transaction.AmountEUR).label('Actuals')).\
-        group_by(extract('month', Transaction.Date), extract('year', Transaction.Date), Category.id, Category.Type, Category.Category, Category.SubCategory).\
-        subquery('actuals')
-        
-    final_query = budget_query.outerjoin(
-            q2,
-            and_(
-                extract('month', Transaction.Date) == q2.c.Month,
-                extract('year', Transaction.Date)== q2.c.Year,
-                Transaction.category_id == q2.c.category_id
-            )).with_entities(
-        Transaction.id,
-        extract('day', Transaction.Date).label('Day'), extract('month', Transaction.Date).label('Month'), extract('year', Transaction.Date).label('Year'),
-        Transaction.AmountEUR.label('Amount'), Category.id.label('category_id'), 
-        Category.Type.label('Type'), Category.Category.label('Category'), Category.SubCategory.label('SubCategory'), q2.c.Actuals.label('Actuals')
-    )
-    
-    output =  BudgetSchema(many=True).dump(final_query.all()).data
-    return _getResponse('Budget', None, None, 1, output)
-
-@main.route('/budget/', methods=['POST'])
-def post_budget():
-    transaction_id=request.form.get('id', '')
-    category_id=request.form.get('CategoryId')
-    amount=float(request.form.get('Amount',0))
-    date = pd.to_datetime(request.form.get('Date')).date()
-    if transaction_id is '' :     
-        new = Transaction(
-            Description='Budget entry', TransactionNumber='number', Currency='EUR', \
-            Amount=amount, AmountEUR=amount, RunningBalance=0, \
-            Date=date, category_id=category_id, BankName = 'Budget', PaymentDate=date)
-        db.session.add(new)
-        db.session.commit()
-        update_running_balance(new.BankName)
-        return _getResponse('insert budget', None, None, None, new.id)
-    else:
-        existing = Transaction.query.get(transaction_id)
-        if amount == 0: #delete
-            print('*** delete', existing.id)
-            db.session.delete(existing)
-            db.session.commit()
-            return _getResponse('deleted budget', None, None, None, existing.id)
-        else: # update
-            existing.update(category_id=category_id, date=date, description='Budget entry', amount=amount, transaction_number = existing.TransactionNumber)
-            db.session.commit()
-            return _getResponse('update budget', None, None, None, existing.id)
     
 @main.route('/processData/', methods=['POST'])
 def process_data():
@@ -417,11 +333,11 @@ def udpate_runnning_balance():
     finally:
         db.session.close()
 
-@main.route('/updateCategories/', methods=['GET'])
+@main.route('/updateCategories/', methods=['POST'])
 def udpate_categories():
     try:
         categories = Categories()
-        transactions = Transaction.query.all()
+        transactions = Transaction.query.filter(Transaction.categoryManuallyUpdated == 0).all()
         for t in transactions:
             if t.category_id != categories.get_category(t.Description):
                 t.category_id = categories.get_category(t.Description)

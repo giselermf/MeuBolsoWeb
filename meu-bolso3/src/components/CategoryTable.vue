@@ -1,13 +1,14 @@
 <template>
-  <v-div>
-    <v-dialog v-model="dialog" max-width="500px">
-      <template v-slot:activator="{ on }">
-        <v-btn color="primary" v-on="on">New Item</v-btn>
-      </template>
+  <div>
+    <v-btn color="primary" @click="recategorize">Recategorize</v-btn>
+    <v-divider class="mx-4" inset vertical></v-divider>
+    <v-btn color="primary" @click="newItem">New Item</v-btn>
+
+    <v-dialog v-model="dialogCR" max-width="500px">
       <v-card>
         <v-card-text>
           <v-container grid-list-md>
-            <category-select ref="typecombos"></category-select>
+            <category-select :editedItem="editedItem.category" ref="typecombos"></category-select>
             <v-text-field v-model="editedItem.Description" label="Description" required></v-text-field>
           </v-container>
         </v-card-text>
@@ -39,6 +40,7 @@
       </template>
 
       <template v-slot:item.action="{ item }">
+        <v-icon small @click="updateCategory(item)">edit</v-icon>
         <v-icon small @click="deleteItem(item)">delete</v-icon>
       </template>
     </v-data-table>
@@ -47,7 +49,7 @@
       {{ snackText }}
       <v-btn color="primary" text @click="snack = false">Close</v-btn>
     </v-snackbar>
-  </v-div>
+  </div>
 </template>
 
 
@@ -69,11 +71,14 @@ export default {
       max25chars: v => v.length <= 25 || "Input too long!",
       pagination: {},
       allData: [],
-      dialog: false,
+      dialogCR: false,
       editedItem: {
-        Type: "",
-        Category: "",
-        Subcategory: "",
+        id: null,
+        category: {
+          Type: "",
+          Category: "",
+          Subcategory: ""
+        },
         Description: ""
       },
       headers: [
@@ -89,6 +94,37 @@ export default {
     this.getData();
   },
   methods: {
+    recategorize() {
+      HTTP.post("updateCategories/", {})
+        .then(response => {
+          console.log("recategorize");
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    newItem() {
+      this.editedItem = {
+        id: null,
+        category: {
+          Type: "",
+          Category: "",
+          Subcategory: ""
+        },
+        Description: ""
+      };
+      this.dialogCR = true;
+    },
+    updateCategory(item) {
+      console.log("here", item);
+      this.editedItem = item;
+      // this.editedItem = item;
+      // this.editedItem.Category = item.Category;
+      // this.editedItem.Subcategory = item.Subcategory;
+      // this.editedItem.Description = item.Description;
+      // this.$refs.typecombos.setValues(item.Type, item.Category, item.Subcategory)
+      this.dialogCR = true;
+    },
     getData() {
       console.log("get data");
       HTTP.get("/categories/")
@@ -118,6 +154,8 @@ export default {
         });
     },
     add() {
+      console.log(this.allData);
+      console.log("post", this.editedItem);
       if (
         this.editedItem.Description != undefined &&
         this.$refs.typecombos.getSelectedCategoryId() != undefined
@@ -126,22 +164,22 @@ export default {
         this.snackColor = "success";
         this.snackText = "Data added";
         this.postCategory(
-          null,
+          this.editedItem.id,
           this.$refs.typecombos.getSelectedCategoryId(),
           this.editedItem.Description
         );
       }
-      this.dialog = false;
+      this.dialogCR = false;
     },
     save(item) {
       this.snack = true;
       this.snackColor = "success";
       this.snackText = "Data saved";
-      this.dialog = false;
+      this.dialogCR = false;
       this.postCategory(item.id, item.category.id, item.Description);
     },
     close() {
-      this.dialog = false;
+      this.dialogCR = false;
     },
     deleteItem(data) {
       HTTP.delete("categories/" + data.id, querystring.stringify())
